@@ -54,10 +54,19 @@ export async function initializeDatabase() {
     // Insert default positions if they don't exist
     const positions = await dbAll('SELECT * FROM positions');
     if (positions.length === 0) {
-      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-1', 'Limpieza']);
-      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-2', 'Mantenimiento']);
-      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-3', 'Seguridad']);
-      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-4', 'Administración']);
+      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-1', 'San Matias']);
+      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-2', 'Alconera']);
+      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-3', 'Moraleja']);
+      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-4', 'Nava I']);
+      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-5', 'Nava II']);
+    } else {
+      // Clear existing positions and insert new ones
+      await dbRun('DELETE FROM positions');
+      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-1', 'San Matias']);
+      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-2', 'Alconera']);
+      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-3', 'Moraleja']);
+      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-4', 'Nava I']);
+      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-5', 'Nava II']);
     }
 
     // Insert default admin user if it doesn't exist

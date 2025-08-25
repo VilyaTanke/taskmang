@@ -117,7 +117,7 @@ export default function CreateEmployeeModal({ positions, onClose, onEmployeeCrea
                 required
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="input"
                 placeholder="Nombre del empleado"
               />
             </div>
@@ -132,7 +132,7 @@ export default function CreateEmployeeModal({ positions, onClose, onEmployeeCrea
                 required
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="input"
                 placeholder="correo@ejemplo.com"
               />
             </div>
@@ -147,7 +147,7 @@ export default function CreateEmployeeModal({ positions, onClose, onEmployeeCrea
                 required
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="input"
                 placeholder="Mínimo 6 caracteres"
               />
             </div>
@@ -162,7 +162,7 @@ export default function CreateEmployeeModal({ positions, onClose, onEmployeeCrea
                 required
                 value={formData.confirmPassword}
                 onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="input"
                 placeholder="Repite la contraseña"
               />
             </div>
@@ -176,7 +176,7 @@ export default function CreateEmployeeModal({ positions, onClose, onEmployeeCrea
                 required
                 value={formData.role}
                 onChange={(e) => handleInputChange('role', e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="input"
               >
                 <option value="">Seleccionar rol</option>
                 <option value={Role.EMPLOYEE}>{getRoleLabel(Role.EMPLOYEE)}</option>
@@ -187,16 +187,16 @@ export default function CreateEmployeeModal({ positions, onClose, onEmployeeCrea
 
             <div>
               <label htmlFor="position" className="block text-sm font-medium text-gray-700 mb-1">
-                Posición/Cargo *
+                Estación *
               </label>
               <select
                 id="position"
                 required
                 value={formData.positionId}
                 onChange={(e) => handleInputChange('positionId', e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="input"
               >
-                <option value="">Seleccionar posición</option>
+                <option value="">Seleccionar Estación</option>
                 {positions.map(position => (
                   <option key={position.id} value={position.id}>
                     {position.name}
