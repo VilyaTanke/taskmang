@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createUser, getAllPositions, getUsersByPosition } from '@/lib/database';
+import { createUser, getAllPositions, getAllUsers } from '@/lib/database';
 import { verifyToken, hashPassword } from '@/lib/auth';
 import { Role } from '@/types';
-import { initializeDatabase } from '@/lib/database';
 
 // Middleware to verify authentication
 function getAuthUser(request: NextRequest) {
@@ -17,7 +16,6 @@ function getAuthUser(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    await initializeDatabase();
     
     const user = getAuthUser(request);
     if (!user) {
@@ -36,11 +34,7 @@ export async function GET(request: NextRequest) {
     }
 
     const positions = await getAllPositions();
-    
-    // Get all users from all positions
-    const allUsers = await Promise.all(
-      positions.map(position => getUsersByPosition(position.id))
-    ).then(users => users.flat());
+    const allUsers = await getAllUsers();
     
     return NextResponse.json({
       users: allUsers,
@@ -57,7 +51,6 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    await initializeDatabase();
     
     const user = getAuthUser(request);
     if (!user) {

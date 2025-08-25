@@ -20,7 +20,7 @@ export async function PATCH(
     }
 
     const { user } = authResult;
-    if (user.role !== Role.ADMIN) {
+    if (!user || user.role !== Role.ADMIN) {
       return NextResponse.json(
         { error: 'Forbidden: Admin access required' },
         { status: 403 }

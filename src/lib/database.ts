@@ -59,14 +59,30 @@ export async function initializeDatabase() {
       await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-3', 'Moraleja']);
       await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-4', 'Nava I']);
       await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-5', 'Nava II']);
+      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-6', 'Todas']);
     } else {
-      // Clear existing positions and insert new ones
-      await dbRun('DELETE FROM positions');
-      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-1', 'San Matias']);
-      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-2', 'Alconera']);
-      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-3', 'Moraleja']);
-      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-4', 'Nava I']);
-      await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', ['pos-5', 'Nava II']);
+      // Update existing positions to match the new structure
+      const expectedPositions = [
+        { id: 'pos-1', name: 'San Matias' },
+        { id: 'pos-2', name: 'Alconera' },
+        { id: 'pos-3', name: 'Moraleja' },
+        { id: 'pos-4', name: 'Nava I' },
+        { id: 'pos-5', name: 'Nava II' },
+        { id: 'pos-6', name: 'Todas' },
+      ];
+
+      for (const pos of expectedPositions) {
+        const existingPos = await dbGet('SELECT * FROM positions WHERE id = ?', [pos.id]);
+        if (existingPos) {
+          // Update existing position name if different
+          if (existingPos.name !== pos.name) {
+            await dbRun('UPDATE positions SET name = ? WHERE id = ?', [pos.name, pos.id]);
+          }
+        } else {
+          // Insert new position
+          await dbRun('INSERT INTO positions (id, name) VALUES (?, ?)', [pos.id, pos.name]);
+        }
+      }
     }
 
     // Insert default admin user if it doesn't exist
@@ -146,6 +162,10 @@ export async function updateUser(id: string, updates: Partial<User>): Promise<Us
 
 export async function getUsersByPosition(positionId: string): Promise<User[]> {
   return await dbAll('SELECT * FROM users WHERE positionId = ?', [positionId]);
+}
+
+export async function getAllUsers(): Promise<User[]> {
+  return await dbAll('SELECT * FROM users');
 }
 
 // Position operations

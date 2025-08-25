@@ -23,6 +23,8 @@ export default function EmployeeList({ token }: EmployeeListProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [editingEmployee, setEditingEmployee] = useState<User | null>(null);
+  const [positionFilter, setPositionFilter] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
 
   useEffect(() => {
     if (token) {
@@ -96,6 +98,20 @@ export default function EmployeeList({ token }: EmployeeListProps) {
     setEditingEmployee(null);
   };
 
+  const filteredEmployees = employees.filter(employee => {
+    // Filter by position
+    if (positionFilter && employee.positionId !== positionFilter) {
+      return false;
+    }
+    
+    // Filter by role
+    if (roleFilter && employee.role !== roleFilter) {
+      return false;
+    }
+    
+    return true;
+  });
+
   if (isLoading) {
     return (
       <div className="bg-white shadow rounded-lg">
@@ -116,6 +132,75 @@ export default function EmployeeList({ token }: EmployeeListProps) {
       <div className="px-6 py-4 border-b border-gray-200">
         <h3 className="text-lg font-medium text-gray-900">Lista de Empleados</h3>
       </div>
+
+      {/* Employee Filters */}
+      <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Position Filter */}
+          <div>
+            <label htmlFor="employee-position-filter" className="block text-sm font-medium text-gray-700 mb-1">
+              Filtrar por posición
+            </label>
+            <select
+              id="employee-position-filter"
+              value={positionFilter}
+              onChange={(e) => setPositionFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="">Todas las posiciones</option>
+              {positions.map((position) => (
+                <option key={position.id} value={position.id}>
+                  {position.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Role Filter */}
+          <div>
+            <label htmlFor="employee-role-filter" className="block text-sm font-medium text-gray-700 mb-1">
+              Filtrar por rol
+            </label>
+            <select
+              id="employee-role-filter"
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="">Todos los roles</option>
+              <option value={Role.ADMIN}>Administrador</option>
+              <option value={Role.SUPERVISOR}>Supervisor</option>
+              <option value={Role.EMPLOYEE}>Empleado</option>
+            </select>
+          </div>
+
+          {/* Clear Filters Button */}
+          <div className="flex items-end">
+            {(positionFilter || roleFilter) && (
+              <button
+                onClick={() => {
+                  setPositionFilter('');
+                  setRoleFilter('');
+                }}
+                className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Limpiar filtros
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Filter Status */}
+        {(positionFilter || roleFilter) && (
+          <div className="mt-3 flex items-center justify-between">
+            <span className="text-sm text-gray-600">
+              Mostrando {filteredEmployees.length} de {employees.length} empleados
+              {positionFilter && ` • Posición: ${getPositionName(positionFilter)}`}
+              {roleFilter && ` • Rol: ${getRoleLabel(roleFilter as Role)}`}
+            </span>
+          </div>
+        )}
+      </div>
       
       <div className="px-6 py-4">
         {error && (
@@ -133,9 +218,9 @@ export default function EmployeeList({ token }: EmployeeListProps) {
           </div>
         )}
 
-        {employees.length === 0 ? (
+        {filteredEmployees.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            No hay empleados registrados
+            {(positionFilter || roleFilter) ? 'No hay empleados que coincidan con los filtros aplicados' : 'No hay empleados registrados'}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -160,7 +245,7 @@ export default function EmployeeList({ token }: EmployeeListProps) {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {employees.map((employee) => (
+                {filteredEmployees.map((employee) => (
                   <tr key={employee.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">

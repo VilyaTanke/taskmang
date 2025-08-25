@@ -27,6 +27,8 @@ export default function SelectEmployeeModal({
   const [positions, setPositions] = useState<Position[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [positionFilter, setPositionFilter] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
 
   useEffect(() => {
     if (token) {
@@ -96,6 +98,20 @@ export default function SelectEmployeeModal({
     onClose();
   };
 
+  const filteredEmployees = employees.filter(employee => {
+    // Filter by position
+    if (positionFilter && employee.positionId !== positionFilter) {
+      return false;
+    }
+    
+    // Filter by role
+    if (roleFilter && employee.role !== roleFilter) {
+      return false;
+    }
+    
+    return true;
+  });
+
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
@@ -132,9 +148,99 @@ export default function SelectEmployeeModal({
             </div>
           )}
 
-          {employees.length === 0 ? (
+          {/* Position Filter */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="position-filter" className="block text-sm font-medium text-gray-700">
+                Filtrar por posición
+              </label>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-500">
+                  {filteredEmployees.length} de {employees.length} empleados
+                </span>
+                {positionFilter && (
+                  <button
+                    onClick={() => setPositionFilter('')}
+                    className="text-xs text-indigo-600 hover:text-indigo-800 underline"
+                  >
+                    Limpiar filtro
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="flex space-x-2">
+              <select
+                id="position-filter"
+                value={positionFilter}
+                onChange={(e) => setPositionFilter(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="">Todas las posiciones</option>
+                {positions.map((position) => (
+                  <option key={position.id} value={position.id}>
+                    {position.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {positionFilter && (
+              <div className="mt-2 text-sm text-gray-600">
+                Mostrando empleados de: <span className="font-medium">{getPositionName(positionFilter)}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Role Filter */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="role-filter" className="block text-sm font-medium text-gray-700">
+                Filtrar por rol
+              </label>
+              {roleFilter && (
+                <button
+                  onClick={() => setRoleFilter('')}
+                  className="text-xs text-indigo-600 hover:text-indigo-800 underline"
+                >
+                  Limpiar filtro
+                </button>
+              )}
+            </div>
+            <select
+              id="role-filter"
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="">Todos los roles</option>
+              <option value={Role.ADMIN}>Administrador</option>
+              <option value={Role.SUPERVISOR}>Supervisor</option>
+              <option value={Role.EMPLOYEE}>Empleado</option>
+            </select>
+            {roleFilter && (
+              <div className="mt-2 text-sm text-gray-600">
+                Mostrando empleados con rol: <span className="font-medium">{getRoleLabel(roleFilter as Role)}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Clear All Filters Button */}
+          {(positionFilter || roleFilter) && (
+            <div className="mb-4 flex justify-center">
+              <button
+                onClick={() => {
+                  setPositionFilter('');
+                  setRoleFilter('');
+                }}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Limpiar todos los filtros
+              </button>
+            </div>
+          )}
+
+          {filteredEmployees.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              No hay empleados registrados
+              {(positionFilter || roleFilter) ? `No hay empleados que coincidan con los filtros aplicados` : 'No hay empleados registrados'}
             </div>
           ) : (
             <div className="overflow-x-auto max-h-96">
@@ -159,7 +265,7 @@ export default function SelectEmployeeModal({
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {employees.map((employee) => (
+                  {filteredEmployees.map((employee) => (
                     <tr key={employee.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">

@@ -36,7 +36,7 @@ Un sistema completo de gestión de tareas con autenticación, roles de usuario, 
    - Top 3 empleados destacados
 
 6. **Organización por Puestos**
-   - Posiciones predefinidas (San Matias, Alconera, Moraleja, Nava I, Nava II)
+   - Posiciones predefinidas (San Matias, Alconera, Moraleja, Nava I, Nava II, Todas)
    - Usuarios filtrados por posición
    - Tareas asociadas a posiciones
 
