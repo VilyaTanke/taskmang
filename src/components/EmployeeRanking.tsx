@@ -85,7 +85,7 @@ export default function EmployeeRanking({ token }: EmployeeRankingProps) {
               id="period"
               value={period}
               onChange={(e) => setPeriod(e.target.value as 'day' | 'week' | 'month')}
-              className="block px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="input"
             >
               <option value="day">Hoy</option>
               <option value="week">Esta Semana</option>

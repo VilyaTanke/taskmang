@@ -109,7 +109,7 @@ export default function EditEmployeeModal({
                 id="name"
                 name="name"
                 disabled
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-500 cursor-not-allowed"
+                className="input"
                 value={employee.name}
               />
             </div>
@@ -123,7 +123,7 @@ export default function EditEmployeeModal({
                 id="email"
                 name="email"
                 disabled
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-500 cursor-not-allowed"
+                className="input"
                 value={employee.email}
               />
             </div>
@@ -136,7 +136,7 @@ export default function EditEmployeeModal({
                 id="role"
                 name="role"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="input"
                 value={formData.role}
                 onChange={handleChange}
               >
@@ -154,7 +154,7 @@ export default function EditEmployeeModal({
                 id="positionId"
                 name="positionId"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="input"
                 value={formData.positionId}
                 onChange={handleChange}
               >

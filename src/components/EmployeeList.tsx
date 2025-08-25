@@ -145,7 +145,7 @@ export default function EmployeeList({ token }: EmployeeListProps) {
               id="employee-position-filter"
               value={positionFilter}
               onChange={(e) => setPositionFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="input"
             >
               <option value="">Todas las posiciones</option>
               {positions.map((position) => (
@@ -165,7 +165,7 @@ export default function EmployeeList({ token }: EmployeeListProps) {
               id="employee-role-filter"
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="input"
             >
               <option value="">Todos los roles</option>
               <option value={Role.ADMIN}>Administrador</option>

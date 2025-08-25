@@ -38,7 +38,7 @@ export default function TaskFilters({ filters, onFiltersChange, positions }: Tas
           id="status"
           value={filters.status}
           onChange={(e) => handleFilterChange('status', e.target.value)}
-          className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          className="input"
         >
           <option value="">Todos</option>
           <option value={TaskStatus.PENDING}>Pendientes</option>
@@ -54,7 +54,7 @@ export default function TaskFilters({ filters, onFiltersChange, positions }: Tas
           id="shift"
           value={filters.shift}
           onChange={(e) => handleFilterChange('shift', e.target.value)}
-          className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          className="input"
         >
           <option value="">Todos</option>
           <option value={Shift.MORNING}>Mañana</option>
@@ -71,7 +71,7 @@ export default function TaskFilters({ filters, onFiltersChange, positions }: Tas
           id="position"
           value={filters.positionId}
           onChange={(e) => handleFilterChange('positionId', e.target.value)}
-          className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          className="input"
         >
           <option value="">Todas</option>
           {positions.map(position => (
@@ -85,7 +85,7 @@ export default function TaskFilters({ filters, onFiltersChange, positions }: Tas
       <div className="flex items-end">
         <button
           onClick={clearFilters}
-          className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="input"
         >
           Limpiar Filtros
         </button>
