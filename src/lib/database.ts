@@ -107,6 +107,43 @@ export async function getUserById(id: string): Promise<User | null> {
   return user ? user as User : null;
 }
 
+export async function updateUser(id: string, updates: Partial<User>): Promise<User | null> {
+  const user = await getUserById(id);
+  if (!user) return null;
+
+  const updateFields: string[] = [];
+  const params: any[] = [];
+
+  if (updates.name !== undefined) {
+    updateFields.push('name = ?');
+    params.push(updates.name);
+  }
+
+  if (updates.email !== undefined) {
+    updateFields.push('email = ?');
+    params.push(updates.email);
+  }
+
+  if (updates.role !== undefined) {
+    updateFields.push('role = ?');
+    params.push(updates.role);
+  }
+
+  if (updates.positionId !== undefined) {
+    updateFields.push('positionId = ?');
+    params.push(updates.positionId);
+  }
+
+  if (updateFields.length === 0) return user;
+
+  params.push(id);
+  const query = `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`;
+  
+  await dbRun(query, params);
+  
+  return await getUserById(id);
+}
+
 export async function getUsersByPosition(positionId: string): Promise<User[]> {
   return await dbAll('SELECT * FROM users WHERE positionId = ?', [positionId]);
 }

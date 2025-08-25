@@ -10,6 +10,8 @@ import TaskCard from '@/components/TaskCard';
 import TaskFilters from '@/components/TaskFilters';
 import CreateTaskModal from '@/components/CreateTaskModal';
 import CreateEmployeeModal from '@/components/CreateEmployeeModal';
+import EditEmployeeModal from '@/components/EditEmployeeModal';
+import SelectEmployeeModal from '@/components/SelectEmployeeModal';
 import EmployeeList from '@/components/EmployeeList';
 import EmployeeRanking from '@/components/EmployeeRanking';
 
@@ -26,10 +28,17 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCreateEmployeeModal, setShowCreateEmployeeModal] = useState(false);
+  const [showSelectEmployeeModal, setShowSelectEmployeeModal] = useState(false);
+  const [showEditEmployeeModal, setShowEditEmployeeModal] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null);
   const [filters, setFilters] = useState({
     status: '',
     shift: '',
     positionId: ''
+  });
+  const [pendingTaskFilters, setPendingTaskFilters] = useState({
+    day: '',
+    shift: ''
   });
 
   useEffect(() => {
@@ -122,6 +131,18 @@ export default function DashboardPage() {
     }
   };
 
+  const handleSelectEmployee = (employee: User) => {
+    setSelectedEmployee(employee);
+    setShowEditEmployeeModal(true);
+  };
+
+  const handleEmployeeUpdated = () => {
+    setSelectedEmployee(null);
+    setShowEditEmployeeModal(false);
+    // Refresh the page to update employee list
+    window.location.reload();
+  };
+
   const getTasksByStatus = (status: TaskStatus) => {
     return filteredTasks.filter(task => task.status === status);
   };
@@ -130,7 +151,27 @@ export default function DashboardPage() {
     return filteredTasks.filter(task => task.shift === shift);
   };
 
-  const pendingTasks = getTasksByStatus(TaskStatus.PENDING);
+  const getFilteredPendingTasks = () => {
+    let filtered = getTasksByStatus(TaskStatus.PENDING);
+    
+    // Filter by day
+    if (pendingTaskFilters.day) {
+      const selectedDate = new Date(pendingTaskFilters.day);
+      filtered = filtered.filter(task => {
+        const taskDate = new Date(task.dueDate);
+        return taskDate.toDateString() === selectedDate.toDateString();
+      });
+    }
+    
+    // Filter by shift
+    if (pendingTaskFilters.shift) {
+      filtered = filtered.filter(task => task.shift === pendingTaskFilters.shift);
+    }
+    
+    return filtered;
+  };
+
+  const pendingTasks = getFilteredPendingTasks();
   const completedTasks = getTasksByStatus(TaskStatus.COMPLETED);
   const overdueTasks = pendingTasks.filter(task => new Date(task.dueDate) < new Date());
 
@@ -250,6 +291,15 @@ export default function DashboardPage() {
                   Crear Empleado
                 </button>
                 <button
+                  onClick={() => setShowSelectEmployeeModal(true)}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+                >
+                  <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Editar Empleado
+                </button>
+                <button
                   onClick={() => setShowCreateModal(true)}
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
@@ -268,6 +318,54 @@ export default function DashboardPage() {
           {/* Pending Tasks */}
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-4">Tareas Pendientes</h3>
+            
+            {/* Pending Tasks Filters */}
+            <div className="mb-4 p-4 bg-white rounded-lg shadow-sm border">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="pending-day-filter" className="block text-sm font-medium text-gray-700 mb-1">
+                    Filtrar por día
+                  </label>
+                  <input
+                    type="date"
+                    id="pending-day-filter"
+                    value={pendingTaskFilters.day}
+                    onChange={(e) => setPendingTaskFilters(prev => ({ ...prev, day: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="pending-shift-filter" className="block text-sm font-medium text-gray-700 mb-1">
+                    Filtrar por turno
+                  </label>
+                  <select
+                    id="pending-shift-filter"
+                    value={pendingTaskFilters.shift}
+                    onChange={(e) => setPendingTaskFilters(prev => ({ ...prev, shift: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value="">Todos los turnos</option>
+                    <option value="MORNING">Mañana</option>
+                    <option value="AFTERNOON">Tarde</option>
+                    <option value="NIGHT">Noche</option>
+                  </select>
+                </div>
+              </div>
+              {(pendingTaskFilters.day || pendingTaskFilters.shift) && (
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="text-sm text-gray-600">
+                    Filtros activos: {pendingTaskFilters.day && `Día: ${format(new Date(pendingTaskFilters.day), 'dd/MM/yyyy', { locale: es })}`} {pendingTaskFilters.shift && `Turno: ${pendingTaskFilters.shift === 'MORNING' ? 'Mañana' : pendingTaskFilters.shift === 'AFTERNOON' ? 'Tarde' : 'Noche'}`}
+                  </span>
+                  <button
+                    onClick={() => setPendingTaskFilters({ day: '', shift: '' })}
+                    className="text-sm text-indigo-600 hover:text-indigo-800"
+                  >
+                    Limpiar filtros
+                  </button>
+                </div>
+              )}
+            </div>
+            
             <div className="space-y-4">
               {pendingTasks.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
@@ -350,6 +448,29 @@ export default function DashboardPage() {
             // Refresh the page to update employee list
             window.location.reload();
           }}
+          token={token}
+        />
+      )}
+
+      {/* Select Employee Modal */}
+      {showSelectEmployeeModal && (
+        <SelectEmployeeModal
+          onClose={() => setShowSelectEmployeeModal(false)}
+          onSelectEmployee={handleSelectEmployee}
+          token={token}
+        />
+      )}
+
+      {/* Edit Employee Modal */}
+      {showEditEmployeeModal && selectedEmployee && (
+        <EditEmployeeModal
+          employee={selectedEmployee}
+          positions={data.positions}
+          onClose={() => {
+            setShowEditEmployeeModal(false);
+            setSelectedEmployee(null);
+          }}
+          onEmployeeUpdated={handleEmployeeUpdated}
           token={token}
         />
       )}

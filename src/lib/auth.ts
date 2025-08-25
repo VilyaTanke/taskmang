@@ -51,3 +51,23 @@ export function canAccessPosition(userPositionId: string, targetPositionId: stri
   if (userRole === Role.ADMIN) return true;
   return userPositionId === targetPositionId;
 }
+
+export async function getAuthUser(request: Request): Promise<{ success: boolean; user?: JWTPayload; error?: string }> {
+  try {
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return { success: false, error: 'No authorization header' };
+    }
+
+    const token = authHeader.substring(7);
+    const decoded = verifyToken(token);
+    
+    if (!decoded) {
+      return { success: false, error: 'Invalid token' };
+    }
+
+    return { success: true, user: decoded };
+  } catch (error) {
+    return { success: false, error: 'Authentication failed' };
+  }
+}

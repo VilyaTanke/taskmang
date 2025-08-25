@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { User, Position, Role } from '@/types';
+import EditEmployeeModal from './EditEmployeeModal';
 
 interface EmployeeListProps {
   token: string | null;
@@ -21,6 +22,7 @@ export default function EmployeeList({ token }: EmployeeListProps) {
   const [positions, setPositions] = useState<Position[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [editingEmployee, setEditingEmployee] = useState<User | null>(null);
 
   useEffect(() => {
     if (token) {
@@ -85,6 +87,15 @@ export default function EmployeeList({ token }: EmployeeListProps) {
     return position?.name || 'Sin posición';
   };
 
+  const handleEditEmployee = (employee: EmployeeData) => {
+    setEditingEmployee(employee as User);
+  };
+
+  const handleEmployeeUpdated = () => {
+    fetchEmployees();
+    setEditingEmployee(null);
+  };
+
   if (isLoading) {
     return (
       <div className="bg-white shadow rounded-lg">
@@ -143,6 +154,9 @@ export default function EmployeeList({ token }: EmployeeListProps) {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Posición
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Acciones
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -173,6 +187,17 @@ export default function EmployeeList({ token }: EmployeeListProps) {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {getPositionName(employee.positionId)}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <button
+                        onClick={() => handleEditEmployee(employee)}
+                        className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      >
+                        <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Editar
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -180,6 +205,17 @@ export default function EmployeeList({ token }: EmployeeListProps) {
           </div>
         )}
       </div>
+
+      {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <EditEmployeeModal
+          employee={editingEmployee}
+          positions={positions}
+          onClose={() => setEditingEmployee(null)}
+          onEmployeeUpdated={handleEmployeeUpdated}
+          token={token}
+        />
+      )}
     </div>
   );
 }
