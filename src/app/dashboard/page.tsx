@@ -195,7 +195,7 @@ export default function DashboardPage() {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
@@ -279,13 +279,13 @@ export default function DashboardPage() {
 
         {/* Filters and Actions */}
         <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <TaskFilters
               filters={filters}
               onFiltersChange={setFilters}
               positions={data.positions}
             />
-            <div className="mt-4 sm:mt-0 flex space-x-3">
+            <div className="mt-4 sm:mt-0 flex flex-wrap gap-2 sm:space-x-3">
               <Link
                 href="/analytics"
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -293,7 +293,7 @@ export default function DashboardPage() {
                 <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 3v18m-4-8v8m8-14v14m4-10v10" />
                 </svg>
-                Analytics
+                Analiticas
               </Link>
               {isAdmin && (
                 <>

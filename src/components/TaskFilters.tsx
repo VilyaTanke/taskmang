@@ -29,8 +29,8 @@ export default function TaskFilters({ filters, onFiltersChange, positions }: Tas
   };
 
   return (
-    <div className="flex flex-wrap items-center space-x-4">
-      <div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-end">
+      <div className="w-full">
         <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
           Estado
         </label>
@@ -38,7 +38,7 @@ export default function TaskFilters({ filters, onFiltersChange, positions }: Tas
           id="status"
           value={filters.status}
           onChange={(e) => handleFilterChange('status', e.target.value)}
-          className="input"
+          className="input w-full"
         >
           <option value="">Todos</option>
           <option value={TaskStatus.PENDING}>Pendientes</option>
@@ -47,7 +47,7 @@ export default function TaskFilters({ filters, onFiltersChange, positions }: Tas
         </select>
       </div>
 
-      <div>
+      <div className="w-full">
         <label htmlFor="shift" className="block text-sm font-medium text-gray-700 mb-1">
           Turno
         </label>
@@ -55,7 +55,7 @@ export default function TaskFilters({ filters, onFiltersChange, positions }: Tas
           id="shift"
           value={filters.shift}
           onChange={(e) => handleFilterChange('shift', e.target.value)}
-          className="input"
+          className="input w-full"
         >
           <option value="">Todos</option>
           <option value={Shift.MORNING}>Mañana</option>
@@ -64,7 +64,7 @@ export default function TaskFilters({ filters, onFiltersChange, positions }: Tas
         </select>
       </div>
 
-      <div>
+      <div className="w-full">
         <label htmlFor="position" className="block text-sm font-medium text-gray-700 mb-1">
           Posición
         </label>
@@ -72,7 +72,7 @@ export default function TaskFilters({ filters, onFiltersChange, positions }: Tas
           id="position"
           value={filters.positionId}
           onChange={(e) => handleFilterChange('positionId', e.target.value)}
-          className="input"
+          className="input w-full"
         >
           <option value="">Todas</option>
           {positions.map(position => (
@@ -83,10 +83,10 @@ export default function TaskFilters({ filters, onFiltersChange, positions }: Tas
         </select>
       </div>
 
-      <div className="flex items-end">
+      <div className="flex items-end w-full">
         <button
           onClick={clearFilters}
-          className="input"
+          className="input w-full sm:w-auto"
         >
           Limpiar Filtros
         </button>

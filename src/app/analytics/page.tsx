@@ -79,21 +79,21 @@ export default function AnalyticsPage() {
             <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
             </svg>
-            Volver a dashboard
+            Volver
           </Link>
         </div>
 
         <div className="bg-white shadow rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
+            <table className="min-w-full divide-y divide-gray-200 text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posición</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pendientes</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vencidas</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completadas</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gráfico</th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posición</th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pendientes</th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vencidas</th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completadas</th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gráfico</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -101,18 +101,18 @@ export default function AnalyticsPage() {
                   const pct = (n: number) => (row.total ? Math.round((n / row.total) * 100) : 0)
                   return (
                     <tr key={row.positionId}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.positionName}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-700">{row.pending}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-red-700">{row.overdue}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-green-700">{row.completed}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.total}</td>
-                      <td className="px-6 py-4">
-                        <div className="w-full h-3 bg-gray-100 rounded">
-                          <div className="h-3 bg-green-500 rounded-l" style={{ width: `${pct(row.completed)}%` }}></div>
+                      <td className="px-4 sm:px-6 py-3 whitespace-nowrap text-gray-900">{row.positionName}</td>
+                      <td className="px-4 sm:px-6 py-3 whitespace-nowrap text-yellow-700">{row.pending}</td>
+                      <td className="px-4 sm:px-6 py-3 whitespace-nowrap text-red-700">{row.overdue}</td>
+                      <td className="px-4 sm:px-6 py-3 whitespace-nowrap text-green-700">{row.completed}</td>
+                      <td className="px-4 sm:px-6 py-3 whitespace-nowrap text-gray-900">{row.total}</td>
+                      <td className="px-4 sm:px-6 py-3">
+                        <div className="w-full h-3 bg-gray-100 rounded overflow-hidden flex">
+                          <div className="h-3 bg-green-500" style={{ width: `${pct(row.completed)}%` }}></div>
                           <div className="h-3 bg-yellow-500" style={{ width: `${pct(row.pending - row.overdue)}%` }}></div>
-                          <div className="h-3 bg-red-500 rounded-r" style={{ width: `${pct(row.overdue)}%` }}></div>
+                          <div className="h-3 bg-red-500" style={{ width: `${pct(row.overdue)}%` }}></div>
                         </div>
-                        <div className="mt-1 text-xs text-gray-500">
+                        <div className="mt-1 text-[10px] sm:text-xs text-gray-500">
                           {pct(row.completed)}% completadas · {pct(row.pending - row.overdue)}% pendientes · {pct(row.overdue)}% vencidas
                         </div>
                       </td>
@@ -123,6 +123,9 @@ export default function AnalyticsPage() {
             </table>
           </div>
         </div>
+        {statsByPosition.length === 0 && (
+          <div className="mt-6 text-center text-gray-500 text-sm">No hay datos para mostrar.</div>
+        )}
       </div>
     </div>
   )
