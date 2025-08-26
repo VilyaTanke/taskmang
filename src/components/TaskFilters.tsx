@@ -43,6 +43,7 @@ export default function TaskFilters({ filters, onFiltersChange, positions }: Tas
           <option value="">Todos</option>
           <option value={TaskStatus.PENDING}>Pendientes</option>
           <option value={TaskStatus.COMPLETED}>Completadas</option>
+          <option value="OVERDUE">Vencidas</option>
         </select>
       </div>
 

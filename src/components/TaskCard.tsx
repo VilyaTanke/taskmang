@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Task, Position, User, TaskStatus, Shift } from '@/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface TaskCardProps {
   task: Task;
@@ -15,6 +16,7 @@ interface TaskCardProps {
 }
 
 export default function TaskCard({ task, positions, users, onUpdate, onDuplicate, isAdmin }: TaskCardProps) {
+  const { user } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [newDueDate, setNewDueDate] = useState('');
@@ -61,7 +63,11 @@ export default function TaskCard({ task, positions, users, onUpdate, onDuplicate
   };
 
   const handleStatusChange = (newStatus: TaskStatus) => {
-    onUpdate(task.id, { status: newStatus });
+    const updates: Partial<Task> = { status: newStatus };
+    if (newStatus === TaskStatus.COMPLETED && user) {
+      updates.completedById = user.id;
+    }
+    onUpdate(task.id, updates);
   };
 
   const handleCompletedByChange = (userId: string) => {
@@ -145,10 +151,10 @@ export default function TaskCard({ task, positions, users, onUpdate, onDuplicate
             )}
 
             <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              //onClick={() => setIsExpanded(!isExpanded)}
+              //className="inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              {isExpanded ? 'Menos' : 'Más'}
+              {isExpanded ? '' : ''}
             </button>
           </div>
         </div>
