@@ -34,7 +34,7 @@ export default function DashboardHeader({ user, onLogout }: DashboardHeaderProps
   return (
     <header className="bg-white shadow">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center py-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <div className="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center">
@@ -49,7 +49,7 @@ export default function DashboardHeader({ user, onLogout }: DashboardHeaderProps
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center justify-between sm:justify-end gap-4">
             {user && (
               <div className="flex items-center space-x-3">
                 <div className="text-right">
@@ -66,7 +66,7 @@ export default function DashboardHeader({ user, onLogout }: DashboardHeaderProps
             
             <button
               onClick={handleLogout}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="inline-flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full sm:w-auto"
             >
               <svg className="-ml-0.5 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

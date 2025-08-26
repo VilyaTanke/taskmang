@@ -92,3 +92,19 @@ export interface EmployeeRanking {
   tasksCompleted: number;
   totalTasks: number;
 }
+
+export enum CardType {
+  MASTERCARD_MOEVE_GOW_BANKINTER = 'MASTERCARD_MOEVE_GOW_BANKINTER',
+  MOEVE_PRO = 'MOEVE_PRO',
+  MOEVE_GOW = 'MOEVE_GOW'
+}
+
+export interface CardRecord {
+  id: string;
+  userId: string;
+  positionId: string;
+  cardType: CardType;
+  count: number;
+  createdAt: Date;
+  updatedAt: Date;
+}

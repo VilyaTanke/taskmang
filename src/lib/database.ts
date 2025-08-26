@@ -1,6 +1,6 @@
 import sqlite3 from 'sqlite3';
 import { promisify } from 'util';
-import { User, Position, Task, Role, TaskStatus, Shift } from '@/types';
+import { User, Position, Task, Role, TaskStatus, Shift, CardRecord, CardType } from '@/types';
 
 const db = new sqlite3.Database('./taskmang.db');
 
@@ -48,6 +48,21 @@ export async function initializeDatabase() {
         completedById TEXT,
         FOREIGN KEY (positionId) REFERENCES positions (id),
         FOREIGN KEY (completedById) REFERENCES users (id)
+      )
+    `);
+
+    // Create card records table
+    await dbRun(`
+      CREATE TABLE IF NOT EXISTS card_records (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
+        positionId TEXT NOT NULL,
+        cardType TEXT NOT NULL,
+        count INTEGER NOT NULL,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL,
+        FOREIGN KEY (userId) REFERENCES users (id),
+        FOREIGN KEY (positionId) REFERENCES positions (id)
       )
     `);
 
@@ -373,6 +388,34 @@ export async function getEmployeeRanking(period: 'day' | 'week' | 'month'): Prom
   `;
 
   return await dbAll(query, [startDate.toISOString()]);
+}
+
+// Card operations
+export async function createOrUpdateCardRecord(record: Omit<CardRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<CardRecord> {
+  const now = new Date().toISOString();
+  const existing = await dbGet(
+    'SELECT * FROM card_records WHERE userId = ? AND positionId = ? AND cardType = ?',
+    [record.userId, record.positionId, record.cardType]
+  );
+  if (existing) {
+    await dbRun('UPDATE card_records SET count = ?, updatedAt = ? WHERE id = ?', [record.count, now, existing.id]);
+    const updated = await dbGet('SELECT * FROM card_records WHERE id = ?', [existing.id]);
+    return { ...updated, createdAt: new Date(updated.createdAt), updatedAt: new Date(updated.updatedAt) } as CardRecord;
+  }
+  const id = `card-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  await dbRun(
+    'INSERT INTO card_records (id, userId, positionId, cardType, count, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [id, record.userId, record.positionId, record.cardType, record.count, now, now]
+  );
+  return { ...record, id, createdAt: new Date(now), updatedAt: new Date(now) } as CardRecord;
+}
+
+export async function getCardRecordsByFilters(filters: { positionId?: string }): Promise<CardRecord[]> {
+  let query = 'SELECT * FROM card_records WHERE 1=1';
+  const params: any[] = [];
+  if (filters.positionId) { query += ' AND positionId = ?'; params.push(filters.positionId); }
+  const rows = await dbAll(query, params);
+  return rows.map(r => ({ ...r, createdAt: new Date(r.createdAt), updatedAt: new Date(r.updatedAt) } as CardRecord));
 }
 
 // Close database connection
