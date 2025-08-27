@@ -446,9 +446,9 @@ export default function DashboardPage() {
         )}
 
         {/* Employee Ranking */}
-        <div className="mt-12">
+        {/*<div className="mt-12">
           <EmployeeRanking token={token} />
-        </div>
+        </div>*/}
       </div>
 
       {/* Create Task Modal */}
