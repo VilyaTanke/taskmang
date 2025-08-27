@@ -41,6 +41,7 @@ export default function DashboardPage() {
     day: '',
     shift: ''
   });
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     if (token) {
@@ -51,6 +52,14 @@ export default function DashboardPage() {
   useEffect(() => {
     filterTasks();
   }, [data.tasks, filters]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const fetchTasks = async () => {
     try {
@@ -194,6 +203,28 @@ export default function DashboardPage() {
       <DashboardHeader user={user} onLogout={() => {}} />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Digital Clock */}
+        <div className="flex justify-center mb-6">
+          <div className="bg-white shadow rounded-lg p-4 text-center">
+            <div className="text-3xl font-mono font-bold text-gray-900">
+              {currentTime.toLocaleTimeString('es-ES', { 
+                hour12: false, 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit' 
+              })}
+            </div>
+            <div className="text-sm text-gray-600 mt-1">
+              {currentTime.toLocaleDateString('es-ES', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
+            </div>
+          </div>
+        </div>
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
           <div className="bg-white overflow-hidden shadow rounded-lg">

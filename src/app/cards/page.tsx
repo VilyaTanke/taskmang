@@ -121,6 +121,11 @@ export default function CardsPage() {
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200 text-sm">
                                 <thead className="bg-gray-50">
+                                    {/*<tr className="Datarj">
+                                        <Image src={mastercardMoeveGow} alt="Mastercard Moeve GOW Bankinter" className="one h-auto w-25" />
+                                        <Image src={moevePro} alt="MOEVE Pro" className="two h-auto w-25" />
+                                        <Image src={moeveGow} alt="MOEVE GOW" className="h-auto w-25 three" />
+                                    </tr>*/}
                                     <tr>
                                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Empleado</th>
                                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MasterCard Moeve GOW Bankinter</th>
