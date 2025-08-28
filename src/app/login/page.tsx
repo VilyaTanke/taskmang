@@ -34,13 +34,11 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="page-center topGround">
-            
-            <div className="bgli">
 
-            </div>
+        <div className="page-center topGround bgli">
+
             <div className="max-w-md w-full space-y-8 tittleForm">
-                <div className="max-w-md w-full space-y-8">
+                <div >
 
                     <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
                         Ivanje-Gestion
@@ -122,7 +120,7 @@ export default function LoginPage() {
 
                                 <div className="text-center mt-4">
                                     <p className="text-xs text-muted">
-                                        Credenciales de prueba: admin@taskmang.com / admin123
+                                        Credenciales de prueba: admin@Ivanje.com / admin123
                                     </p>
                                 </div>
                             </form>
@@ -130,12 +128,8 @@ export default function LoginPage() {
                     </div>
                 </div>
             </div>
-            <div className='bgli'>
-
-            </div>
-
-
 
         </div>
+
     );
 }

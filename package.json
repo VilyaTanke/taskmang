@@ -39,5 +39,9 @@
     "eslint-config-next": "15.5.0",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "description": "Un sistema completo de gestión de tareas con autenticación, roles de usuario, y seguimiento de empleados. Desarrollado con Next.js, TypeScript, y SQLite.",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC"
 }
