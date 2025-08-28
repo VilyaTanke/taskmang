@@ -51,14 +51,20 @@ export default function CardsPage() {
         return map
     }, [users, positions])
 
-    const getCount = (userId: string, type: CardType) => {
-        return records.find(r => r.userId === userId && r.cardType === type)?.count || 0
+    const getCount = (userId: string, type: CardType, positionId?: string) => {
+        if (positionId) {
+            // Get count for specific position
+            return records.find(r => r.userId === userId && r.cardType === type && r.positionId === positionId)?.count || 0
+        } else {
+            // Get total count across all positions
+            return records
+                .filter(r => r.userId === userId && r.cardType === type)
+                .reduce((sum, r) => sum + r.count, 0)
+        }
     }
 
-    const updateCount = async (userId: string, type: CardType, count: number) => {
+    const updateCount = async (userId: string, type: CardType, count: number, positionId: string) => {
         if (!canEdit || !token) return
-        const user = users.find(u => u.id === userId)
-        const positionId = user?.positionIds?.[0] || '' // Use first position as default
         await fetch('/api/cards', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -66,6 +72,90 @@ export default function CardsPage() {
         })
         await fetchData()
     }
+
+    // Calculate totals by employee (across all positions)
+    const employeeTotals = useMemo(() => {
+        const totals: Record<string, { name: string; total: number; mastercard: number; moevePro: number; moeveGow: number }> = {}
+        
+        for (const user of users) {
+            const mastercard = getCount(user.id, CardType.MASTERCARD_MOEVE_GOW_BANKINTER) // No position specified = sum all positions
+            const moevePro = getCount(user.id, CardType.MOEVE_PRO) // No position specified = sum all positions
+            const moeveGow = getCount(user.id, CardType.MOEVE_GOW) // No position specified = sum all positions
+            const total = mastercard + moevePro + moeveGow
+            
+            if (total > 0) {
+                totals[user.id] = {
+                    name: user.name,
+                    total,
+                    mastercard,
+                    moevePro,
+                    moeveGow
+                }
+            }
+        }
+        
+        return Object.values(totals).sort((a, b) => b.total - a.total)
+    }, [users, records])
+
+    // Calculate totals by position
+    const positionTotals = useMemo(() => {
+        const totals: Record<string, { name: string; total: number; mastercard: number; moevePro: number; moeveGow: number }> = {}
+        
+        for (const position of positions) {
+            const positionUsers = byPositionUsers[position.id] || []
+            let mastercard = 0
+            let moevePro = 0
+            let moeveGow = 0
+            
+            for (const user of positionUsers) {
+                mastercard += getCount(user.id, CardType.MASTERCARD_MOEVE_GOW_BANKINTER, position.id)
+                moevePro += getCount(user.id, CardType.MOEVE_PRO, position.id)
+                moeveGow += getCount(user.id, CardType.MOEVE_GOW, position.id)
+            }
+            
+            const total = mastercard + moevePro + moeveGow
+            
+            if (total > 0) {
+                totals[position.id] = {
+                    name: position.name,
+                    total,
+                    mastercard,
+                    moevePro,
+                    moeveGow
+                }
+            }
+        }
+        
+        return Object.values(totals).sort((a, b) => b.total - a.total)
+    }, [positions, byPositionUsers, records])
+
+    // Calculate grand total
+    const grandTotal = useMemo(() => {
+        let mastercard = 0
+        let moevePro = 0
+        let moeveGow = 0
+        
+        for (const record of records) {
+            switch (record.cardType) {
+                case CardType.MASTERCARD_MOEVE_GOW_BANKINTER:
+                    mastercard += record.count
+                    break
+                case CardType.MOEVE_PRO:
+                    moevePro += record.count
+                    break
+                case CardType.MOEVE_GOW:
+                    moeveGow += record.count
+                    break
+            }
+        }
+        
+        return {
+            total: mastercard + moevePro + moeveGow,
+            mastercard,
+            moevePro,
+            moeveGow
+        }
+    }, [records])
 
     if (isLoading) {
         return (
@@ -142,19 +232,19 @@ export default function CardsPage() {
                                     {(byPositionUsers[p.id] || []).map(emp => (
                                         <tr key={emp.id}>
                                             <td className="px-4 py-2 whitespace-nowrap text-gray-900">{emp.name}</td>
-                                            {[CardType.MASTERCARD_MOEVE_GOW_BANKINTER, CardType.MOEVE_PRO, CardType.MOEVE_GOW].map(type => (
-                                                <td key={type} className="px-4 py-2 whitespace-nowrap">
-                                                    <div className="flex items-center space-x-2">
-                                                        <span className="text-gray-800">{getCount(emp.id, type)}</span>
-                                                        {canEdit && (
-                                                            <div className="inline-flex rounded-md shadow-sm" role="group">
-                                                                <button onClick={() => updateCount(emp.id, type, Math.max(0, getCount(emp.id, type) - 1))} className="px-2 py-1 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">-</button>
-                                                                <button onClick={() => updateCount(emp.id, type, getCount(emp.id, type) + 1)} className="px-2 py-1 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">+</button>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            ))}
+                                                                                         {[CardType.MASTERCARD_MOEVE_GOW_BANKINTER, CardType.MOEVE_PRO, CardType.MOEVE_GOW].map(type => (
+                                                 <td key={type} className="px-4 py-2 whitespace-nowrap">
+                                                     <div className="flex items-center space-x-2">
+                                                         <span className="text-gray-800">{getCount(emp.id, type, p.id)}</span>
+                                                         {canEdit && (
+                                                             <div className="inline-flex rounded-md shadow-sm" role="group">
+                                                                 <button onClick={() => updateCount(emp.id, type, Math.max(0, getCount(emp.id, type, p.id) - 1), p.id)} className="px-2 py-1 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">-</button>
+                                                                 <button onClick={() => updateCount(emp.id, type, getCount(emp.id, type, p.id) + 1, p.id)} className="px-2 py-1 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">+</button>
+                                                             </div>
+                                                         )}
+                                                     </div>
+                                                 </td>
+                                             ))}
                                         </tr>
                                     ))}
                                 </tbody>
@@ -162,6 +252,104 @@ export default function CardsPage() {
                         </div>
                     </div>
                 ))}
+
+                {/* Summary Tables */}
+                <div className="space-y-6">
+                    {/* Employee Totals Table */}
+                    {employeeTotals.length > 0 && (
+                        <div className="bg-white shadow rounded-lg overflow-hidden">
+                            <div className="px-4 sm:px-6 py-3 border-b text-gray-900 font-medium bg-blue-50">
+                                📊 Resumen por Empleado (Todas las Estaciones)
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-200 text-sm">
+                                    <thead className="bg-gray-50">
+                                        <tr>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Empleado</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MasterCard Moeve GOW Bankinter</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MOEVE Pro</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MOEVE GOW</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {employeeTotals.map((employee, index) => (
+                                            <tr key={index} className={index < 3 ? 'bg-yellow-50' : ''}>
+                                                <td className="px-4 py-2 whitespace-nowrap text-gray-900 font-medium">{employee.name}</td>
+                                                <td className="px-4 py-2 whitespace-nowrap text-blue-600">{employee.mastercard}</td>
+                                                <td className="px-4 py-2 whitespace-nowrap text-green-600">{employee.moevePro}</td>
+                                                <td className="px-4 py-2 whitespace-nowrap text-purple-600">{employee.moeveGow}</td>
+                                                <td className="px-4 py-2 whitespace-nowrap text-gray-900 font-bold">{employee.total}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Position Totals Table */}
+                    {positionTotals.length > 0 && (
+                        <div className="bg-white shadow rounded-lg overflow-hidden">
+                            <div className="px-4 sm:px-6 py-3 border-b text-gray-900 font-medium bg-green-50">
+                                🏢 Resumen por Estación
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-200 text-sm">
+                                    <thead className="bg-gray-50">
+                                        <tr>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Estación</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MasterCard Moeve GOW Bankinter</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MOEVE Pro</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MOEVE GOW</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {positionTotals.map((position, index) => (
+                                            <tr key={index} className={index < 3 ? 'bg-green-50' : ''}>
+                                                <td className="px-4 py-2 whitespace-nowrap text-gray-900 font-medium">{position.name}</td>
+                                                <td className="px-4 py-2 whitespace-nowrap text-blue-600">{position.mastercard}</td>
+                                                <td className="px-4 py-2 whitespace-nowrap text-green-600">{position.moevePro}</td>
+                                                <td className="px-4 py-2 whitespace-nowrap text-purple-600">{position.moeveGow}</td>
+                                                <td className="px-4 py-2 whitespace-nowrap text-gray-900 font-bold">{position.total}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Grand Total Table */}
+                    {grandTotal.total > 0 && (
+                        <div className="bg-white shadow rounded-lg overflow-hidden">
+                            <div className="px-4 sm:px-6 py-3 border-b text-gray-900 font-medium bg-purple-50">
+                                🎯 Total General de Tarjetas
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-200 text-sm">
+                                    <thead className="bg-gray-50">
+                                        <tr>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MasterCard Moeve GOW Bankinter</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MOEVE Pro</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MOEVE GOW</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total General</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white">
+                                        <tr className="bg-purple-50">
+                                            <td className="px-4 py-3 whitespace-nowrap text-blue-600 text-lg font-bold">{grandTotal.mastercard}</td>
+                                            <td className="px-4 py-3 whitespace-nowrap text-green-600 text-lg font-bold">{grandTotal.moevePro}</td>
+                                            <td className="px-4 py-3 whitespace-nowrap text-purple-600 text-lg font-bold">{grandTotal.moeveGow}</td>
+                                            <td className="px-4 py-3 whitespace-nowrap text-gray-900 text-xl font-bold">{grandTotal.total}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     )
