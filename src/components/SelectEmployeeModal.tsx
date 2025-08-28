@@ -14,8 +14,8 @@ interface EmployeeData {
   name: string;
   email: string;
   role: Role;
-  positionId: string;
-  position?: Position;
+  positionIds: string[]; // Changed from positionId to positionIds array
+  positions?: Position[]; // Changed from position to positions array
 }
 
 export default function SelectEmployeeModal({ 
@@ -93,6 +93,11 @@ export default function SelectEmployeeModal({
     return position?.name || 'Sin posición';
   };
 
+  const getPositionNames = (positionIds: string[]) => {
+    if (!positionIds || positionIds.length === 0) return 'Sin posición';
+    return positionIds.map(id => getPositionName(id)).join(', ');
+  };
+
   const handleSelectEmployee = (employee: EmployeeData) => {
     onSelectEmployee(employee as User);
     onClose();
@@ -100,7 +105,7 @@ export default function SelectEmployeeModal({
 
   const filteredEmployees = employees.filter(employee => {
     // Filter by position
-    if (positionFilter && employee.positionId !== positionFilter) {
+    if (positionFilter && !employee.positionIds.includes(positionFilter)) {
       return false;
     }
     
@@ -290,7 +295,7 @@ export default function SelectEmployeeModal({
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {getPositionName(employee.positionId)}
+                        {getPositionNames(employee.positionIds)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <button

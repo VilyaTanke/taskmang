@@ -8,7 +8,7 @@ export interface JWTPayload {
   userId: string;
   email: string;
   role: Role;
-  positionId: string;
+  positionIds: string[]; // Changed from positionId to positionIds array
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -24,7 +24,7 @@ export function generateToken(user: User): string {
     userId: user.id,
     email: user.email,
     role: user.role,
-    positionId: user.positionId
+    positionIds: user.positionIds // Changed from positionId to positionIds
   };
   
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' });
@@ -47,9 +47,9 @@ export function isSupervisor(role: Role): boolean {
   return role === Role.SUPERVISOR || role === Role.ADMIN;
 }
 
-export function canAccessPosition(userPositionId: string, targetPositionId: string, userRole: Role): boolean {
+export function canAccessPosition(userPositionIds: string[], targetPositionId: string, userRole: Role): boolean {
   if (userRole === Role.ADMIN) return true;
-  return userPositionId === targetPositionId;
+  return userPositionIds.includes(targetPositionId);
 }
 
 export async function getAuthUser(request: Request): Promise<{ success: boolean; user?: JWTPayload; error?: string }> {

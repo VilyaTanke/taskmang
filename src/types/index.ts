@@ -21,8 +21,8 @@ export interface User {
   email: string;
   password: string;
   role: Role;
-  positionId: string;
-  position?: Position;
+  positionIds: string[]; // Changed from positionId to positionIds array
+  positions?: Position[]; // Changed from position to positions array
   tasksDone?: Task[];
 }
 
@@ -42,10 +42,9 @@ export interface Task {
   createdAt: Date;
   updatedAt: Date;
   positionId: string;
-  position?: Position;
   shift: Shift;
   completedById?: string;
-  completedBy?: User;
+  completedLate?: boolean; // New field to track if task was completed after due date
 }
 
 export interface LoginCredentials {
@@ -74,6 +73,7 @@ export interface UpdateTaskData {
   positionId?: string;
   shift?: Shift;
   completedById?: string;
+  completedLate?: boolean;
 }
 
 export interface TaskFilters {
@@ -82,6 +82,21 @@ export interface TaskFilters {
   shift?: Shift;
   startDate?: Date;
   endDate?: Date;
+}
+
+export interface CreateUserData {
+  name: string;
+  email: string;
+  password: string;
+  role: Role;
+  positionIds: string[]; // Changed from positionId to positionIds array
+}
+
+export interface UpdateUserData {
+  name?: string;
+  email?: string;
+  role?: Role;
+  positionIds?: string[]; // Changed from positionId to positionIds array
 }
 
 export interface EmployeeRanking {

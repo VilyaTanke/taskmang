@@ -14,6 +14,7 @@ import EditEmployeeModal from '@/components/EditEmployeeModal';
 import SelectEmployeeModal from '@/components/SelectEmployeeModal';
 import EmployeeList from '@/components/EmployeeList';
 import EmployeeRanking from '@/components/EmployeeRanking';
+import ExportTasksModal from '@/components/ExportTasksModal';
 import Link from 'next/link';
 
 interface DashboardData {
@@ -32,6 +33,7 @@ export default function DashboardPage() {
   const [showSelectEmployeeModal, setShowSelectEmployeeModal] = useState(false);
   const [showEditEmployeeModal, setShowEditEmployeeModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null);
+  const [showExportModal, setShowExportModal] = useState(false);
   const [filters, setFilters] = useState({
     status: '',
     shift: '',
@@ -60,6 +62,8 @@ export default function DashboardPage() {
 
     return () => clearInterval(timer);
   }, []);
+
+
 
   const fetchTasks = async () => {
     try {
@@ -154,6 +158,11 @@ export default function DashboardPage() {
   const handleEmployeeUpdated = () => {
     setSelectedEmployee(null);
     setShowEditEmployeeModal(false);
+    // Refresh the page to update employee list
+    window.location.reload();
+  };
+
+  const handleEmployeeDeleted = () => {
     // Refresh the page to update employee list
     window.location.reload();
   };
@@ -316,7 +325,7 @@ export default function DashboardPage() {
               onFiltersChange={setFilters}
               positions={data.positions}
             />
-            <div className="mt-4 sm:mt-0 grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:space-x-3 w-full sm:w-auto">
+            <div className="mt-4 sm:mt-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 ">
               <Link
                 href="/analytics"
                 className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full sm:w-auto sm:min-w-[160px] sm:max-w-[220px]"
@@ -335,6 +344,8 @@ export default function DashboardPage() {
                 </svg>
                 Tarjetas
               </Link>
+
+              
               {isAdmin && (
                 <>
                   <button
@@ -363,6 +374,15 @@ export default function DashboardPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                     Crear Tarea
+                  </button>
+                  <button
+                    onClick={() => setShowExportModal(true)}
+                    className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto sm:min-w-[160px] sm:max-w-[220px]"
+                  >
+                    <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Exportar Excel
                   </button>
                 </>
               )}
@@ -472,7 +492,10 @@ export default function DashboardPage() {
         {/* Employee Management Section - Only for Admins */}
         {isAdmin && (
           <div className="mt-12">
-            <EmployeeList token={token} />
+            <EmployeeList 
+              token={token} 
+              onEmployeeDeleted={handleEmployeeDeleted}
+            />
           </div>
         )}
 
@@ -529,6 +552,15 @@ export default function DashboardPage() {
           }}
           onEmployeeUpdated={handleEmployeeUpdated}
           token={token}
+        />
+      )}
+
+      {/* Export Tasks Modal */}
+      {showExportModal && (
+        <ExportTasksModal
+          isOpen={showExportModal}
+          onClose={() => setShowExportModal(false)}
+          positions={data.positions}
         />
       )}
     </div>

@@ -120,7 +120,7 @@ export default function LoginPage() {
 
                                 <div className="text-center mt-4">
                                     <p className="text-xs text-muted">
-                                        Credenciales de prueba: admin@Ivanje.com / admin123
+                                        Credenciales de prueba: admin@taskmang.com / admin123
                                     </p>
                                 </div>
                             </form>

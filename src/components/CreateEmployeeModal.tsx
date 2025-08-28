@@ -17,7 +17,7 @@ export default function CreateEmployeeModal({ positions, onClose, onEmployeeCrea
     password: '',
     confirmPassword: '',
     role: '',
-    positionId: ''
+    positionIds: [] as string[] // Changed from positionId to positionIds array
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -41,6 +41,13 @@ export default function CreateEmployeeModal({ positions, onClose, onEmployeeCrea
       return;
     }
 
+    // Validate at least one position is selected
+    if (formData.positionIds.length === 0) {
+      setError('Debe seleccionar al menos una estación');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch('/api/users', {
         method: 'POST',
@@ -53,7 +60,7 @@ export default function CreateEmployeeModal({ positions, onClose, onEmployeeCrea
           email: formData.email,
           password: formData.password,
           role: formData.role,
-          positionId: formData.positionId
+          positionIds: formData.positionIds // Changed from positionId to positionIds
         })
       });
 
@@ -70,10 +77,19 @@ export default function CreateEmployeeModal({ positions, onClose, onEmployeeCrea
     }
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | string[]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
+    }));
+  };
+
+  const handlePositionChange = (positionId: string, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      positionIds: checked 
+        ? [...prev.positionIds, positionId]
+        : prev.positionIds.filter(id => id !== positionId)
     }));
   };
 
@@ -186,23 +202,25 @@ export default function CreateEmployeeModal({ positions, onClose, onEmployeeCrea
             </div>
 
             <div>
-              <label htmlFor="position" className="block text-sm font-medium text-gray-700 mb-1">
-                Estación *
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Estaciones * (Seleccione una o más)
               </label>
-              <select
-                id="position"
-                required
-                value={formData.positionId}
-                onChange={(e) => handleInputChange('positionId', e.target.value)}
-                className="input"
-              >
-                <option value="">Seleccionar Estación</option>
+              <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-200 rounded-md p-3">
                 {positions.map(position => (
-                  <option key={position.id} value={position.id}>
-                    {position.name}
-                  </option>
+                  <label key={position.id} className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.positionIds.includes(position.id)}
+                      onChange={(e) => handlePositionChange(position.id, e.target.checked)}
+                      className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span className="text-sm text-gray-700">{position.name}</span>
+                  </label>
                 ))}
-              </select>
+              </div>
+              {formData.positionIds.length === 0 && (
+                <p className="text-sm text-red-600 mt-1">Debe seleccionar al menos una estación</p>
+              )}
             </div>
 
             {error && (

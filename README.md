@@ -89,6 +89,7 @@ El proyecto estará disponible en `http://localhost:3000`
 
 ## 📊 Estructura de la Base de Datos
 
+
 ### Tablas Principales
 
 1. **users**

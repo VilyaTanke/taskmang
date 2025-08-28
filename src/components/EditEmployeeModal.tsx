@@ -20,7 +20,7 @@ export default function EditEmployeeModal({
 }: EditEmployeeModalProps) {
   const [formData, setFormData] = useState({
     role: Role.EMPLOYEE,
-    positionId: ''
+    positionIds: [] as string[] // Changed from positionId to positionIds array
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -29,7 +29,7 @@ export default function EditEmployeeModal({
     if (employee) {
       setFormData({
         role: employee.role,
-        positionId: employee.positionId
+        positionIds: employee.positionIds || [] // Changed from positionId to positionIds
       });
     }
   }, [employee]);
@@ -40,6 +40,13 @@ export default function EditEmployeeModal({
 
     setIsLoading(true);
     setError('');
+
+    // Validate at least one position is selected
+    if (formData.positionIds.length === 0) {
+      setError('Debe seleccionar al menos una estación');
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch(`/api/users/${employee.id}`, {
@@ -65,11 +72,20 @@ export default function EditEmployeeModal({
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const handlePositionChange = (positionId: string, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      positionIds: checked 
+        ? [...prev.positionIds, positionId]
+        : prev.positionIds.filter(id => id !== positionId)
     }));
   };
 
@@ -147,24 +163,25 @@ export default function EditEmployeeModal({
             </div>
 
             <div>
-              <label htmlFor="positionId" className="block text-sm font-medium text-gray-700 mb-1">
-                Posición
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Estaciones * (Seleccione una o más)
               </label>
-              <select
-                id="positionId"
-                name="positionId"
-                required
-                className="input"
-                value={formData.positionId}
-                onChange={handleChange}
-              >
-                <option value="">Seleccionar posición</option>
+              <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-200 rounded-md p-3">
                 {positions.map((position) => (
-                  <option key={position.id} value={position.id}>
-                    {position.name}
-                  </option>
+                  <label key={position.id} className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.positionIds.includes(position.id)}
+                      onChange={(e) => handlePositionChange(position.id, e.target.checked)}
+                      className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span className="text-sm text-gray-700">{position.name}</span>
+                  </label>
                 ))}
-              </select>
+              </div>
+              {formData.positionIds.length === 0 && (
+                <p className="text-sm text-red-600 mt-1">Debe seleccionar al menos una estación</p>
+              )}
             </div>
 
             {error && (

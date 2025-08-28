@@ -68,11 +68,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, email, password, role, positionId } = await request.json();
+    const { name, email, password, role, positionIds } = await request.json();
 
-    if (!name || !email || !password || !role || !positionId) {
+    if (!name || !email || !password || !role || !positionIds || !Array.isArray(positionIds) || positionIds.length === 0) {
       return NextResponse.json(
-        { error: 'All fields are required' },
+        { error: 'All fields are required and positionIds must be a non-empty array' },
         { status: 400 }
       );
     }
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
       email,
       password: hashedPassword,
       role,
-      positionId
+      positionIds
     });
 
     // Return user without password

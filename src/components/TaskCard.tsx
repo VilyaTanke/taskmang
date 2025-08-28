@@ -66,6 +66,10 @@ export default function TaskCard({ task, positions, users, onUpdate, onDuplicate
     const updates: Partial<Task> = { status: newStatus };
     if (newStatus === TaskStatus.COMPLETED && user) {
       updates.completedById = user.id;
+      // Check if task is overdue and mark as completed late
+      if (isOverdue) {
+        updates.completedLate = true;
+      }
     }
     onUpdate(task.id, updates);
   };
@@ -121,6 +125,11 @@ export default function TaskCard({ task, positions, users, onUpdate, onDuplicate
             {task.status === TaskStatus.COMPLETED && completedBy && (
               <div className="mt-3 text-sm text-gray-600">
                 <span className="font-medium">Completada por:</span> {completedBy.name}
+                {task.completedLate && (
+                  <div className="mt-1 text-red-600 font-medium">
+                    ⚠️ Realizada fuera de fecha de asignación
+                  </div>
+                )}
               </div>
             )}
           </div>

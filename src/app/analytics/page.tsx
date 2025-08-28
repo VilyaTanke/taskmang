@@ -83,8 +83,11 @@ export default function AnalyticsPage() {
     const map: Record<string, User[]> = {}
     for (const pos of data.positions) map[pos.id] = []
     for (const u of data.users) {
-      if (!map[u.positionId]) map[u.positionId] = []
-      map[u.positionId].push(u)
+      // Handle multiple positions per user
+      for (const positionId of u.positionIds || []) {
+        if (!map[positionId]) map[positionId] = []
+        map[positionId].push(u)
+      }
     }
     return map
   }, [data.users, data.positions])

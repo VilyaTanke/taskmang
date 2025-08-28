@@ -6,6 +6,7 @@ import EditEmployeeModal from './EditEmployeeModal';
 
 interface EmployeeListProps {
   token: string | null;
+  onEmployeeDeleted: () => void;
 }
 
 interface EmployeeData {
@@ -13,11 +14,11 @@ interface EmployeeData {
   name: string;
   email: string;
   role: Role;
-  positionId: string;
-  position?: Position;
+  positionIds: string[]; // Changed from positionId to positionIds array
+  positions?: Position[]; // Changed from position to positions array
 }
 
-export default function EmployeeList({ token }: EmployeeListProps) {
+export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListProps) {
   const [employees, setEmployees] = useState<EmployeeData[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -89,6 +90,11 @@ export default function EmployeeList({ token }: EmployeeListProps) {
     return position?.name || 'Sin posición';
   };
 
+  const getPositionNames = (positionIds: string[]) => {
+    if (!positionIds || positionIds.length === 0) return 'Sin posición';
+    return positionIds.map(id => getPositionName(id)).join(', ');
+  };
+
   const handleEditEmployee = (employee: EmployeeData) => {
     setEditingEmployee(employee as User);
   };
@@ -98,9 +104,33 @@ export default function EmployeeList({ token }: EmployeeListProps) {
     setEditingEmployee(null);
   };
 
+  const handleDeleteEmployee = async (employeeId: string) => {
+    if (!confirm('¿Está seguro de que desea eliminar este empleado? Esta acción no se puede deshacer.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/users/${employeeId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        onEmployeeDeleted();
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Error al eliminar empleado');
+      }
+    } catch (error) {
+      setError('Error de conexión');
+    }
+  };
+
   const filteredEmployees = employees.filter(employee => {
     // Filter by position
-    if (positionFilter && employee.positionId !== positionFilter) {
+    if (positionFilter && !employee.positionIds.includes(positionFilter)) {
       return false;
     }
     
@@ -193,11 +223,11 @@ export default function EmployeeList({ token }: EmployeeListProps) {
         {/* Filter Status */}
         {(positionFilter || roleFilter) && (
           <div className="mt-3 flex items-center justify-between">
-            <span className="text-sm text-gray-600">
-              Mostrando {filteredEmployees.length} de {employees.length} empleados
-              {positionFilter && ` • Posición: ${getPositionName(positionFilter)}`}
-              {roleFilter && ` • Rol: ${getRoleLabel(roleFilter as Role)}`}
-            </span>
+                          <span className="text-sm text-gray-600">
+                Mostrando {filteredEmployees.length} de {employees.length} empleados
+                {positionFilter && ` • Posición: ${getPositionName(positionFilter)}`}
+                {roleFilter && ` • Rol: ${getRoleLabel(roleFilter as Role)}`}
+              </span>
           </div>
         )}
       </div>
@@ -270,18 +300,29 @@ export default function EmployeeList({ token }: EmployeeListProps) {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {getPositionName(employee.positionId)}
+                      {getPositionNames(employee.positionIds)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <button
-                        onClick={() => handleEditEmployee(employee)}
-                        className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                      >
-                        <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        Editar
-                      </button>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEditEmployee(employee)}
+                          className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                          <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                          Editar
+                        </button>
+                        <button
+                          onClick={() => handleDeleteEmployee(employee.id)}
+                          className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                        >
+                          <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Eliminar
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

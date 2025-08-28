@@ -39,7 +39,7 @@ export async function GET(
     }
 
     // Check if user can access this task
-    if (user.role !== 'ADMIN' && task.positionId !== user.positionId) {
+    if (user.role !== 'ADMIN' && !user.positionIds.includes(task.positionId)) {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }
@@ -81,7 +81,7 @@ export async function PATCH(
     }
 
     // Check if user can access this task
-    if (user.role !== 'ADMIN' && task.positionId !== user.positionId) {
+    if (user.role !== 'ADMIN' && !user.positionIds.includes(task.positionId)) {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }
@@ -95,6 +95,7 @@ export async function PATCH(
       const allowedUpdates: any = {};
       if (updates.status !== undefined) allowedUpdates.status = updates.status;
       if (updates.completedById !== undefined) allowedUpdates.completedById = updates.completedById;
+      if (updates.completedLate !== undefined) allowedUpdates.completedLate = updates.completedLate;
       
       if (Object.keys(allowedUpdates).length === 0) {
         return NextResponse.json(

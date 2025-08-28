@@ -41,31 +41,79 @@ export async function GET(request: NextRequest) {
 
     const filters: any = {};
     
-    // If not admin, filter by user's position
+    // If not admin, filter by user's positions
     if (user.role !== 'ADMIN') {
-      filters.positionId = user.positionId;
-    } else if (positionId) {
-      filters.positionId = positionId;
+      // For non-admin users, only show tasks from their assigned positions
+      // We'll need to get all tasks and filter them by the user's positions
+      const allTasks = await getTasksByFilters({});
+      const userPositionIds = user.positionIds || [];
+      
+      // Filter tasks to only include those from user's assigned positions
+      const filteredTasks = allTasks.filter(task => 
+        userPositionIds.includes(task.positionId)
+      );
+      
+      // Apply additional filters
+      let result = filteredTasks;
+      
+      if (positionId && userPositionIds.includes(positionId)) {
+        result = result.filter(task => task.positionId === positionId);
+      }
+      
+      if (status) {
+        if (status === 'OVERDUE') {
+          const now = new Date();
+          result = result.filter(task => 
+            task.status === TaskStatus.PENDING && new Date(task.dueDate) < now
+          );
+        } else {
+          result = result.filter(task => task.status === status);
+        }
+      }
+      
+      if (shift) {
+        result = result.filter(task => task.shift === shift);
+      }
+      
+      if (startDate) {
+        result = result.filter(task => new Date(task.dueDate) >= new Date(startDate));
+      }
+      
+      if (endDate) {
+        result = result.filter(task => new Date(task.dueDate) <= new Date(endDate));
+      }
+      
+      // Get positions and users for the response
+      const positions = await getAllPositions();
+      const users = await Promise.all(
+        userPositionIds.map(posId => getUsersByPosition(posId))
+      ).then(users => users.flat());
+
+      return NextResponse.json({
+        tasks: result,
+        positions,
+        users
+      });
+    } else {
+      // Admin can see all tasks and filter as needed
+      if (positionId) filters.positionId = positionId;
+      if (status) filters.status = status;
+      if (shift) filters.shift = shift;
+      if (startDate) filters.startDate = new Date(startDate);
+      if (endDate) filters.endDate = new Date(endDate);
+
+      const tasks = await getTasksByFilters(filters);
+      
+      // Get positions and users for the response
+      const positions = await getAllPositions();
+      const users = await Promise.all(positions.map(p => getUsersByPosition(p.id))).then(users => users.flat());
+
+      return NextResponse.json({
+        tasks,
+        positions,
+        users
+      });
     }
-
-    if (status) filters.status = status;
-    if (shift) filters.shift = shift;
-    if (startDate) filters.startDate = new Date(startDate);
-    if (endDate) filters.endDate = new Date(endDate);
-
-    const tasks = await getTasksByFilters(filters);
-    
-    // Get positions and users for the response
-    const positions = await getAllPositions();
-    const users = user.role === 'ADMIN' 
-      ? await Promise.all(positions.map(p => getUsersByPosition(p.id))).then(users => users.flat())
-      : await getUsersByPosition(user.positionId);
-
-    return NextResponse.json({
-      tasks,
-      positions,
-      users
-    });
   } catch (error) {
     console.error('Get tasks error:', error);
     return NextResponse.json(
