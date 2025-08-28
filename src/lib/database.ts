@@ -567,15 +567,16 @@ export async function getEmployeeRanking(period: 'day' | 'week' | 'month'): Prom
     SELECT 
       u.id,
       u.name,
-      p.name as position,
+      GROUP_CONCAT(p.name) as position,
       u.role,
       COUNT(CASE WHEN t.id IS NOT NULL THEN 1 END) as tasksCompleted,
       COUNT(*) as totalTasks
     FROM users u
-    LEFT JOIN positions p ON u.positionId = p.id
+    LEFT JOIN user_positions up ON u.id = up.userId
+    LEFT JOIN positions p ON up.positionId = p.id
     LEFT JOIN tasks t ON u.id = t.completedById AND t.dueDate >= ?
     WHERE u.role != 'ADMIN'
-    GROUP BY u.id, u.name, p.name, u.role
+    GROUP BY u.id, u.name, u.role
     ORDER BY tasksCompleted DESC
   `;
 

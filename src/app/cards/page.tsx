@@ -42,8 +42,11 @@ export default function CardsPage() {
         const map: Record<string, User[]> = {}
         for (const p of positions) map[p.id] = []
         for (const u of users) {
-            if (!map[u.positionId]) map[u.positionId] = []
-            map[u.positionId].push(u)
+            // Handle multiple positions per user
+            for (const positionId of u.positionIds || []) {
+                if (!map[positionId]) map[positionId] = []
+                map[positionId].push(u)
+            }
         }
         return map
     }, [users, positions])
@@ -54,10 +57,12 @@ export default function CardsPage() {
 
     const updateCount = async (userId: string, type: CardType, count: number) => {
         if (!canEdit || !token) return
+        const user = users.find(u => u.id === userId)
+        const positionId = user?.positionIds?.[0] || '' // Use first position as default
         await fetch('/api/cards', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ userId, positionId: (users.find(u => u.id === userId)?.positionId || ''), cardType: type, count })
+            body: JSON.stringify({ userId, positionId, cardType: type, count })
         })
         await fetchData()
     }
