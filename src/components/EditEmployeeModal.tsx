@@ -97,7 +97,7 @@ export default function EditEmployeeModal({
         <div className="mt-3">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium text-gray-900">
-              Editar Rol y Posición
+              Editar Rol y Estación
             </h3>
             <button
               onClick={onClose}
@@ -111,7 +111,7 @@ export default function EditEmployeeModal({
 
           <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
             <p className="text-sm text-blue-700">
-              Solo se pueden editar el rol y la posición del empleado. El nombre y correo electrónico no se pueden modificar.
+              Solo se pueden editar el rol y la estación del empleado. El nombre y correo electrónico no se pueden modificar.
             </p>
           </div>
 
@@ -203,7 +203,7 @@ export default function EditEmployeeModal({
                 disabled={isLoading}
                 className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
               >
-                {isLoading ? 'Actualizando...' : 'Actualizar Rol y Posición'}
+                {isLoading ? 'Actualizando...' : 'Actualizar Rol y Estación'}
               </button>
             </div>
           </form>

@@ -87,11 +87,11 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
 
   const getPositionName = (positionId: string) => {
     const position = positions.find(p => p.id === positionId);
-    return position?.name || 'Sin posición';
+    return position?.name || 'Sin estación';
   };
 
   const getPositionNames = (positionIds: string[]) => {
-    if (!positionIds || positionIds.length === 0) return 'Sin posición';
+    if (!positionIds || positionIds.length === 0) return 'Sin estación';
     return positionIds.map(id => getPositionName(id)).join(', ');
   };
 
@@ -169,7 +169,7 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
           {/* Position Filter */}
           <div>
             <label htmlFor="employee-position-filter" className="block text-sm font-medium text-gray-700 mb-1">
-              Filtrar por posición
+              Filtrar por estación
             </label>
             <select
               id="employee-position-filter"
@@ -225,7 +225,7 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
           <div className="mt-3 flex items-center justify-between">
                           <span className="text-sm text-gray-600">
                 Mostrando {filteredEmployees.length} de {employees.length} empleados
-                {positionFilter && ` • Posición: ${getPositionName(positionFilter)}`}
+                {positionFilter && ` • Estación: ${getPositionName(positionFilter)}`}
                 {roleFilter && ` • Rol: ${getRoleLabel(roleFilter as Role)}`}
               </span>
           </div>
@@ -267,7 +267,7 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
                     Rol
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Posición
+                    Estación
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Acciones

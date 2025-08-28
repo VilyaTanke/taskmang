@@ -90,11 +90,11 @@ export default function SelectEmployeeModal({
 
   const getPositionName = (positionId: string) => {
     const position = positions.find(p => p.id === positionId);
-    return position?.name || 'Sin posición';
+    return position?.name || 'Sin estación';
   };
 
   const getPositionNames = (positionIds: string[]) => {
-    if (!positionIds || positionIds.length === 0) return 'Sin posición';
+    if (!positionIds || positionIds.length === 0) return 'Sin estación';
     return positionIds.map(id => getPositionName(id)).join(', ');
   };
 
@@ -157,7 +157,7 @@ export default function SelectEmployeeModal({
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
               <label htmlFor="position-filter" className="block text-sm font-medium text-gray-700">
-                Filtrar por posición
+                Filtrar por estación
               </label>
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-gray-500">
@@ -180,7 +180,7 @@ export default function SelectEmployeeModal({
                 onChange={(e) => setPositionFilter(e.target.value)}
                 className="input"
               >
-                <option value="">Todas las posiciones</option>
+                <option value="">Todas las estaciones</option>
                 {positions.map((position) => (
                   <option key={position.id} value={position.id}>
                     {position.name}
@@ -262,7 +262,7 @@ export default function SelectEmployeeModal({
                       Rol
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Posición
+                      Estación
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Acción

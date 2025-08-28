@@ -66,7 +66,7 @@ export default function TaskFilters({ filters, onFiltersChange, positions }: Tas
 
       <div className="w-full">
         <label htmlFor="position" className="block text-sm font-medium text-gray-700 mb-1">
-          Posición
+          Estación
         </label>
         <select
           id="position"

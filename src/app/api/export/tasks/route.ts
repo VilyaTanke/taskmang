@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
         'Descripción': task.description,
         'Estado': task.status === TaskStatus.COMPLETED ? 'Completada' : 'Pendiente',
         'Fecha de Vencimiento': new Date(task.dueDate).toLocaleString('es-ES'),
-        'Posición': position?.name || 'Sin posición',
+        'Estación': position?.name || 'Sin estación',
         'Turno': getShiftLabel(task.shift),
         'Completada por': completedBy?.name || 'N/A',
         'Completada fuera de fecha': task.completedLate ? 'Sí' : 'No',
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
       { wch: 40 }, // Descripción
       { wch: 12 }, // Estado
       { wch: 20 }, // Fecha de Vencimiento
-      { wch: 15 }, // Posición
+              { wch: 15 }, // Estación
       { wch: 10 }, // Turno
       { wch: 20 }, // Completada por
       { wch: 20 }, // Completada fuera de fecha

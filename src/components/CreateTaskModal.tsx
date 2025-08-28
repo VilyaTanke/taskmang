@@ -122,7 +122,7 @@ export default function CreateTaskModal({ positions, onClose, onTaskCreated, tok
 
             <div>
               <label htmlFor="position" className="block text-sm font-medium text-gray-700 mb-1">
-                Posición *
+                Estación *
               </label>
               <select
                 id="position"
@@ -131,7 +131,7 @@ export default function CreateTaskModal({ positions, onClose, onTaskCreated, tok
                 onChange={(e) => handleInputChange('positionId', e.target.value)}
                 className="input"
               >
-                <option value="">Seleccionar posición</option>
+                <option value="">Seleccionar estación</option>
                 {positions.map(position => (
                   <option key={position.id} value={position.id}>
                     {position.name}

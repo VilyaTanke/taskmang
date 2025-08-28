@@ -109,7 +109,7 @@ export default function CardsPage() {
                 {/* Filters */}
                 <div className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Posición</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Estación</label>
                         <select value={positionId} onChange={(e) => setPositionId(e.target.value)} className="input w-full">
                             <option value="">Todas</option>
                             {positions.map(p => (

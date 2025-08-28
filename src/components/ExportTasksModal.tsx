@@ -83,7 +83,7 @@ export default function ExportTasksModal({ isOpen, onClose, positions }: ExportT
                 type="date"
                 value={filters.startDate}
                 onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="input block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 required
               />
             </div>
@@ -97,22 +97,22 @@ export default function ExportTasksModal({ isOpen, onClose, positions }: ExportT
                 type="date"
                 value={filters.endDate}
                 onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className=" input block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 required
               />
             </div>
 
-            {/* Filtro por posición */}
+            {/* Filtro por estación */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Posición (opcional)
+                Estación (opcional)
               </label>
               <select
                 value={filters.positionId}
                 onChange={(e) => setFilters({ ...filters, positionId: e.target.value })}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className=" input block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               >
-                <option value="">Todas las posiciones</option>
+                <option value="">Todas las Estaciones</option>
                 {positions.map(position => (
                   <option key={position.id} value={position.id}>
                     {position.name}
@@ -129,7 +129,7 @@ export default function ExportTasksModal({ isOpen, onClose, positions }: ExportT
               <select
                 value={filters.status}
                 onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="input block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               >
                 <option value="">Todos los estados</option>
                 <option value={TaskStatus.PENDING}>Pendiente</option>
@@ -145,7 +145,7 @@ export default function ExportTasksModal({ isOpen, onClose, positions }: ExportT
               <select
                 value={filters.shift}
                 onChange={(e) => setFilters({ ...filters, shift: e.target.value })}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className=" input block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               >
                 <option value="">Todos los turnos</option>
                 <option value={Shift.MORNING}>Mañana</option>
