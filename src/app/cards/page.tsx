@@ -21,6 +21,20 @@ export default function CardsPage() {
     const [isLoading, setIsLoading] = useState(true)
 
     const canEdit = isAdmin || (user && user.role === 'SUPERVISOR')
+    
+    // Filter positions based on user's assigned positions
+    const userPositions = useMemo(() => {
+        if (isAdmin) return positions // Admin can see all positions
+        if (!user?.positionIds) return []
+        return positions.filter(p => user.positionIds.includes(p.id))
+    }, [positions, user?.positionIds, isAdmin])
+    
+    // Set initial positionId to user's first position if not admin
+    useEffect(() => {
+        if (!isAdmin && user?.positionIds && user.positionIds.length > 0 && !positionId) {
+            setPositionId(user.positionIds[0])
+        }
+    }, [isAdmin, user?.positionIds, positionId])
 
     const fetchData = useCallback(async () => {
         setIsLoading(true)
@@ -40,7 +54,9 @@ export default function CardsPage() {
 
     const byPositionUsers = useMemo(() => {
         const map: Record<string, User[]> = {}
-        for (const p of positions) map[p.id] = []
+        // Only include positions that the user can see
+        const allowedPositions = isAdmin ? positions : userPositions
+        for (const p of allowedPositions) map[p.id] = []
         for (const u of users) {
             // Handle multiple positions per user
             for (const positionId of u.positionIds || []) {
@@ -49,7 +65,7 @@ export default function CardsPage() {
             }
         }
         return map
-    }, [users, positions])
+    }, [users, positions, userPositions, isAdmin])
 
     const getCount = useCallback((userId: string, type: CardType, positionId?: string) => {
         if (positionId) {
@@ -77,7 +93,12 @@ export default function CardsPage() {
     const employeeTotals = useMemo(() => {
         const totals: Record<string, { name: string; total: number; mastercard: number; moevePro: number; moeveGow: number }> = {}
         
-        for (const user of users) {
+        // Filter users to only include those from allowed positions
+        const allowedUsers = isAdmin ? users : users.filter(user => 
+            user.positionIds?.some(posId => userPositions.some(p => p.id === posId))
+        )
+        
+        for (const user of allowedUsers) {
             const mastercard = getCount(user.id, CardType.MASTERCARD_MOEVE_GOW_BANKINTER) // No position specified = sum all positions
             const moevePro = getCount(user.id, CardType.MOEVE_PRO) // No position specified = sum all positions
             const moeveGow = getCount(user.id, CardType.MOEVE_GOW) // No position specified = sum all positions
@@ -95,13 +116,16 @@ export default function CardsPage() {
         }
         
         return Object.values(totals).sort((a, b) => b.total - a.total)
-    }, [users, getCount])
+    }, [users, getCount, userPositions, isAdmin])
 
     // Calculate totals by position
     const positionTotals = useMemo(() => {
         const totals: Record<string, { name: string; total: number; mastercard: number; moevePro: number; moeveGow: number }> = {}
         
-        for (const position of positions) {
+        // Only calculate totals for positions the user can see
+        const allowedPositions = isAdmin ? positions : userPositions
+        
+        for (const position of allowedPositions) {
             const positionUsers = byPositionUsers[position.id] || []
             let mastercard = 0
             let moevePro = 0
@@ -127,7 +151,7 @@ export default function CardsPage() {
         }
         
         return Object.values(totals).sort((a, b) => b.total - a.total)
-    }, [positions, byPositionUsers, getCount])
+    }, [positions, byPositionUsers, getCount, userPositions, isAdmin])
 
     // Calculate grand total
     const grandTotal = useMemo(() => {
@@ -135,7 +159,12 @@ export default function CardsPage() {
         let moevePro = 0
         let moeveGow = 0
         
-        for (const record of records) {
+        // Filter records to only include those from allowed positions
+        const allowedRecords = isAdmin ? records : records.filter(record => 
+            userPositions.some(p => p.id === record.positionId)
+        )
+        
+        for (const record of allowedRecords) {
             switch (record.cardType) {
                 case CardType.MASTERCARD_MOEVE_GOW_BANKINTER:
                     mastercard += record.count
@@ -155,7 +184,7 @@ export default function CardsPage() {
             moevePro,
             moeveGow
         }
-    }, [records])
+    }, [records, userPositions, isAdmin])
 
     if (isLoading) {
         return (
@@ -202,7 +231,7 @@ export default function CardsPage() {
                         <label className="block text-sm font-medium text-gray-700 mb-1">Estación</label>
                         <select value={positionId} onChange={(e) => setPositionId(e.target.value)} className="input w-full">
                             <option value="">Todas</option>
-                            {positions.map(p => (
+                            {userPositions.map(p => (
                                 <option key={p.id} value={p.id}>{p.name}</option>
                             ))}
                         </select>
@@ -210,7 +239,7 @@ export default function CardsPage() {
                 </div>
 
                 {/* Employees table */}
-                {positions.filter(p => !positionId || p.id === positionId).map(p => (
+                {userPositions.filter(p => !positionId || p.id === positionId).map(p => (
                     <div key={p.id} className="bg-white shadow rounded-lg overflow-hidden mb-6">
                         <div className="px-4 sm:px-6 py-3 border-b text-gray-900 font-medium">{p.name} · Empleados</div>
                         <div className="overflow-x-auto">

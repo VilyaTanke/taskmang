@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const positionId = searchParams.get('positionId');
-    const status = searchParams.get('status') as TaskStatus;
+    const status = searchParams.get('status') as TaskStatus | 'OVERDUE';
     const shift = searchParams.get('shift') as Shift;
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');

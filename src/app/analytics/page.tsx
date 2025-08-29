@@ -12,11 +12,25 @@ interface AnalyticsData {
 }
 
 export default function AnalyticsPage() {
-  const { token } = useAuth()
+  const { token, isAdmin, user } = useAuth()
   const [data, setData] = useState<AnalyticsData>({ tasks: [], positions: [], users: [] })
   const [period, setPeriod] = useState<'all' | 'week' | 'month'>('all')
   const [positionId, setPositionId] = useState<string>('')
   const [isLoading, setIsLoading] = useState(true)
+
+  // Filter positions based on user's assigned positions
+  const userPositions = useMemo(() => {
+    if (isAdmin) return data.positions // Admin can see all positions
+    if (!user?.positionIds) return []
+    return data.positions.filter(p => user.positionIds.includes(p.id))
+  }, [data.positions, user?.positionIds, isAdmin])
+
+  // Set initial positionId to user's first position if not admin
+  useEffect(() => {
+    if (!isAdmin && user?.positionIds && user.positionIds.length > 0 && !positionId) {
+      setPositionId(user.positionIds[0])
+    }
+  }, [isAdmin, user?.positionIds, positionId])
 
   useEffect(() => {
     if (!token) return
@@ -50,22 +64,29 @@ export default function AnalyticsPage() {
     }
 
     let tasks = data.tasks
+    // Filter tasks by user's allowed positions
+    if (!isAdmin) {
+      tasks = tasks.filter(t => userPositions.some(p => p.id === t.positionId))
+    }
     if (positionId) tasks = tasks.filter(t => t.positionId === positionId)
     if (startDate) tasks = tasks.filter(t => new Date(t.dueDate) >= startDate!)
     return { filteredTasks: tasks, startDateFilter: startDate }
-  }, [data.tasks, period, positionId])
+  }, [data.tasks, period, positionId, userPositions, isAdmin])
 
   const statsByPosition = useMemo(() => {
     const now = new Date()
     const grouped: Record<string, { positionName: string; pending: number; overdue: number; completed: number; total: number }> = {}
 
-    for (const position of data.positions) {
+    // Only include positions that the user can see
+    const allowedPositions = isAdmin ? data.positions : userPositions
+    for (const position of allowedPositions) {
       grouped[position.id] = { positionName: position.name, pending: 0, overdue: 0, completed: 0, total: 0 }
     }
 
     for (const task of filteredTasks) {
       if (!grouped[task.positionId]) {
-        grouped[task.positionId] = { positionName: task.position?.name || task.positionId, pending: 0, overdue: 0, completed: 0, total: 0 }
+        const position = data.positions.find(p => p.id === task.positionId)
+        grouped[task.positionId] = { positionName: position?.name || task.positionId, pending: 0, overdue: 0, completed: 0, total: 0 }
       }
       grouped[task.positionId].total += 1
       if (task.status === TaskStatus.COMPLETED) {
@@ -77,11 +98,13 @@ export default function AnalyticsPage() {
     }
 
     return Object.entries(grouped).map(([positionId, s]) => ({ positionId, ...s }))
-  }, [filteredTasks, data.positions])
+  }, [filteredTasks, data.positions, userPositions, isAdmin])
 
   const employeesByPosition = useMemo(() => {
     const map: Record<string, User[]> = {}
-    for (const pos of data.positions) map[pos.id] = []
+    // Only include positions that the user can see
+    const allowedPositions = isAdmin ? data.positions : userPositions
+    for (const pos of allowedPositions) map[pos.id] = []
     for (const u of data.users) {
       // Handle multiple positions per user
       for (const positionId of u.positionIds || []) {
@@ -90,7 +113,7 @@ export default function AnalyticsPage() {
       }
     }
     return map
-  }, [data.users, data.positions])
+  }, [data.users, data.positions, userPositions, isAdmin])
 
   const completedCountByUser: Record<string, number> = useMemo(() => {
     const counts: Record<string, number> = {}
@@ -136,10 +159,10 @@ export default function AnalyticsPage() {
             </select>
           </div>
           <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Estación</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Estación</label>
             <select value={positionId} onChange={(e) => setPositionId(e.target.value)} className="input w-full">
               <option value="">Todas</option>
-              {data.positions.map(p => (
+              {userPositions.map(p => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
@@ -195,7 +218,7 @@ export default function AnalyticsPage() {
         </div>
         {/* Employee breakdown per position */}
         <div className="mt-8 space-y-6">
-          {data.positions
+          {userPositions
             .filter(p => !positionId || p.id === positionId)
             .map(p => (
             <div key={p.id} className="bg-white shadow rounded-lg overflow-hidden">

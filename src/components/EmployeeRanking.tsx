@@ -21,12 +21,6 @@ export default function EmployeeRanking({ token }: EmployeeRankingProps) {
   const [period, setPeriod] = useState<'day' | 'week' | 'month'>('week');
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (token) {
-      fetchRanking();
-    }
-  }, [token, period, fetchRanking]);
-
   const fetchRanking = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -46,6 +40,12 @@ export default function EmployeeRanking({ token }: EmployeeRankingProps) {
       setIsLoading(false);
     }
   }, [token, period]);
+
+  useEffect(() => {
+    if (token) {
+      fetchRanking();
+    }
+  }, [token, period, fetchRanking]);
 
   const getPeriodLabel = (period: string) => {
     switch (period) {

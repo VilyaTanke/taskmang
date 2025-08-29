@@ -30,12 +30,6 @@ export default function SelectEmployeeModal({
   const [positionFilter, setPositionFilter] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
 
-  useEffect(() => {
-    if (token) {
-      fetchEmployees();
-    }
-  }, [token, fetchEmployees]);
-
   const fetchEmployees = useCallback(async () => {
     setIsLoading(true);
     setError('');
@@ -61,6 +55,12 @@ export default function SelectEmployeeModal({
       setIsLoading(false);
     }
   }, [token]);
+
+  useEffect(() => {
+    if (token) {
+      fetchEmployees();
+    }
+  }, [token, fetchEmployees]);
 
   const getRoleLabel = (role: Role) => {
     switch (role) {

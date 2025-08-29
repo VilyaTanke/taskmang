@@ -27,12 +27,6 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
   const [positionFilter, setPositionFilter] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
 
-  useEffect(() => {
-    if (token) {
-      fetchEmployees();
-    }
-  }, [token, fetchEmployees]);
-
   const fetchEmployees = useCallback(async () => {
     setIsLoading(true);
     setError('');
@@ -58,6 +52,12 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
       setIsLoading(false);
     }
   }, [token]);
+
+  useEffect(() => {
+    if (token) {
+      fetchEmployees();
+    }
+  }, [token, fetchEmployees]);
 
   const getRoleLabel = (role: Role) => {
     switch (role) {
