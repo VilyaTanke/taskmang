@@ -11,7 +11,8 @@ import TaskFilters from '@/components/TaskFilters';
 import CreateTaskModal from '@/components/CreateTaskModal';
 import CreateEmployeeModal from '@/components/CreateEmployeeModal';
 import EditEmployeeModal from '@/components/EditEmployeeModal';
-import SelectEmployeeModal from '@/components/SelectEmployeeModal';
+import CashChangeModal from '@/components/CashChangeModal';
+
 import EmployeeList from '@/components/EmployeeList';
 
 import ExportTasksModal from '@/components/ExportTasksModal';
@@ -30,7 +31,8 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCreateEmployeeModal, setShowCreateEmployeeModal] = useState(false);
-  const [showSelectEmployeeModal, setShowSelectEmployeeModal] = useState(false);
+  const [showCashChangeModal, setShowCashChangeModal] = useState(false);
+
   const [showEditEmployeeModal, setShowEditEmployeeModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null);
   const [showExportModal, setShowExportModal] = useState(false);
@@ -148,10 +150,7 @@ export default function DashboardPage() {
     }
   };
 
-  const handleSelectEmployee = (employee: User) => {
-    setSelectedEmployee(employee);
-    setShowEditEmployeeModal(true);
-  };
+
 
   const handleEmployeeUpdated = () => {
     setSelectedEmployee(null);
@@ -365,13 +364,13 @@ export default function DashboardPage() {
                 </button>
 
                 <button
-                  onClick={() => setShowSelectEmployeeModal(true)}
-                  className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white font-medium rounded-lg shadow-lg shadow-yellow-500/25 transition-all duration-200"
+                  onClick={() => setShowCashChangeModal(true)}
+                  className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-medium rounded-lg shadow-lg shadow-orange-500/25 transition-all duration-200"
                 >
                   <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                   </svg>
-                  <span className="text-sm">Editar Empleado</span>
+                  <span className="text-sm">Cambio</span>
                 </button>
 
                 <button
@@ -532,14 +531,7 @@ export default function DashboardPage() {
         />
       )}
 
-      {/* Select Employee Modal */}
-      {showSelectEmployeeModal && (
-        <SelectEmployeeModal
-          onClose={() => setShowSelectEmployeeModal(false)}
-          onSelectEmployee={handleSelectEmployee}
-          token={token}
-        />
-      )}
+
 
       {/* Edit Employee Modal */}
       {showEditEmployeeModal && selectedEmployee && token && (
@@ -561,6 +553,13 @@ export default function DashboardPage() {
           isOpen={showExportModal}
           onClose={() => setShowExportModal(false)}
           positions={data.positions}
+        />
+      )}
+
+      {/* Cash Change Modal */}
+      {showCashChangeModal && (
+        <CashChangeModal
+          onClose={() => setShowCashChangeModal(false)}
         />
       )}
     </div>
