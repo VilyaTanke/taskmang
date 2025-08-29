@@ -12,6 +12,7 @@ import CreateTaskModal from '@/components/CreateTaskModal';
 import CreateEmployeeModal from '@/components/CreateEmployeeModal';
 import EditEmployeeModal from '@/components/EditEmployeeModal';
 import CashChangeModal from '@/components/CashChangeModal';
+import EmailTestModal from '@/components/EmailTestModal';
 
 import EmployeeList from '@/components/EmployeeList';
 
@@ -32,6 +33,7 @@ export default function DashboardPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCreateEmployeeModal, setShowCreateEmployeeModal] = useState(false);
   const [showCashChangeModal, setShowCashChangeModal] = useState(false);
+  const [showEmailTestModal, setShowEmailTestModal] = useState(false);
 
   const [showEditEmployeeModal, setShowEditEmployeeModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null);
@@ -382,6 +384,16 @@ export default function DashboardPage() {
                   </svg>
                   <span className="text-sm">Exportar Excel</span>
                 </button>
+
+                {/*<button
+                  onClick={() => setShowEmailTestModal(true)}
+                  className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white font-medium rounded-lg shadow-lg shadow-cyan-500/25 transition-all duration-200"
+                >
+                  <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  <span className="text-sm">Probar Email</span>
+                </button>*/}
               </>
             )}
           </div>
@@ -560,6 +572,13 @@ export default function DashboardPage() {
       {showCashChangeModal && (
         <CashChangeModal
           onClose={() => setShowCashChangeModal(false)}
+        />
+      )}
+
+      {/* Email Test Modal */}
+      {showEmailTestModal && (
+        <EmailTestModal
+          onClose={() => setShowEmailTestModal(false)}
         />
       )}
     </div>

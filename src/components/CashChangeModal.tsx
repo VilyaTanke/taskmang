@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import EmailModal from './EmailModal';
 
 interface CashChangeModalProps {
   onClose: () => void;
@@ -14,6 +15,7 @@ interface Denomination {
 
 export default function CashChangeModal({ onClose }: CashChangeModalProps) {
   const [quantities, setQuantities] = useState<Record<number, number>>({});
+  const [showEmailModal, setShowEmailModal] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
   const coins: Denomination[] = [
@@ -89,18 +91,19 @@ export default function CashChangeModal({ onClose }: CashChangeModalProps) {
   };
 
   const handleEmail = () => {
+    setShowEmailModal(true);
+  };
+
+  const getEmailContent = () => {
     if (printRef.current) {
-      const subject = encodeURIComponent('Solicitud de Cambio de Efectivo');
-      const body = encodeURIComponent(`
-        Hoja de Solicitud de Cambio de Efectivo
-        Fecha: ${new Date().toLocaleDateString('es-ES')}
-        
-        ${printRef.current.innerText}
-      `);
-      
-      const mailtoLink = `mailto:?subject=${subject}&body=${body}`;
-      window.open(mailtoLink, '_blank');
+      return `
+Hoja de Solicitud de Cambio de Efectivo
+Fecha: ${new Date().toLocaleDateString('es-ES')}
+
+${printRef.current.innerText}
+      `;
     }
+    return '';
   };
 
   return (
@@ -275,6 +278,14 @@ export default function CashChangeModal({ onClose }: CashChangeModalProps) {
           </button>
         </div>
       </div>
+
+      {/* Email Modal */}
+      {showEmailModal && (
+        <EmailModal
+          onClose={() => setShowEmailModal(false)}
+          emailContent={getEmailContent()}
+        />
+      )}
     </div>
   );
 }
