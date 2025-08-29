@@ -1,12 +1,15 @@
 import sqlite3 from 'sqlite3';
 import { promisify } from 'util';
-import { User, Position, Task, Role, TaskStatus, Shift, CardRecord, CardType } from '@/types';
+import { User, Position, Task, Role, TaskStatus, Shift, CardRecord } from '@/types';
 
 const db = new sqlite3.Database('./taskmang.db');
 
 // Promisify database methods with proper typing
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const dbRun = promisify(db.run.bind(db)) as (sql: string, params?: any[]) => Promise<any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const dbGet = promisify(db.get.bind(db)) as (sql: string, params?: any[]) => Promise<any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const dbAll = promisify(db.all.bind(db)) as (sql: string, params?: any[]) => Promise<any[]>;
 
 // Initialize database tables
@@ -115,6 +118,7 @@ export async function initializeDatabase() {
     // Insert default admin user if it doesn't exist
     const adminExists = await dbGet('SELECT * FROM users WHERE email = ?', ['admin@taskmang.com']);
     if (!adminExists) {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const bcrypt = require('bcryptjs');
       const hashedPassword = await bcrypt.hash('admin123', 10);
       await dbRun(
@@ -280,6 +284,7 @@ export async function updateUser(id: string, updates: Partial<User>): Promise<Us
   
   try {
     const updateFields: string[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any[] = [];
 
     if (updates.name !== undefined) {
@@ -427,6 +432,7 @@ export async function getTasksByFilters(filters: {
   endDate?: Date;
 }): Promise<Task[]> {
   let query = 'SELECT * FROM tasks WHERE 1=1';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params: any[] = [];
 
   if (filters.positionId) {
@@ -469,6 +475,7 @@ export async function updateTask(id: string, updates: Partial<Task>): Promise<Ta
   if (!task) return null;
 
   const updateFields: string[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params: any[] = [];
 
   if (updates.title !== undefined) {
@@ -605,6 +612,7 @@ export async function createOrUpdateCardRecord(record: Omit<CardRecord, 'id' | '
 
 export async function getCardRecordsByFilters(filters: { positionId?: string }): Promise<CardRecord[]> {
   let query = 'SELECT * FROM card_records WHERE 1=1';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params: any[] = [];
   if (filters.positionId) { query += ' AND positionId = ?'; params.push(filters.positionId); }
   const rows = await dbAll(query, params);

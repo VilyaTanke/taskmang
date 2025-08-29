@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { CardType, Position, User } from '@/types'
@@ -22,7 +22,7 @@ export default function CardsPage() {
 
     const canEdit = isAdmin || (user && user.role === 'SUPERVISOR')
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         setIsLoading(true)
         const qp = new URLSearchParams()
         if (positionId) qp.append('positionId', positionId)
@@ -34,9 +34,9 @@ export default function CardsPage() {
             setPositions(data.positions)
         }
         setIsLoading(false)
-    }
+    }, [positionId])
 
-    useEffect(() => { fetchData() }, [positionId])
+    useEffect(() => { fetchData() }, [positionId, fetchData])
 
     const byPositionUsers = useMemo(() => {
         const map: Record<string, User[]> = {}
@@ -51,7 +51,7 @@ export default function CardsPage() {
         return map
     }, [users, positions])
 
-    const getCount = (userId: string, type: CardType, positionId?: string) => {
+    const getCount = useCallback((userId: string, type: CardType, positionId?: string) => {
         if (positionId) {
             // Get count for specific position
             return records.find(r => r.userId === userId && r.cardType === type && r.positionId === positionId)?.count || 0
@@ -61,7 +61,7 @@ export default function CardsPage() {
                 .filter(r => r.userId === userId && r.cardType === type)
                 .reduce((sum, r) => sum + r.count, 0)
         }
-    }
+    }, [records])
 
     const updateCount = async (userId: string, type: CardType, count: number, positionId: string) => {
         if (!canEdit || !token) return
@@ -95,7 +95,7 @@ export default function CardsPage() {
         }
         
         return Object.values(totals).sort((a, b) => b.total - a.total)
-    }, [users, records])
+    }, [users, getCount])
 
     // Calculate totals by position
     const positionTotals = useMemo(() => {
@@ -127,7 +127,7 @@ export default function CardsPage() {
         }
         
         return Object.values(totals).sort((a, b) => b.total - a.total)
-    }, [positions, byPositionUsers, records])
+    }, [positions, byPositionUsers, getCount])
 
     // Calculate grand total
     const grandTotal = useMemo(() => {

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Task, Position, User, TaskStatus, Shift } from '@/types';
+import { Task, Position, User, TaskStatus } from '@/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import DashboardHeader from '@/components/DashboardHeader';
@@ -13,7 +13,7 @@ import CreateEmployeeModal from '@/components/CreateEmployeeModal';
 import EditEmployeeModal from '@/components/EditEmployeeModal';
 import SelectEmployeeModal from '@/components/SelectEmployeeModal';
 import EmployeeList from '@/components/EmployeeList';
-import EmployeeRanking from '@/components/EmployeeRanking';
+
 import ExportTasksModal from '@/components/ExportTasksModal';
 import Link from 'next/link';
 
@@ -45,27 +45,7 @@ export default function DashboardPage() {
   });
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  useEffect(() => {
-    if (token) {
-      fetchTasks();
-    }
-  }, [token]);
-
-  useEffect(() => {
-    filterTasks();
-  }, [data.tasks, filters]);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-
-
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     try {
       const queryParams = new URLSearchParams();
       if (filters.status && filters.status !== 'OVERDUE') queryParams.append('status', filters.status);
@@ -87,9 +67,9 @@ export default function DashboardPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [token, filters.status, filters.shift, filters.positionId]);
 
-  const filterTasks = () => {
+  const filterTasks = useCallback(() => {
     let filtered = data.tasks;
 
     if (filters.status) {
@@ -110,7 +90,25 @@ export default function DashboardPage() {
     }
 
     setFilteredTasks(filtered);
-  };
+  }, [data.tasks, filters.status, filters.shift, filters.positionId]);
+
+  useEffect(() => {
+    if (token) {
+      fetchTasks();
+    }
+  }, [token, fetchTasks]);
+
+  useEffect(() => {
+    filterTasks();
+  }, [data.tasks, filters, filterTasks]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const handleTaskUpdate = async (taskId: string, updates: Partial<Task>) => {
     try {
@@ -171,9 +169,7 @@ export default function DashboardPage() {
     return filteredTasks.filter(task => task.status === status);
   };
 
-  const getTasksByShift = (shift: Shift) => {
-    return filteredTasks.filter(task => task.shift === shift);
-  };
+
 
   const getFilteredPendingTasks = () => {
     let filtered = getTasksByStatus(TaskStatus.PENDING);
@@ -209,7 +205,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <DashboardHeader user={user} onLogout={() => {}} />
+              <DashboardHeader user={user} />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Digital Clock */}

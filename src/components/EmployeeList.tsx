@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { User, Position, Role } from '@/types';
 import EditEmployeeModal from './EditEmployeeModal';
 
@@ -31,9 +31,9 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
     if (token) {
       fetchEmployees();
     }
-  }, [token]);
+  }, [token, fetchEmployees]);
 
-  const fetchEmployees = async () => {
+  const fetchEmployees = useCallback(async () => {
     setIsLoading(true);
     setError('');
     
@@ -52,12 +52,12 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
         const errorData = await response.json();
         setError(errorData.error || 'Error al cargar empleados');
       }
-    } catch (_error) {
+    } catch {
       setError('Error de conexión');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [token]);
 
   const getRoleLabel = (role: Role) => {
     switch (role) {
@@ -123,9 +123,9 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
         const errorData = await response.json();
         setError(errorData.error || 'Error al eliminar empleado');
       }
-    } catch (_error) {
-      setError('Error de conexión');
-    }
+          } catch {
+        setError('Error de conexión');
+      }
   };
 
   const filteredEmployees = employees.filter(employee => {

@@ -65,7 +65,7 @@ export default function EditEmployeeModal({
         const errorData = await response.json();
         setError(errorData.error || 'Error al actualizar empleado');
       }
-    } catch (_error) {
+    } catch {
       setError('Error de conexión');
     } finally {
       setIsLoading(false);

@@ -45,7 +45,7 @@ export default function CreateTaskModal({ positions, onClose, onTaskCreated, tok
         const errorData = await response.json();
         setError(errorData.error || 'Error al crear la tarea');
       }
-    } catch (_error) {
+    } catch {
       setError('Error de conexión');
     } finally {
       setIsLoading(false);

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Shift } from '@/types';
+import { useState, useEffect, useCallback } from 'react';
+
 
 interface EmployeeRankingProps {
   token: string | null;
@@ -25,9 +25,9 @@ export default function EmployeeRanking({ token }: EmployeeRankingProps) {
     if (token) {
       fetchRanking();
     }
-  }, [token, period]);
+  }, [token, period, fetchRanking]);
 
-  const fetchRanking = async () => {
+  const fetchRanking = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await fetch(`/api/ranking?period=${period}`, {
@@ -45,7 +45,7 @@ export default function EmployeeRanking({ token }: EmployeeRankingProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [token, period]);
 
   const getPeriodLabel = (period: string) => {
     switch (period) {

@@ -6,10 +6,9 @@ import { useRouter } from 'next/navigation';
 
 interface DashboardHeaderProps {
   user: User | null;
-  onLogout?: () => void;
 }
 
-export default function DashboardHeader({ user, onLogout }: DashboardHeaderProps) {
+export default function DashboardHeader({ user }: DashboardHeaderProps) {
   const { logout } = useAuth();
   const router = useRouter();
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { User, Position, Role } from '@/types';
 
 interface SelectEmployeeModalProps {
@@ -34,9 +34,9 @@ export default function SelectEmployeeModal({
     if (token) {
       fetchEmployees();
     }
-  }, [token]);
+  }, [token, fetchEmployees]);
 
-  const fetchEmployees = async () => {
+  const fetchEmployees = useCallback(async () => {
     setIsLoading(true);
     setError('');
     
@@ -55,12 +55,12 @@ export default function SelectEmployeeModal({
         const errorData = await response.json();
         setError(errorData.error || 'Error al cargar empleados');
       }
-    } catch (_error) {
+    } catch {
       setError('Error de conexión');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [token]);
 
   const getRoleLabel = (role: Role) => {
     switch (role) {

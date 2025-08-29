@@ -17,7 +17,7 @@ interface TaskCardProps {
 
 export default function TaskCard({ task, positions, users, onUpdate, onDuplicate, isAdmin }: TaskCardProps) {
   const { user } = useAuth();
-  const [_isExpanded, _setIsExpanded] = useState(false);
+
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [newDueDate, setNewDueDate] = useState('');
 
