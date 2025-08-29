@@ -34,7 +34,7 @@ export function verifyToken(token: string): JWTPayload | null {
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
     return decoded;
-  } catch (error) {
+  } catch (_error) {
     return null;
   }
 }
@@ -67,7 +67,7 @@ export async function getAuthUser(request: Request): Promise<{ success: boolean;
     }
 
     return { success: true, user: decoded };
-  } catch (error) {
+  } catch (_error) {
     return { success: false, error: 'Authentication failed' };
   }
 }

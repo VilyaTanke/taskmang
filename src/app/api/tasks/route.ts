@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
 
-    const filters: any = {};
+    const filters: Record<string, unknown> = {};
     
     // If not admin, filter by user's positions
     if (user.role !== 'ADMIN') {

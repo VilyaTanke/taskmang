@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 
 interface DashboardHeaderProps {
   user: User | null;
-  onLogout: () => void;
+  onLogout?: () => void;
 }
 
 export default function DashboardHeader({ user, onLogout }: DashboardHeaderProps) {

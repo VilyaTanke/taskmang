@@ -55,7 +55,7 @@ export default function SelectEmployeeModal({
         const errorData = await response.json();
         setError(errorData.error || 'Error al cargar empleados');
       }
-    } catch (error) {
+    } catch (_error) {
       setError('Error de conexión');
     } finally {
       setIsLoading(false);

@@ -70,7 +70,7 @@ export default function CreateEmployeeModal({ positions, onClose, onEmployeeCrea
         const errorData = await response.json();
         setError(errorData.error || 'Error al crear el empleado');
       }
-    } catch (error) {
+    } catch (_error) {
       setError('Error de conexión');
     } finally {
       setIsLoading(false);

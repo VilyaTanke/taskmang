@@ -92,7 +92,7 @@ export async function PATCH(
     
     // Only admins can update task details, but users can mark tasks as completed
     if (user.role !== 'ADMIN') {
-      const allowedUpdates: any = {};
+      const allowedUpdates: Record<string, unknown> = {};
       if (updates.status !== undefined) allowedUpdates.status = updates.status;
       if (updates.completedById !== undefined) allowedUpdates.completedById = updates.completedById;
       if (updates.completedLate !== undefined) allowedUpdates.completedLate = updates.completedLate;

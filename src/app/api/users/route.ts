@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Return user without password
-    const { password: _, ...userWithoutPassword } = newUser;
+    const { password: _unused, ...userWithoutPassword } = newUser;
 
     return NextResponse.json(userWithoutPassword, { status: 201 });
   } catch (error) {

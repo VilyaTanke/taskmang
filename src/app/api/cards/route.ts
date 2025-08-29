@@ -19,9 +19,8 @@ export async function POST(request: NextRequest) {
   if (!authHeader.startsWith('Bearer ')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
-  const token = authHeader.substring(7)
   const payload = await (async () => {
-    const res = await getAuthUser(request as any)
+    const res = await getAuthUser(request as unknown as Request)
     return res.success ? res.user : null
   })()
   if (!payload) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

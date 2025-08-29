@@ -8,7 +8,7 @@ interface TaskFiltersProps {
     shift: string;
     positionId: string;
   };
-  onFiltersChange: (filters: any) => void;
+  onFiltersChange: (filters: { status: string; shift: string; positionId: string }) => void;
   positions: Position[];
 }
 

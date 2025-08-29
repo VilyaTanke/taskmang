@@ -52,7 +52,7 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
         const errorData = await response.json();
         setError(errorData.error || 'Error al cargar empleados');
       }
-    } catch (error) {
+    } catch (_error) {
       setError('Error de conexión');
     } finally {
       setIsLoading(false);
@@ -123,7 +123,7 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
         const errorData = await response.json();
         setError(errorData.error || 'Error al eliminar empleado');
       }
-    } catch (error) {
+    } catch (_error) {
       setError('Error de conexión');
     }
   };

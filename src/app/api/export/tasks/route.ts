@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const filters: any = {};
+    const filters: Record<string, unknown> = {};
     if (positionId) filters.positionId = positionId;
     if (status) filters.status = status;
     if (shift) filters.shift = shift;
