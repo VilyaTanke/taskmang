@@ -60,14 +60,14 @@ export default function CreateTaskModal({ positions, onClose, onTaskCreated, tok
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
+      <div className="relative top-20 mx-auto p-6 border border-white/20 w-96 shadow-2xl rounded-xl bg-slate-900/95 backdrop-blur-sm">
         <div className="mt-3">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-gray-900">Crear Nueva Tarea</h3>
+            <h3 className="text-lg font-medium text-white">Crear Nueva Tarea</h3>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-gray-300 transition-colors duration-200"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -77,7 +77,7 @@ export default function CreateTaskModal({ positions, onClose, onTaskCreated, tok
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-2">
                 Título *
               </label>
               <input
@@ -86,13 +86,13 @@ export default function CreateTaskModal({ positions, onClose, onTaskCreated, tok
                 required
                 value={formData.title}
                 onChange={(e) => handleInputChange('title', e.target.value)}
-                className="input"
+                className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
                 placeholder="Título de la tarea"
               />
             </div>
 
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-2">
                 Descripción *
               </label>
               <textarea
@@ -101,13 +101,13 @@ export default function CreateTaskModal({ positions, onClose, onTaskCreated, tok
                 rows={3}
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
-                className="input"
+                className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
                 placeholder="Descripción detallada de la tarea"
               />
             </div>
 
             <div>
-              <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="dueDate" className="block text-sm font-medium text-gray-300 mb-2">
                 Fecha de Vencimiento *
               </label>
               <input
@@ -116,12 +116,12 @@ export default function CreateTaskModal({ positions, onClose, onTaskCreated, tok
                 required
                 value={formData.dueDate}
                 onChange={(e) => handleInputChange('dueDate', e.target.value)}
-                className="input"
+                className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
               />
             </div>
 
             <div>
-              <label htmlFor="position" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="position" className="block text-sm font-medium text-gray-300 mb-2">
                 Estación *
               </label>
               <select
@@ -129,7 +129,7 @@ export default function CreateTaskModal({ positions, onClose, onTaskCreated, tok
                 required
                 value={formData.positionId}
                 onChange={(e) => handleInputChange('positionId', e.target.value)}
-                className="input"
+                className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
               >
                 <option value="">Seleccionar estación</option>
                 {positions.map(position => (
@@ -141,7 +141,7 @@ export default function CreateTaskModal({ positions, onClose, onTaskCreated, tok
             </div>
 
             <div>
-              <label htmlFor="shift" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="shift" className="block text-sm font-medium text-gray-300 mb-2">
                 Turno *
               </label>
               <select
@@ -149,7 +149,7 @@ export default function CreateTaskModal({ positions, onClose, onTaskCreated, tok
                 required
                 value={formData.shift}
                 onChange={(e) => handleInputChange('shift', e.target.value)}
-                className="input"
+                className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
               >
                 <option value="">Seleccionar turno</option>
                 <option value={Shift.MORNING}>Mañana</option>
@@ -159,16 +159,12 @@ export default function CreateTaskModal({ positions, onClose, onTaskCreated, tok
             </div>
 
             {error && (
-              <div className="rounded-md bg-red-50 p-4">
-                <div className="flex">
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-red-800">
-                      Error
-                    </h3>
-                    <div className="mt-2 text-sm text-red-700">
-                      {error}
-                    </div>
-                  </div>
+              <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                  <span className="text-red-400 text-sm">{error}</span>
                 </div>
               </div>
             )}
@@ -177,14 +173,14 @@ export default function CreateTaskModal({ positions, onClose, onTaskCreated, tok
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="px-4 py-2 border border-gray-600 rounded-md text-sm font-medium text-gray-300 bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all duration-200"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 transition-all duration-200"
               >
                 {isLoading ? 'Creando...' : 'Crear Tarea'}
               </button>

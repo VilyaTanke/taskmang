@@ -33,8 +33,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const positions = await getAllPositions();
     const allUsers = await getAllUsers();
+    const positions = await getAllPositions();
     
     return NextResponse.json({
       users: allUsers,

@@ -8,9 +8,8 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const positionId = searchParams.get('positionId') || undefined
   const records = await getCardRecordsByFilters({ positionId })
-  const users = await getAllUsers()
   const positions = await getAllPositions()
-  return NextResponse.json({ records, users, positions })
+  return NextResponse.json({ records, positions })
 }
 
 export async function POST(request: NextRequest) {

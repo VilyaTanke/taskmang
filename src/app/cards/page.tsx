@@ -1,387 +1,538 @@
-'use client'
+'use client';
 
-import { useEffect, useMemo, useState, useCallback } from 'react'
-import Link from 'next/link'
-import { useAuth } from '@/contexts/AuthContext'
-import { CardType, Position, User } from '@/types'
-import Image from 'next/image'
-import mastercardMoeveGow from './mastercard_moeve_gow.png'
-import moevePro from './moeve_pro.png'
-import moeveGow from './moeve_gow.png'
-import './box.css'
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Position, User } from '@/types';
+import DashboardHeader from '@/components/DashboardHeader';
+import Link from 'next/link';
 
-interface CardRecordVM { id: string; userId: string; positionId: string; cardType: CardType; count: number }
+interface CardRecord {
+  id: string;
+  userId: string;
+  positionId: string;
+  cardType: 'MOEVE_GOW_BANKINTER' | 'MOEVE_PRO' | 'MOEVE_GOW';
+  count: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface CardStats {
+  total: number;
+  moeveGowBankinter: number;
+  moevePro: number;
+  moeveGow: number;
+}
 
 export default function CardsPage() {
-    const { token, isAdmin, user } = useAuth()
-    const [records, setRecords] = useState<CardRecordVM[]>([])
-    const [positions, setPositions] = useState<Position[]>([])
-    const [users, setUsers] = useState<User[]>([])
-    const [positionId, setPositionId] = useState('')
-    const [isLoading, setIsLoading] = useState(true)
+  const { user, token } = useAuth();
+  const [data, setData] = useState<{
+    cardRecords: CardRecord[];
+    positions: Position[];
+    users: User[];
+  }>({ cardRecords: [], positions: [], users: [] });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
+  const [cardType, setCardType] = useState<'MOEVE_GOW_BANKINTER' | 'MOEVE_PRO' | 'MOEVE_GOW'>('MOEVE_GOW_BANKINTER');
+  const [count, setCount] = useState(1);
 
-    const canEdit = isAdmin || (user && user.role === 'SUPERVISOR')
-    
-    // Filter positions based on user's assigned positions
-    const userPositions = useMemo(() => {
-        if (isAdmin) return positions // Admin can see all positions
-        if (!user?.positionIds) return []
-        return positions.filter(p => user.positionIds.includes(p.id))
-    }, [positions, user?.positionIds, isAdmin])
-    
-    // Set initial positionId to user's first position if not admin
-    useEffect(() => {
-        if (!isAdmin && user?.positionIds && user.positionIds.length > 0 && !positionId) {
-            setPositionId(user.positionIds[0])
-        }
-    }, [isAdmin, user?.positionIds, positionId])
+  const isAdmin = user?.role === 'ADMIN';
+  const isSupervisor = user?.role === 'SUPERVISOR';
 
-    const fetchData = useCallback(async () => {
-        setIsLoading(true)
-        const qp = new URLSearchParams()
-        if (positionId) qp.append('positionId', positionId)
-        const res = await fetch(`/api/cards?${qp.toString()}`)
-        if (res.ok) {
-            const data = await res.json()
-            setRecords(data.records)
-            setUsers(data.users)
-            setPositions(data.positions)
-        }
-        setIsLoading(false)
-    }, [positionId])
+  const fetchData = useCallback(async () => {
+    try {
+      // First, let's check if we have a token
+      if (!token) {
+        setError('No hay token de autenticación');
+        setIsLoading(false);
+        return;
+      }
 
-    useEffect(() => { fetchData() }, [positionId, fetchData])
-
-    const byPositionUsers = useMemo(() => {
-        const map: Record<string, User[]> = {}
-        // Only include positions that the user can see
-        const allowedPositions = isAdmin ? positions : userPositions
-        for (const p of allowedPositions) map[p.id] = []
-        for (const u of users) {
-            // Handle multiple positions per user
-            for (const positionId of u.positionIds || []) {
-                if (!map[positionId]) map[positionId] = []
-                map[positionId].push(u)
-            }
-        }
-        return map
-    }, [users, positions, userPositions, isAdmin])
-
-    const getCount = useCallback((userId: string, type: CardType, positionId?: string) => {
-        if (positionId) {
-            // Get count for specific position
-            return records.find(r => r.userId === userId && r.cardType === type && r.positionId === positionId)?.count || 0
-        } else {
-            // Get total count across all positions
-            return records
-                .filter(r => r.userId === userId && r.cardType === type)
-                .reduce((sum, r) => sum + r.count, 0)
-        }
-    }, [records])
-
-    const updateCount = async (userId: string, type: CardType, count: number, positionId: string) => {
-        if (!canEdit || !token) return
-        await fetch('/api/cards', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ userId, positionId, cardType: type, count })
+      const [cardRecordsRes, tasksRes, usersRes] = await Promise.all([
+        fetch('/api/cards', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }),
+        fetch('/api/tasks', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }),
+        fetch('/api/users', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         })
-        await fetchData()
+      ]);
+
+      if (cardRecordsRes.ok && tasksRes.ok && usersRes.ok) {
+        const [cardData, tasksData, usersData] = await Promise.all([
+          cardRecordsRes.json(),
+          tasksRes.json(),
+          usersRes.json()
+        ]);
+        setData({ 
+          cardRecords: cardData.records, 
+          positions: cardData.positions, 
+          users: usersData.users 
+        });
+      } else {
+        const errorText = await cardRecordsRes.text();
+        console.error('API Error:', errorText);
+        setError('Error al cargar los datos: ' + errorText);
+      }
+    } catch (error) {
+      console.error('Fetch error:', error);
+      setError('Error de conexión: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    } finally {
+      setIsLoading(false);
     }
+  }, [token]);
 
-    // Calculate totals by employee (across all positions)
-    const employeeTotals = useMemo(() => {
-        const totals: Record<string, { name: string; total: number; mastercard: number; moevePro: number; moeveGow: number }> = {}
-        
-        // Filter users to only include those from allowed positions
-        const allowedUsers = isAdmin ? users : users.filter(user => 
-            user.positionIds?.some(posId => userPositions.some(p => p.id === posId))
-        )
-        
-        for (const user of allowedUsers) {
-            const mastercard = getCount(user.id, CardType.MASTERCARD_MOEVE_GOW_BANKINTER) // No position specified = sum all positions
-            const moevePro = getCount(user.id, CardType.MOEVE_PRO) // No position specified = sum all positions
-            const moeveGow = getCount(user.id, CardType.MOEVE_GOW) // No position specified = sum all positions
-            const total = mastercard + moevePro + moeveGow
-            
-            if (total > 0) {
-                totals[user.id] = {
-                    name: user.name,
-                    total,
-                    mastercard,
-                    moevePro,
-                    moeveGow
-                }
-            }
-        }
-        
-        return Object.values(totals).sort((a, b) => b.total - a.total)
-    }, [users, getCount, userPositions, isAdmin])
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-    // Calculate totals by position
-    const positionTotals = useMemo(() => {
-        const totals: Record<string, { name: string; total: number; mastercard: number; moevePro: number; moeveGow: number }> = {}
-        
-        // Only calculate totals for positions the user can see
-        const allowedPositions = isAdmin ? positions : userPositions
-        
-        for (const position of allowedPositions) {
-            const positionUsers = byPositionUsers[position.id] || []
-            let mastercard = 0
-            let moevePro = 0
-            let moeveGow = 0
-            
-            for (const user of positionUsers) {
-                mastercard += getCount(user.id, CardType.MASTERCARD_MOEVE_GOW_BANKINTER, position.id)
-                moevePro += getCount(user.id, CardType.MOEVE_PRO, position.id)
-                moeveGow += getCount(user.id, CardType.MOEVE_GOW, position.id)
-            }
-            
-            const total = mastercard + moevePro + moeveGow
-            
-            if (total > 0) {
-                totals[position.id] = {
-                    name: position.name,
-                    total,
-                    mastercard,
-                    moevePro,
-                    moeveGow
-                }
-            }
-        }
-        
-        return Object.values(totals).sort((a, b) => b.total - a.total)
-    }, [positions, byPositionUsers, getCount, userPositions, isAdmin])
-
-    // Calculate grand total
-    const grandTotal = useMemo(() => {
-        let mastercard = 0
-        let moevePro = 0
-        let moeveGow = 0
-        
-        // Filter records to only include those from allowed positions
-        const allowedRecords = isAdmin ? records : records.filter(record => 
-            userPositions.some(p => p.id === record.positionId)
-        )
-        
-        for (const record of allowedRecords) {
-            switch (record.cardType) {
-                case CardType.MASTERCARD_MOEVE_GOW_BANKINTER:
-                    mastercard += record.count
-                    break
-                case CardType.MOEVE_PRO:
-                    moevePro += record.count
-                    break
-                case CardType.MOEVE_GOW:
-                    moeveGow += record.count
-                    break
-            }
-        }
-        
-        return {
-            total: mastercard + moevePro + moeveGow,
-            mastercard,
-            moevePro,
-            moeveGow
-        }
-    }, [records, userPositions, isAdmin])
-
-    if (isLoading) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
-            </div>
-        )
+  // Filtrar posiciones según el rol del usuario
+  const userPositions = useMemo(() => {
+    if (isAdmin || isSupervisor) {
+      return data.positions;
     }
+    return data.positions.filter(position => 
+      user?.positionIds?.includes(position.id)
+    );
+  }, [data.positions, isAdmin, isSupervisor, user?.positionIds]);
 
+  // Filtrar usuarios según el rol del usuario
+  const userUsers = useMemo(() => {
+    if (isAdmin || isSupervisor) {
+      return data.users;
+    }
+    return data.users.filter(emp => 
+      emp.positionIds?.some(posId => userPositions.some(p => p.id === posId))
+    );
+  }, [data.users, userPositions, isAdmin, isSupervisor]);
+
+  // Estadísticas por estación
+  const positionStats = useMemo(() => {
+    return userPositions.map(position => {
+      const positionRecords = data.cardRecords.filter(record => record.positionId === position.id);
+      
+      const stats: CardStats = {
+        total: 0,
+        moeveGowBankinter: 0,
+        moevePro: 0,
+        moeveGow: 0
+      };
+
+      positionRecords.forEach(record => {
+        stats.total += record.count;
+        switch (record.cardType) {
+          case 'MOEVE_GOW_BANKINTER':
+            stats.moeveGowBankinter += record.count;
+            break;
+          case 'MOEVE_PRO':
+            stats.moevePro += record.count;
+            break;
+          case 'MOEVE_GOW':
+            stats.moeveGow += record.count;
+            break;
+        }
+      });
+
+      return {
+        position: position.name,
+        ...stats
+      };
+    });
+  }, [data.cardRecords, userPositions]);
+
+  // Estadísticas por empleado
+  const employeeStats = useMemo(() => {
+    return userUsers.map(emp => {
+      const employeeRecords = data.cardRecords.filter(record => record.userId === emp.id);
+      
+      const stats: CardStats = {
+        total: 0,
+        moeveGowBankinter: 0,
+        moevePro: 0,
+        moeveGow: 0
+      };
+
+      employeeRecords.forEach(record => {
+        stats.total += record.count;
+        switch (record.cardType) {
+          case 'MOEVE_GOW_BANKINTER':
+            stats.moeveGowBankinter += record.count;
+            break;
+          case 'MOEVE_PRO':
+            stats.moevePro += record.count;
+            break;
+          case 'MOEVE_GOW':
+            stats.moeveGow += record.count;
+            break;
+        }
+      });
+
+      // Obtener las posiciones del empleado
+      const employeePositions = data.positions.filter(pos => 
+        emp.positionIds?.includes(pos.id)
+      );
+
+      return {
+        name: emp.name,
+        positions: employeePositions.map(p => p.name).join(', '),
+        ...stats
+      };
+    }).filter(emp => emp.total > 0)
+    .sort((a, b) => b.total - a.total);
+  }, [data.cardRecords, userUsers, data.positions]);
+
+  const handleAddCards = async () => {
+    if (!selectedUser || !selectedPosition || !token) return;
+
+    try {
+      const response = await fetch('/api/cards', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          userId: selectedUser.id,
+          positionId: selectedPosition.id,
+          cardType,
+          count
+        })
+      });
+
+      if (response.ok) {
+        fetchData();
+        setShowAddModal(false);
+        setSelectedUser(null);
+        setSelectedPosition(null);
+        setCardType('MOEVE_GOW_BANKINTER');
+        setCount(1);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Error al agregar tarjetas');
+      }
+    } catch {
+      setError('Error de conexión');
+    }
+  };
+
+  const getCardTypeLabel = (type: string) => {
+    switch (type) {
+      case 'MOEVE_GOW_BANKINTER':
+        return 'Moeve GOW Bankinter';
+      case 'MOEVE_PRO':
+        return 'MOEVE Pro';
+      case 'MOEVE_GOW':
+        return 'MOEVE GOW';
+      default:
+        return type;
+    }
+  };
+
+  if (isLoading) {
     return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-2xl font-semibold text-gray-900">Tarjetas de Fidelización</h1>
-                    <Link href="/dashboard" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Volver</Link>
-                </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 shadow-lg shadow-blue-500/25"></div>
+      </div>
+    );
+  }
 
-                {/* Marquee */}
-                <div className="bg-white shadow rounded-lg overflow-hidden mb-6">
-                    <div className="p-4">
-                        <div >
-                            <div className="img-box flex items-center space-x-6 overflow-x-auto ">
-                            <Image src={mastercardMoeveGow} alt="Mastercard Moeve GOW Bankinter" className="cards" />
-                            <Image src={moevePro} alt="MOEVE Pro" className="cards" />
-                            <Image src={moeveGow} alt="MOEVE GOW" className="cards" />
-                            <Image src={mastercardMoeveGow} alt="Mastercard Moeve GOW Bankinter" className="cards" />
-                            <Image src={moevePro} alt="MOEVE Pro" className="cards" />
-                            <Image src={moeveGow} alt="MOEVE GOW" className="cards" />
-                            <Image src={mastercardMoeveGow} alt="Mastercard Moeve GOW Bankinter" className="cards" />
-                            <Image src={moevePro} alt="MOEVE Pro" className="cards" />
-                            <Image src={moeveGow} alt="MOEVE GOW" className="cards" />
-                            <Image src={mastercardMoeveGow} alt="Mastercard Moeve GOW Bankinter" className="cards" />
-                            <Image src={moevePro} alt="MOEVE Pro" className="cards" />
-                            <Image src={moeveGow} alt="MOEVE GOW" className="cards" />
-                            </div>
-                        </div>
-                        
-                    </div>
-                </div>
-
-                {/* Filters */}
-                <div className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Estación</label>
-                        <select value={positionId} onChange={(e) => setPositionId(e.target.value)} className="input w-full">
-                            <option value="">Todas</option>
-                            {userPositions.map(p => (
-                                <option key={p.id} value={p.id}>{p.name}</option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-
-                {/* Employees table */}
-                {userPositions.filter(p => !positionId || p.id === positionId).map(p => (
-                    <div key={p.id} className="bg-white shadow rounded-lg overflow-hidden mb-6">
-                        <div className="px-4 sm:px-6 py-3 border-b text-gray-900 font-medium">{p.name} · Empleados</div>
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200 text-sm">
-                                <thead className="bg-gray-50">
-                                    {/*<tr className="Datarj">
-                                        <Image src={mastercardMoeveGow} alt="Mastercard Moeve GOW Bankinter" className="one h-auto w-25" />
-                                        <Image src={moevePro} alt="MOEVE Pro" className="two h-auto w-25" />
-                                        <Image src={moeveGow} alt="MOEVE GOW" className="h-auto w-25 three" />
-                                    </tr>*/}
-                                    <tr>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Empleado</th>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MasterCard Moeve GOW Bankinter</th>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MOEVE Pro</th>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MOEVE GOW</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {(byPositionUsers[p.id] || []).map(emp => (
-                                        <tr key={emp.id}>
-                                            <td className="px-4 py-2 whitespace-nowrap text-gray-900">{emp.name}</td>
-                                                                                         {[CardType.MASTERCARD_MOEVE_GOW_BANKINTER, CardType.MOEVE_PRO, CardType.MOEVE_GOW].map(type => (
-                                                 <td key={type} className="px-4 py-2 whitespace-nowrap">
-                                                     <div className="flex items-center space-x-2">
-                                                         <span className="text-gray-800">{getCount(emp.id, type, p.id)}</span>
-                                                         {canEdit && (
-                                                             <div className="inline-flex rounded-md shadow-sm" role="group">
-                                                                 <button onClick={() => updateCount(emp.id, type, Math.max(0, getCount(emp.id, type, p.id) - 1), p.id)} className="px-2 py-1 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">-</button>
-                                                                 <button onClick={() => updateCount(emp.id, type, getCount(emp.id, type, p.id) + 1, p.id)} className="px-2 py-1 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">+</button>
-                                                             </div>
-                                                         )}
-                                                     </div>
-                                                 </td>
-                                             ))}
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                ))}
-
-                {/* Summary Tables */}
-                <div className="space-y-6">
-                    {/* Employee Totals Table */}
-                    {employeeTotals.length > 0 && (
-                        <div className="bg-white shadow rounded-lg overflow-hidden">
-                            <div className="px-4 sm:px-6 py-3 border-b text-gray-900 font-medium bg-blue-50">
-                                📊 Resumen por Empleado (Todas las Estaciones)
-                            </div>
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200 text-sm">
-                                    <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Empleado</th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MasterCard Moeve GOW Bankinter</th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MOEVE Pro</th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MOEVE GOW</th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
-                                        {employeeTotals.map((employee, index) => (
-                                            <tr key={index} className={index < 3 ? 'bg-yellow-50' : ''}>
-                                                <td className="px-4 py-2 whitespace-nowrap text-gray-900 font-medium">{employee.name}</td>
-                                                <td className="px-4 py-2 whitespace-nowrap text-blue-600">{employee.mastercard}</td>
-                                                <td className="px-4 py-2 whitespace-nowrap text-green-600">{employee.moevePro}</td>
-                                                <td className="px-4 py-2 whitespace-nowrap text-purple-600">{employee.moeveGow}</td>
-                                                <td className="px-4 py-2 whitespace-nowrap text-gray-900 font-bold">{employee.total}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Position Totals Table */}
-                    {positionTotals.length > 0 && (
-                        <div className="bg-white shadow rounded-lg overflow-hidden">
-                            <div className="px-4 sm:px-6 py-3 border-b text-gray-900 font-medium bg-green-50">
-                                🏢 Resumen por Estación
-                            </div>
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200 text-sm">
-                                    <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Estación</th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MasterCard Moeve GOW Bankinter</th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MOEVE Pro</th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MOEVE GOW</th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
-                                        {positionTotals.map((position, index) => (
-                                            <tr key={index} className={index < 3 ? 'bg-green-50' : ''}>
-                                                <td className="px-4 py-2 whitespace-nowrap text-gray-900 font-medium">{position.name}</td>
-                                                <td className="px-4 py-2 whitespace-nowrap text-blue-600">{position.mastercard}</td>
-                                                <td className="px-4 py-2 whitespace-nowrap text-green-600">{position.moevePro}</td>
-                                                <td className="px-4 py-2 whitespace-nowrap text-purple-600">{position.moeveGow}</td>
-                                                <td className="px-4 py-2 whitespace-nowrap text-gray-900 font-bold">{position.total}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Grand Total Table */}
-                    {grandTotal.total > 0 && (
-                        <div className="bg-white shadow rounded-lg overflow-hidden">
-                            <div className="px-4 sm:px-6 py-3 border-b text-gray-900 font-medium bg-purple-50">
-                                🎯 Total General de Tarjetas
-                            </div>
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200 text-sm">
-                                    <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MasterCard Moeve GOW Bankinter</th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MOEVE Pro</th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">MOEVE GOW</th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total General</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="bg-white">
-                                        <tr className="bg-purple-50">
-                                            <td className="px-4 py-3 whitespace-nowrap text-blue-600 text-lg font-bold">{grandTotal.mastercard}</td>
-                                            <td className="px-4 py-3 whitespace-nowrap text-green-600 text-lg font-bold">{grandTotal.moevePro}</td>
-                                            <td className="px-4 py-3 whitespace-nowrap text-purple-600 text-lg font-bold">{grandTotal.moeveGow}</td>
-                                            <td className="px-4 py-3 whitespace-nowrap text-gray-900 text-xl font-bold">{grandTotal.total}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <DashboardHeader user={user} />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+                         <div>
+               <h1 className="text-3xl font-bold text-white">Gestión de Tarjetas</h1>
+               <p className="text-gray-300 mt-2">Sistema de tarjetas Moeve GOW Bankinter, MOEVE Pro y MOEVE GOW</p>
+             </div>
+             <div className="flex items-center space-x-3">
+               <Link
+                 href="/dashboard"
+                 className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-medium rounded-lg shadow-lg transition-all duration-200"
+               >
+                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                 </svg>
+                 Volver
+               </Link>
+               {(isAdmin || isSupervisor) && (
+                 <button
+                   onClick={() => setShowAddModal(true)}
+                   className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200"
+                 >
+                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                   </svg>
+                   Agregar Tarjetas
+                 </button>
+               )}
+             </div>
+          </div>
         </div>
-    )
+
+        {error && (
+          <div className="mb-6 bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+            <p className="text-red-400">{error}</p>
+          </div>
+        )}
+
+        {/* Sumatoria de Tarjetas */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-300">Total Tarjetas</p>
+                <p className="text-2xl font-bold text-white">
+                  {positionStats.reduce((sum, pos) => sum + pos.total, 0)}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/25">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-300">Moeve GOW Bankinter</p>
+                <p className="text-2xl font-bold text-white">
+                  {positionStats.reduce((sum, pos) => sum + pos.moeveGowBankinter, 0)}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-lg shadow-green-500/25">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-300">MOEVE Pro</p>
+                <p className="text-2xl font-bold text-white">
+                  {positionStats.reduce((sum, pos) => sum + pos.moevePro, 0)}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center shadow-lg shadow-yellow-500/25">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-300">MOEVE GOW</p>
+                <p className="text-2xl font-bold text-white">
+                  {positionStats.reduce((sum, pos) => sum + pos.moeveGow, 0)}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/25">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Estadísticas por Estación */}
+        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl mb-8">
+          <h3 className="text-lg font-semibold text-white mb-6">Estadísticas por Estación</h3>
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b border-white/20">
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-300">Estación</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">Total</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">Moeve GOW Bankinter</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">MOEVE Pro</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">MOEVE GOW</th>
+                </tr>
+              </thead>
+              <tbody>
+                {positionStats.map((pos) => (
+                  <tr key={pos.position} className="border-b border-white/10">
+                    <td className="py-3 px-4 text-white font-medium">{pos.position}</td>
+                    <td className="py-3 px-4 text-center text-white font-semibold">{pos.total}</td>
+                    <td className="py-3 px-4 text-center text-green-400">{pos.moeveGowBankinter}</td>
+                    <td className="py-3 px-4 text-center text-yellow-400">{pos.moevePro}</td>
+                    <td className="py-3 px-4 text-center text-purple-400">{pos.moeveGow}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Estadísticas por Empleado */}
+        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
+          <h3 className="text-lg font-semibold text-white mb-6">Tarjetas por Empleado</h3>
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b border-white/20">
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-300">Empleado</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-300">Estaciones</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">Total</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">Moeve GOW Bankinter</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">MOEVE Pro</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">MOEVE GOW</th>
+                </tr>
+              </thead>
+              <tbody>
+                {employeeStats.map((emp, index) => (
+                  <tr key={emp.name} className="border-b border-white/10">
+                    <td className="py-3 px-4">
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+                          <span className="text-white text-sm font-medium">{index + 1}</span>
+                        </div>
+                        <span className="text-white font-medium">{emp.name}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-gray-300">{emp.positions}</td>
+                    <td className="py-3 px-4 text-center text-white font-semibold">{emp.total}</td>
+                    <td className="py-3 px-4 text-center text-green-400">{emp.moeveGowBankinter}</td>
+                    <td className="py-3 px-4 text-center text-yellow-400">{emp.moevePro}</td>
+                    <td className="py-3 px-4 text-center text-purple-400">{emp.moeveGow}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal para Agregar Tarjetas */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-6 border border-white/20 w-96 shadow-2xl rounded-xl bg-slate-900/95 backdrop-blur-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium text-white">Agregar Tarjetas</h3>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="text-gray-400 hover:text-gray-300 transition-colors duration-200"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Empleado
+                </label>
+                <select
+                  value={selectedUser?.id || ''}
+                  onChange={(e) => {
+                    const user = userUsers.find(u => u.id === e.target.value);
+                    setSelectedUser(user || null);
+                  }}
+                  className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                >
+                  <option value="">Seleccionar empleado</option>
+                  {userUsers.map(user => (
+                    <option key={user.id} value={user.id}>
+                      {user.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Estación
+                </label>
+                <select
+                  value={selectedPosition?.id || ''}
+                  onChange={(e) => {
+                    const position = userPositions.find(p => p.id === e.target.value);
+                    setSelectedPosition(position || null);
+                  }}
+                  className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                >
+                  <option value="">Seleccionar estación</option>
+                  {userPositions.map(position => (
+                    <option key={position.id} value={position.id}>
+                      {position.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Tipo de Tarjeta
+                </label>
+                <select
+                  value={cardType}
+                  onChange={(e) => setCardType(e.target.value as any)}
+                  className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                >
+                  <option value="MOEVE_GOW_BANKINTER">Moeve GOW Bankinter</option>
+                  <option value="MOEVE_PRO">MOEVE Pro</option>
+                  <option value="MOEVE_GOW">MOEVE GOW</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Cantidad
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={count}
+                  onChange={(e) => setCount(parseInt(e.target.value) || 1)}
+                  className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="px-4 py-2 border border-gray-600 rounded-md text-sm font-medium text-gray-300 bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all duration-200"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleAddCards}
+                  disabled={!selectedUser || !selectedPosition}
+                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 transition-all duration-200"
+                >
+                  Agregar Tarjetas
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 

@@ -132,6 +132,12 @@ export async function initializeDatabase() {
     // Run migrations for existing databases
     await runMigrations();
 
+    // Insert test data
+    await insertTestData();
+
+    // Debug database state
+    await debugDatabase();
+
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Error initializing database:', error);
@@ -617,6 +623,192 @@ export async function getCardRecordsByFilters(filters: { positionId?: string }):
   if (filters.positionId) { query += ' AND positionId = ?'; params.push(filters.positionId); }
   const rows = await dbAll(query, params);
   return rows.map(r => ({ ...r, createdAt: new Date(r.createdAt), updatedAt: new Date(r.updatedAt) } as CardRecord));
+}
+
+// Insert test data
+export async function insertTestData() {
+  try {
+    console.log('Inserting test data...');
+    
+    // Insert test users
+    const testUsers = [
+      {
+        id: 'user-1',
+        name: 'Juan Pérez',
+        email: 'juan@test.com',
+        password: '$2a$10$test123',
+        role: Role.EMPLOYEE,
+        positionIds: ['pos-1', 'pos-2']
+      },
+      {
+        id: 'user-2',
+        name: 'María García',
+        email: 'maria@test.com',
+        password: '$2a$10$test123',
+        role: Role.SUPERVISOR,
+        positionIds: ['pos-3', 'pos-4']
+      },
+      {
+        id: 'user-3',
+        name: 'Carlos López',
+        email: 'carlos@test.com',
+        password: '$2a$10$test123',
+        role: Role.EMPLOYEE,
+        positionIds: ['pos-5']
+      }
+    ];
+
+    for (const user of testUsers) {
+      const existingUser = await dbGet('SELECT * FROM users WHERE email = ?', [user.email]);
+      if (!existingUser) {
+        await dbRun(
+          'INSERT INTO users (id, name, email, password, role) VALUES (?, ?, ?, ?, ?)',
+          [user.id, user.name, user.email, user.password, user.role]
+        );
+        
+        // Insert user positions
+        for (const positionId of user.positionIds) {
+          await dbRun(
+            'INSERT OR IGNORE INTO user_positions (userId, positionId) VALUES (?, ?)',
+            [user.id, positionId]
+          );
+        }
+      }
+    }
+
+    // Insert test tasks
+    const testTasks = [
+      {
+        id: 'task-1',
+        title: 'Limpieza de equipos',
+        description: 'Realizar limpieza completa de todos los equipos',
+        status: TaskStatus.PENDING,
+        dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+        positionId: 'pos-1',
+        shift: Shift.MORNING
+      },
+      {
+        id: 'task-2',
+        title: 'Mantenimiento preventivo',
+        description: 'Ejecutar mantenimiento preventivo en estación',
+        status: TaskStatus.COMPLETED,
+        dueDate: new Date(Date.now() - 24 * 60 * 60 * 1000), // Yesterday
+        positionId: 'pos-2',
+        shift: Shift.AFTERNOON,
+        completedById: 'user-1'
+      },
+      {
+        id: 'task-3',
+        title: 'Revisión de seguridad',
+        description: 'Verificar protocolos de seguridad',
+        status: TaskStatus.PENDING,
+        dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // Day after tomorrow
+        positionId: 'pos-3',
+        shift: Shift.NIGHT
+      }
+    ];
+
+    for (const task of testTasks) {
+      const existingTask = await dbGet('SELECT * FROM tasks WHERE id = ?', [task.id]);
+      if (!existingTask) {
+        const now = new Date().toISOString();
+        await dbRun(
+          'INSERT INTO tasks (id, title, description, status, dueDate, createdAt, updatedAt, positionId, shift, completedById, completedLate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [
+            task.id,
+            task.title,
+            task.description,
+            task.status,
+            task.dueDate.toISOString(),
+            now,
+            now,
+            task.positionId,
+            task.shift,
+            task.completedById || null,
+            0
+          ]
+        );
+      }
+    }
+
+    // Insert test card records
+    const testCardRecords = [
+      {
+        id: 'card-1',
+        userId: 'user-1',
+        positionId: 'pos-1',
+        cardType: 'MOEVE_GOW_BANKINTER',
+        count: 5
+      },
+      {
+        id: 'card-2',
+        userId: 'user-1',
+        positionId: 'pos-2',
+        cardType: 'MOEVE_PRO',
+        count: 3
+      },
+      {
+        id: 'card-3',
+        userId: 'user-2',
+        positionId: 'pos-3',
+        cardType: 'MOEVE_GOW',
+        count: 7
+      },
+      {
+        id: 'card-4',
+        userId: 'user-3',
+        positionId: 'pos-5',
+        cardType: 'MOEVE_GOW_BANKINTER',
+        count: 2
+      }
+    ];
+
+    for (const card of testCardRecords) {
+      const existingCard = await dbGet('SELECT * FROM card_records WHERE id = ?', [card.id]);
+      if (!existingCard) {
+        const now = new Date().toISOString();
+        await dbRun(
+          'INSERT INTO card_records (id, userId, positionId, cardType, count, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          [card.id, card.userId, card.positionId, card.cardType, card.count, now, now]
+        );
+      }
+    }
+
+    console.log('Test data inserted successfully');
+  } catch (error) {
+    console.error('Error inserting test data:', error);
+  }
+}
+
+// Debug function to check database state
+export async function debugDatabase() {
+  try {
+    console.log('=== DATABASE DEBUG INFO ===');
+    
+    // Check positions
+    const positions = await dbAll('SELECT * FROM positions');
+    console.log('Positions:', positions.length, positions);
+    
+    // Check users
+    const users = await dbAll('SELECT * FROM users');
+    console.log('Users:', users.length, users);
+    
+    // Check user_positions
+    const userPositions = await dbAll('SELECT * FROM user_positions');
+    console.log('User Positions:', userPositions.length, userPositions);
+    
+    // Check tasks
+    const tasks = await dbAll('SELECT * FROM tasks');
+    console.log('Tasks:', tasks.length, tasks);
+    
+    // Check card_records
+    const cardRecords = await dbAll('SELECT * FROM card_records');
+    console.log('Card Records:', cardRecords.length, cardRecords);
+    
+    console.log('=== END DATABASE DEBUG INFO ===');
+  } catch (error) {
+    console.error('Error debugging database:', error);
+  }
 }
 
 // Close database connection
