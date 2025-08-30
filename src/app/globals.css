@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "../styles/taskCards.css";
-@import "../styles/debug.css";
 
 :root {
   --background: #ffffff;

@@ -409,11 +409,6 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* Debug Element */}
-        <div className="debug-test mb-4">
-          DEBUG: Si ves este elemento con fondo rojo y borde amarillo, el CSS se está cargando correctamente
-        </div>
-
         {/* Task Organization Center */}
         <div className="task-cards-section mb-8">
           <h3 className="text-xl font-semibold text-white mb-6 text-center">Organización de Tareas</h3>
