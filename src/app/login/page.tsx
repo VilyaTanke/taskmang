@@ -35,14 +35,14 @@ export default function LoginPage() {
 
   return (
     <div className="page-center topGround bgli">
-      <div className="max-w-md w-full space-y-8 tittleForm" style={{borderRadius: '2.5rem', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', justifyContent: 'center' }}>
+      <div className="max-w-md w-full space-y-8 tittleForm" style={{borderRadius: '2.5rem', background: 'linear-gradient(135deg,rgba(59, 218, 246, 0.8),rgba(92, 133, 246, 0.74))', justifyContent: 'center' }}>
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Ivanje-Gestión
           </h2>
           <p className="card-subtitle mt-2 flex items-center justify-center">Sistema de Gestión de Tareas</p>
           <div className="card" style={{ background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(10px)', borderRadius: '0.75rem' }}>
-            <div className="card-body" style={{ background: 'rgba(27, 42, 78, 0.95)', backdropFilter: 'blur(10px)', borderRadius: '0.75rem' }}>
+            <div className="card-body" style={{ background: 'rgba(208, 221, 250, 0.95)', backdropFilter: 'blur(10px)', borderRadius: '0.75rem' }}>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center" style={{ width: '3rem', height: '3rem', borderRadius: '0.5rem', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', justifyContent: 'center' }}>
                   <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -53,7 +53,7 @@ export default function LoginPage() {
 
               <form className="space-y-6" onSubmit={handleSubmit}>
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-900 mb-2">
                     Correo electrónico
                   </label>
                   <div className="relative">
@@ -68,7 +68,7 @@ export default function LoginPage() {
                       type="email"
                       autoComplete="email"
                       required
-                      className="w-full pl-10 pr-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                      className="w-full pl-10 pr-4 py-3 shadow bg-slate-500/50 border border-purple-500/30 rounded-lg font-semibold text-gray-800 placeholder-blue-800 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
                       placeholder="Correo electrónico"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -76,7 +76,7 @@ export default function LoginPage() {
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-900 mb-2">
                     Contraseña
                   </label>
                   <div className="relative">
@@ -91,7 +91,7 @@ export default function LoginPage() {
                       type={showPassword ? 'text' : 'password'}
                       autoComplete="current-password"
                       required
-                      className="w-full pl-10 pr-12 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                      className="w-full pl-10 pr-12 py-3 bg-slate-500/50 border border-purple-500/30 rounded-lg font-semibold text-gray-800 placeholder-blue-800 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
                       placeholder="Contraseña"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -125,7 +125,7 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white font-medium rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                    className="w-full flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white font-medium rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                   >
                     {isLoading ? (
                       <>
