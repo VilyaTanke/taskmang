@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const isAdmin = user?.role === Role.ADMIN;
-  const isSupervisor = user?.role === Role.SUPERVISOR || user?.role === Role.ADMIN;
+  const isSupervisor = user?.role === Role.SUPERVISOR;
 
   return (
     <AuthContext.Provider value={{

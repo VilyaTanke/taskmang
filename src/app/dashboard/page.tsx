@@ -26,7 +26,7 @@ interface DashboardData {
 }
 
 export default function DashboardPage() {
-  const { user, token, isAdmin } = useAuth();
+  const { user, token, isAdmin, isSupervisor } = useAuth();
   const [data, setData] = useState<DashboardData>({ tasks: [], positions: [], users: [] });
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -362,17 +362,7 @@ export default function DashboardPage() {
                   <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                   </svg>
-                  <span className="text-sm">Crear Empleado</span>
-                </button>
-
-                <button
-                  onClick={() => setShowCashChangeModal(true)}
-                  className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-medium rounded-lg shadow-lg shadow-orange-500/25 transition-all duration-200"
-                >
-                  <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                  </svg>
-                  <span className="text-sm">Cambio</span>
+                                    <span className="text-sm">Crear Empleado</span>
                 </button>
 
                 <button
@@ -384,16 +374,21 @@ export default function DashboardPage() {
                   </svg>
                   <span className="text-sm">Exportar Excel</span>
                 </button>
+              </>
+            )}
 
-                {/*<button
-                  onClick={() => setShowEmailTestModal(true)}
-                  className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white font-medium rounded-lg shadow-lg shadow-cyan-500/25 transition-all duration-200"
+            {/* Acciones de Administrador y Supervisor */}
+            {(isAdmin || isSupervisor) && (
+              <>
+                <button
+                  onClick={() => setShowCashChangeModal(true)}
+                  className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-medium rounded-lg shadow-lg shadow-orange-500/25 transition-all duration-200"
                 >
                   <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                   </svg>
-                  <span className="text-sm">Probar Email</span>
-                </button>*/}
+                  <span className="text-sm">Cambio</span>
+                </button>
               </>
             )}
           </div>
