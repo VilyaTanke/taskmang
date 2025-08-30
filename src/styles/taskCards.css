@@ -1,0 +1,363 @@
+/* Task Cards CSS - Sistema de Grid Responsivo */
+
+/* Debug: Asegurar que el CSS se cargue */
+.task-cards-container {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 1rem !important;
+  width: 100% !important;
+  border: 3px solid red !important; /* Debug temporal */
+}
+
+/* Desktop: 2 columnas */
+@media (min-width: 1280px) {
+  .task-cards-container {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 2rem !important;
+  }
+}
+
+/* Task Card Grid Layout */
+.task-card {
+  display: grid !important;
+  grid-template-areas: 
+    "header header"
+    "content content"
+    "info info"
+    "actions actions" !important;
+  gap: 0.75rem !important;
+  padding: 1rem !important;
+  border-radius: 0.5rem !important;
+  transition: all 0.2s ease !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  margin-bottom: 0.75rem !important;
+  border: 3px solid blue !important; /* Debug temporal */
+}
+
+/* Responsive Grid Areas */
+@media (min-width: 640px) {
+  .task-card {
+    grid-template-areas: 
+      "header actions"
+      "content content"
+      "info info" !important;
+    gap: 1rem !important;
+    padding: 1.5rem !important;
+  }
+}
+
+/* Header Area */
+.task-card-header {
+  grid-area: header !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+  border: 2px solid green !important; /* Debug temporal */
+}
+
+@media (min-width: 640px) {
+  .task-card-header {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+}
+
+.task-card-title {
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+  color: white !important;
+  word-break: break-words !important;
+  line-height: 1.4 !important;
+}
+
+@media (min-width: 640px) {
+  .task-card-title {
+    font-size: 1.125rem !important;
+  }
+}
+
+.task-card-badges {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.5rem !important;
+}
+
+.task-card-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 0.25rem 0.625rem !important;
+  border-radius: 9999px !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  white-space: nowrap !important;
+}
+
+/* Content Area */
+.task-card-content {
+  grid-area: content !important;
+  border: 2px solid yellow !important; /* Debug temporal */
+}
+
+.task-card-description {
+  font-size: 0.875rem !important;
+  color: #d1d5db !important;
+  word-break: break-words !important;
+  line-height: 1.5 !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Info Area */
+.task-card-info {
+  grid-area: info !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+  font-size: 0.875rem !important;
+  color: #9ca3af !important;
+  border: 2px solid orange !important; /* Debug temporal */
+}
+
+@media (min-width: 640px) {
+  .task-card-info {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 1rem !important;
+  }
+}
+
+.task-card-info-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+.task-card-info-icon {
+  width: 1rem !important;
+  height: 1rem !important;
+  flex-shrink: 0 !important;
+}
+
+.task-card-info-text {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Actions Area */
+.task-card-actions {
+  grid-area: actions !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+  align-items: stretch !important;
+  border: 2px solid purple !important; /* Debug temporal */
+}
+
+@media (min-width: 640px) {
+  .task-card-actions {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+  }
+}
+
+.task-card-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.5rem 0.75rem !important;
+  border-radius: 0.5rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+  border: none !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+}
+
+.task-card-button:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+/* Button Variants */
+.task-card-button-primary {
+  background: linear-gradient(135deg, #059669, #10b981) !important;
+  color: white !important;
+  box-shadow: 0 4px 14px 0 rgba(5, 150, 105, 0.25) !important;
+}
+
+.task-card-button-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #047857, #059669) !important;
+}
+
+.task-card-button-secondary {
+  background: rgba(147, 51, 234, 0.1) !important;
+  color: #a855f7 !important;
+  border: 1px solid rgba(147, 51, 234, 0.3) !important;
+}
+
+.task-card-button-secondary:hover:not(:disabled) {
+  background: rgba(147, 51, 234, 0.2) !important;
+}
+
+/* Status Colors */
+.task-card-status-completed {
+  border-left: 4px solid #10b981 !important;
+}
+
+.task-card-status-pending {
+  border-left: 4px solid #eab308 !important;
+}
+
+.task-card-status-overdue {
+  border-left: 4px solid #ef4444 !important;
+}
+
+/* Badge Colors */
+.task-card-badge-completed {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #34d399 !important;
+}
+
+.task-card-badge-pending {
+  background: rgba(234, 179, 8, 0.2) !important;
+  color: #fbbf24 !important;
+}
+
+.task-card-badge-overdue {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #f87171 !important;
+}
+
+.task-card-badge-morning {
+  background: rgba(249, 115, 22, 0.2) !important;
+  color: #fb923c !important;
+}
+
+.task-card-badge-afternoon {
+  background: rgba(59, 130, 246, 0.2) !important;
+  color: #60a5fa !important;
+}
+
+.task-card-badge-night {
+  background: rgba(147, 51, 234, 0.2) !important;
+  color: #a855f7 !important;
+}
+
+/* Completed Task Info */
+.task-card-completed-info {
+  margin-top: 0.75rem !important;
+  font-size: 0.875rem !important;
+  color: #d1d5db !important;
+}
+
+.task-card-completed-late {
+  margin-top: 0.25rem !important;
+  color: #f87171 !important;
+  font-weight: 500 !important;
+}
+
+/* Container Styles */
+.task-cards-section {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 0.75rem !important;
+  padding: 1.5rem !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
+}
+
+.task-cards-scroll {
+  max-height: 20rem !important;
+  overflow-y: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.75rem !important;
+}
+
+@media (min-width: 640px) {
+  .task-cards-scroll {
+    max-height: 24rem !important;
+  }
+}
+
+/* Empty State */
+.task-cards-empty {
+  text-align: center !important;
+  padding: 2rem 1rem !important;
+  color: #9ca3af !important;
+}
+
+.task-cards-empty-icon {
+  width: 3rem !important;
+  height: 3rem !important;
+  margin: 0 auto 1rem !important;
+  color: #6b7280 !important;
+}
+
+.task-cards-empty-text {
+  font-size: 0.875rem !important;
+}
+
+/* Section Headers */
+.task-cards-section-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 1rem !important;
+}
+
+.task-cards-section-title {
+  font-size: 1.125rem !important;
+  font-weight: 500 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+.task-cards-section-count {
+  padding: 0.125rem 0.625rem !important;
+  border-radius: 9999px !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+}
+
+.task-cards-section-title-completed {
+  color: #34d399 !important;
+}
+
+.task-cards-section-count-completed {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #34d399 !important;
+}
+
+.task-cards-section-title-pending {
+  color: #fbbf24 !important;
+}
+
+.task-cards-section-count-pending {
+  background: rgba(234, 179, 8, 0.2) !important;
+  color: #fbbf24 !important;
+}
+
+/* Scrollbar Styling */
+.task-cards-scroll::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.task-cards-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 3px !important;
+}
+
+.task-cards-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border-radius: 3px !important;
+}
+
+.task-cards-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5) !important;
+}

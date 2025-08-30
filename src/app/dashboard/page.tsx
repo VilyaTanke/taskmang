@@ -17,6 +17,7 @@ import EmployeeList from '@/components/EmployeeList';
 
 import ExportTasksModal from '@/components/ExportTasksModal';
 import Link from 'next/link';
+import '@/styles/taskCards.css';
 
 interface DashboardData {
   tasks: Task[];
@@ -408,91 +409,88 @@ export default function DashboardPage() {
           />
         </div>
 
+        {/* Debug Element */}
+        <div className="debug-test mb-4">
+          DEBUG: Si ves este elemento con fondo rojo y borde amarillo, el CSS se está cargando correctamente
+        </div>
+
         {/* Task Organization Center */}
-        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl mb-8">
+        <div className="task-cards-section mb-8">
           <h3 className="text-xl font-semibold text-white mb-6 text-center">Organización de Tareas</h3>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="task-cards-container">
             {/* Tareas Completadas */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h4 className="text-lg font-medium text-green-400 flex items-center">
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="task-cards-section">
+              <div className="task-cards-section-header">
+                <h4 className="task-cards-section-title task-cards-section-title-completed">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                   </svg>
                   Tareas Completadas
                 </h4>
-                <span className="bg-green-500/20 text-green-400 text-sm font-medium px-2.5 py-0.5 rounded-full">
+                <span className="task-cards-section-count task-cards-section-count-completed">
                   {completedTasks.length}
                 </span>
               </div>
 
-              <div className="space-y-3 max-h-96 overflow-y-auto">
+              <div className="task-cards-scroll">
                 {completedTasks.length === 0 ? (
-                  <div className="text-center py-8 text-gray-400">
-                    <svg className="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <div className="task-cards-empty">
+                    <svg className="task-cards-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <p className="text-sm">No hay tareas completadas</p>
+                    <p className="task-cards-empty-text">No hay tareas completadas</p>
                   </div>
                 ) : (
                   completedTasks.map(task => (
-                    <div key={task.id} className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 hover:bg-green-500/20 transition-all duration-200">
-                      <TaskCard
-                        task={task}
-                        positions={data.positions}
-                        users={data.users}
-                        onUpdate={handleTaskUpdate}
-                        onDuplicate={handleTaskDuplicate}
-                        isAdmin={isAdmin}
-                      />
-                    </div>
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      positions={data.positions}
+                      users={data.users}
+                      onUpdate={handleTaskUpdate}
+                      onDuplicate={handleTaskDuplicate}
+                      isAdmin={isAdmin}
+                    />
                   ))
                 )}
               </div>
             </div>
 
             {/* Tareas Pendientes */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h4 className="text-lg font-medium text-yellow-400 flex items-center">
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="task-cards-section">
+              <div className="task-cards-section-header">
+                <h4 className="task-cards-section-title task-cards-section-title-pending">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   Tareas Pendientes
                 </h4>
-                <span className="bg-yellow-500/20 text-yellow-400 text-sm font-medium px-2.5 py-0.5 rounded-full">
+                <span className="task-cards-section-count task-cards-section-count-pending">
                   {pendingTasks.length}
                 </span>
               </div>
 
-              <div className="space-y-3 max-h-96 overflow-y-auto">
+              <div className="task-cards-scroll">
                 {pendingTasks.length === 0 ? (
-                  <div className="text-center py-8 text-gray-400">
+                  <div className="task-cards-empty">
                     <svg className="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
-                    <p className="text-sm">No hay tareas pendientes</p>
+                    <p className="task-cards-empty-text">No hay tareas pendientes</p>
                   </div>
                 ) : (
-                  pendingTasks.map(task => {
-                    const isOverdue = new Date(task.dueDate) < new Date();
-                    return (
-                      <div key={task.id} className={`border rounded-lg p-4 transition-all duration-200 ${isOverdue
-                          ? 'bg-red-500/10 border-red-500/20 hover:bg-red-500/20'
-                          : 'bg-yellow-500/10 border-yellow-500/20 hover:bg-yellow-500/20'
-                        }`}>
-                        <TaskCard
-                          task={task}
-                          positions={data.positions}
-                          users={data.users}
-                          onUpdate={handleTaskUpdate}
-                          onDuplicate={handleTaskDuplicate}
-                          isAdmin={isAdmin}
-                        />
-                      </div>
-                    );
-                  })
+                  pendingTasks.map(task => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      positions={data.positions}
+                      users={data.users}
+                      onUpdate={handleTaskUpdate}
+                      onDuplicate={handleTaskDuplicate}
+                      isAdmin={isAdmin}
+                    />
+                  ))
                 )}
               </div>
             </div>

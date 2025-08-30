@@ -1,0 +1,9 @@
+/* Debug CSS - Verificar que los estilos se carguen */
+.debug-test {
+  background-color: red !important;
+  color: white !important;
+  padding: 20px !important;
+  border: 5px solid yellow !important;
+  font-size: 24px !important;
+  font-weight: bold !important;
+}
