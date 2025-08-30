@@ -69,14 +69,14 @@ export default function EmailTestModal({ onClose }: EmailTestModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center animate-in fade-in duration-300">
-      <div className="relative mx-auto p-6 border border-white/20 w-11/12 max-w-2xl shadow-2xl rounded-xl bg-slate-900/95 backdrop-blur-sm animate-in zoom-in-95 duration-300">
+      <div className="relative mx-auto p-6 border border-blue-200 w-11/12 max-w-2xl shadow-2xl rounded-xl bg-white/95 backdrop-blur-sm animate-in zoom-in-95 duration-300">
         
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-medium text-white">Prueba de EmailJS</h3>
+          <h3 className="text-xl font-medium text-gray-800">Prueba de EmailJS</h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-300 transition-colors duration-200"
+            className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -85,9 +85,9 @@ export default function EmailTestModal({ onClose }: EmailTestModalProps) {
         </div>
 
         {/* Config Info */}
-        <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-6">
-          <h4 className="text-sm font-medium text-blue-400 mb-2">Configuración EmailJS:</h4>
-          <div className="text-xs text-gray-300 space-y-1">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <h4 className="text-sm font-medium text-blue-700 mb-2">Configuración EmailJS:</h4>
+          <div className="text-xs text-gray-600 space-y-1">
             <p><strong>Service ID:</strong> {EMAILJS_CONFIG.SERVICE_ID}</p>
             <p><strong>Template ID:</strong> {EMAILJS_CONFIG.TEMPLATE_ID}</p>
             <p><strong>Public Key:</strong> {EMAILJS_CONFIG.PUBLIC_KEY.substring(0, 8)}...</p>
@@ -97,27 +97,27 @@ export default function EmailTestModal({ onClose }: EmailTestModalProps) {
         {/* Test Form */}
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Correo de Destino: *
             </label>
             <input
               type="email"
               value={testData.to_email}
               onChange={(e) => handleInputChange('to_email', e.target.value)}
-              className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
               placeholder="tu@correo.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Mensaje de Prueba:
             </label>
             <textarea
               value={testData.message}
               onChange={(e) => handleInputChange('message', e.target.value)}
               rows={4}
-              className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent resize-none"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none shadow-sm"
             />
           </div>
         </div>
@@ -126,8 +126,8 @@ export default function EmailTestModal({ onClose }: EmailTestModalProps) {
         {result && (
           <div className={`mt-4 p-4 rounded-lg border ${
             result.includes('✅') 
-              ? 'bg-green-500/10 border-green-500/30 text-green-400' 
-              : 'bg-red-500/10 border-red-500/30 text-red-400'
+              ? 'bg-green-50 border-green-200 text-green-700' 
+              : 'bg-red-50 border-red-200 text-red-700'
           }`}>
             <pre className="text-sm whitespace-pre-wrap">{result}</pre>
           </div>
@@ -137,7 +137,7 @@ export default function EmailTestModal({ onClose }: EmailTestModalProps) {
         <div className="flex justify-end space-x-3 mt-6">
           <button
             onClick={onClose}
-            className="px-6 py-3 border border-gray-600 rounded-lg text-sm font-medium text-gray-300 bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all duration-200"
+            className="px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-sm"
           >
             Cerrar
           </button>
