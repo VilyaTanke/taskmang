@@ -198,21 +198,21 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-white flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 shadow-lg shadow-blue-500/25"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-300 via-blue-250 to-from-blue-300">
       <DashboardHeader user={user} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Digital Clock */}
         <div className="flex justify-center mb-6">
-          <div className="bg-white shadow rounded-lg p-4 text-center">
-            <div className="text-3xl font-mono font-bold text-gray-900">
+          <div className="bg-white shadow-lg rounded-lg p-4 text-center border border-blue-200">
+            <div className="text-3xl font-mono font-bold text-gray-800">
               {currentTime.toLocaleTimeString('es-ES', {
                 hour12: false,
                 hour: '2-digit',
@@ -234,12 +234,12 @@ export default function DashboardPage() {
         {/* Key Metrics Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Tareas Pendientes Card */}
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
+          <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-300">Tareas Pendientes</p>
-                <p className="text-2xl font-bold text-white">{pendingTasks.length}</p>
-                <p className="text-sm text-yellow-400 flex items-center mt-1">
+                <p className="text-sm font-medium text-gray-700">Tareas Pendientes</p>
+                <p className="text-2xl font-bold text-gray-800">{pendingTasks.length}</p>
+                <p className="text-sm text-yellow-600 flex items-center mt-1">
                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -255,12 +255,12 @@ export default function DashboardPage() {
           </div>
 
           {/* Tareas Completadas Card */}
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
+          <div className="bg-white/90 backdrop-blur-sm border border-green-200 rounded-xl p-6 shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-300">Tareas Completadas</p>
-                <p className="text-2xl font-bold text-white">{completedTasks.length}</p>
-                <p className="text-sm text-green-400 flex items-center mt-1">
+                <p className="text-sm font-medium text-gray-700">Tareas Completadas</p>
+                <p className="text-2xl font-bold text-gray-800">{completedTasks.length}</p>
+                <p className="text-sm text-green-600 flex items-center mt-1">
                   <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
                   </svg>
@@ -276,12 +276,12 @@ export default function DashboardPage() {
           </div>
 
           {/* Tareas Vencidas Card */}
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
+          <div className="bg-white/90 backdrop-blur-sm border border-red-200 rounded-xl p-6 shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-300">Tareas Vencidas</p>
-                <p className="text-2xl font-bold text-white">{overdueTasks.length}</p>
-                <p className="text-sm text-red-400 flex items-center mt-1">
+                <p className="text-sm font-medium text-gray-700">Tareas Vencidas</p>
+                <p className="text-2xl font-bold text-gray-800">{overdueTasks.length}</p>
+                <p className="text-sm text-red-600 flex items-center mt-1">
                   <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M12 13a1 1 0 100 2h5a1 1 0 001-1V9a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586l-4.293-4.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z" clipRule="evenodd" />
                   </svg>
@@ -297,19 +297,19 @@ export default function DashboardPage() {
           </div>
 
           {/* Total Tareas Card */}
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
+          <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-300">Total Tareas</p>
-                <p className="text-2xl font-bold text-white">{filteredTasks.length}</p>
-                <p className="text-sm text-blue-400 flex items-center mt-1">
+                <p className="text-sm font-medium text-gray-700">Total Tareas</p>
+                <p className="text-2xl font-bold text-gray-800">{filteredTasks.length}</p>
+                <p className="text-sm text-blue-600 flex items-center mt-1">
                   <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
                   </svg>
                   En sistema
                 </p>
               </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/25">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/25">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
@@ -319,7 +319,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Action Buttons */}
-        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl mb-8">
+        <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg mb-8">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {/* Navegación */}
             <Link
@@ -395,7 +395,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Task Filters */}
-        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl mb-8">
+        <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg mb-8">
           {/*<h3 className="text-lg font-semibold text-white mb-4">Filtros</h3>*/}
           <TaskFilters
             filters={filters}
@@ -406,7 +406,7 @@ export default function DashboardPage() {
 
         {/* Task Organization Center */}
         <div className="task-cards-section mb-8">
-          <h3 className="text-xl font-semibold text-white mb-6 text-center">Organización de Tareas</h3>
+          <h3 className="text-xl font-semibold text-gray-800 mb-6 text-center">Organización de Tareas</h3>
 
           <div className="task-cards-container">
             {/* Tareas Completadas */}
@@ -489,7 +489,7 @@ export default function DashboardPage() {
 
         {/* Employee Management Section - Only for Admins */}
         {isAdmin && (
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl shadow-xl">
+          <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl shadow-lg">
             <EmployeeList
               token={token}
               onEmployeeDeleted={handleEmployeeDeleted}

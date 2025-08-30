@@ -248,14 +248,14 @@ export default function AnalyticsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-white flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 shadow-lg shadow-blue-500/25"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-white">
       <DashboardHeader user={user} />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -263,12 +263,12 @@ export default function AnalyticsPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white">Analíticas</h1>
-              <p className="text-gray-300 mt-2">Estadísticas y métricas del sistema de tareas</p>
+              <h1 className="text-3xl font-bold text-gray-800">Analíticas</h1>
+              <p className="text-gray-600 mt-2">Estadísticas y métricas del sistema de tareas</p>
             </div>
             <Link
               href="/dashboard"
-              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-medium rounded-lg shadow-lg transition-all duration-200"
+              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg transition-all duration-200"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -279,24 +279,24 @@ export default function AnalyticsPage() {
         </div>
 
         {error && (
-          <div className="mb-6 bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-            <p className="text-red-400">{error}</p>
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-red-700">{error}</p>
           </div>
         )}
 
         {/* Filtros */}
-        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl mb-8">
-          <h3 className="text-lg font-semibold text-white mb-4">Filtros</h3>
+        <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg mb-8">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Filtros</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="position" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="position" className="block text-sm font-medium text-gray-700 mb-2">
                 Estación
               </label>
               <select
                 id="position"
                 value={filters.positionId}
                 onChange={(e) => setFilters(prev => ({ ...prev, positionId: e.target.value }))}
-                className="w-full px-4 py-2 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm"
+                className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
               >
                 <option value="">Todas las estaciones</option>
                 {userPositions.map(position => (
@@ -307,14 +307,14 @@ export default function AnalyticsPage() {
               </select>
             </div>
             <div>
-              <label htmlFor="period" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="period" className="block text-sm font-medium text-gray-700 mb-2">
                 Período
               </label>
               <select
                 id="period"
                 value={filters.period}
                 onChange={(e) => setFilters(prev => ({ ...prev, period: e.target.value }))}
-                className="w-full px-4 py-2 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm"
+                className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
               >
                 <option value="week">Última semana</option>
                 <option value="month">Último mes</option>
@@ -324,33 +324,33 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Tabla 1: Estadísticas por Posición */}
-        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl mb-8">
-          <h3 className="text-lg font-semibold text-white mb-6">Estadísticas por Estación</h3>
+        <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg mb-8">
+          <h3 className="text-lg font-semibold text-gray-800 mb-6">Estadísticas por Estación</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full">
               <thead>
-                <tr className="border-b border-white/20">
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-300">Estación</th>
-                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">Total</th>
-                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">Pendientes</th>
-                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">Completadas</th>
-                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">Vencidas</th>
-                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">Tasa de Completado</th>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Estación</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-700">Total</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-700">Pendientes</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-700">Completadas</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-700">Vencidas</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-700">Tasa de Completado</th>
                 </tr>
               </thead>
               <tbody>
                 {positionStats.map((pos) => (
-                  <tr key={pos.position} className="border-b border-white/10">
-                    <td className="py-3 px-4 text-white font-medium">{pos.position}</td>
-                    <td className="py-3 px-4 text-center text-white">{pos.total}</td>
-                    <td className="py-3 px-4 text-center text-yellow-400">{pos.pending}</td>
-                    <td className="py-3 px-4 text-center text-green-400">{pos.completed}</td>
-                    <td className="py-3 px-4 text-center text-red-400">{pos.overdue}</td>
+                  <tr key={pos.position} className="border-b border-gray-100">
+                    <td className="py-3 px-4 text-gray-800 font-medium">{pos.position}</td>
+                    <td className="py-3 px-4 text-center text-gray-800">{pos.total}</td>
+                    <td className="py-3 px-4 text-center text-yellow-600">{pos.pending}</td>
+                    <td className="py-3 px-4 text-center text-green-600">{pos.completed}</td>
+                    <td className="py-3 px-4 text-center text-red-600">{pos.overdue}</td>
                     <td className="py-3 px-4 text-center">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        pos.completionRate >= 80 ? 'bg-green-500/20 text-green-400' :
-                        pos.completionRate >= 60 ? 'bg-yellow-500/20 text-yellow-400' :
-                        'bg-red-500/20 text-red-400'
+                        pos.completionRate >= 80 ? 'bg-green-100 text-green-800' :
+                        pos.completionRate >= 60 ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
                       }`}>
                         {pos.completionRate}%
                       </span>
@@ -363,17 +363,17 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Tabla 2: Tareas Completadas por Empleado */}
-        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
-          <h3 className="text-lg font-semibold text-white mb-6">Tareas Completadas por Empleado</h3>
+        <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg">
+          <h3 className="text-lg font-semibold text-gray-800 mb-6">Tareas Completadas por Empleado</h3>
           
           {data.users.length === 0 ? (
             <div className="text-center py-8">
-              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-6">
-                <svg className="w-12 h-12 text-yellow-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                <svg className="w-12 h-12 text-yellow-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
-                <h4 className="text-lg font-medium text-yellow-400 mb-2">Estadísticas de Empleados No Disponibles</h4>
-                <p className="text-gray-300">
+                <h4 className="text-lg font-medium text-yellow-800 mb-2">Estadísticas de Empleados No Disponibles</h4>
+                <p className="text-gray-600">
                   {isAdmin || isSupervisor 
                     ? 'No se pudieron cargar los datos de usuarios. Verifique los permisos de la API.'
                     : 'Como empleado, solo puede ver estadísticas de su estación asignada.'
@@ -385,27 +385,27 @@ export default function AnalyticsPage() {
             <div className="overflow-x-auto">
               <table className="min-w-full">
                 <thead>
-                  <tr className="border-b border-white/20">
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-300">Empleado</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-300">Estaciones</th>
-                    <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">Tareas Completadas</th>
-                    <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">Total Asignadas</th>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Empleado</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Estaciones</th>
+                    <th className="text-center py-3 px-4 text-sm font-medium text-gray-700">Tareas Completadas</th>
+                    <th className="text-center py-3 px-4 text-sm font-medium text-gray-700">Total Asignadas</th>
                   </tr>
                 </thead>
                 <tbody>
                   {employeeStats.map((emp, index) => (
-                    <tr key={emp.name} className="border-b border-white/10">
+                    <tr key={emp.name} className="border-b border-gray-100">
                       <td className="py-3 px-4">
                         <div className="flex items-center">
-                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mr-3">
                             <span className="text-white text-sm font-medium">{index + 1}</span>
                           </div>
-                          <span className="text-white font-medium">{emp.name}</span>
+                          <span className="text-gray-800 font-medium">{emp.name}</span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-gray-300">{emp.positions}</td>
-                      <td className="py-3 px-4 text-center text-green-400 font-semibold">{emp.completed}</td>
-                      <td className="py-3 px-4 text-center text-white">{emp.total}</td>
+                      <td className="py-3 px-4 text-gray-700">{emp.positions}</td>
+                      <td className="py-3 px-4 text-center text-green-600 font-semibold">{emp.completed}</td>
+                      <td className="py-3 px-4 text-center text-gray-800">{emp.total}</td>
                     </tr>
                   ))}
                 </tbody>

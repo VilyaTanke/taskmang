@@ -159,23 +159,23 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
 
   return (
     <div className="bg-transparent">
-      <div className="px-6 py-4 border-b border-white/20">
-        <h3 className="text-lg font-medium text-white">Lista de Empleados</h3>
+      <div className="px-6 py-4 border-b border-blue-200">
+        <h3 className="text-lg font-medium text-gray-800">Lista de Empleados</h3>
       </div>
 
       {/* Employee Filters */}
-      <div className="px-6 py-4 bg-white/5 border-b border-white/20">
+      <div className="px-6 py-4 bg-white/50 border-b border-blue-200">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Position Filter */}
           <div>
-            <label htmlFor="employee-position-filter" className="block text-sm font-medium text-gray-300 mb-1">
+            <label htmlFor="employee-position-filter" className="block text-sm font-medium text-gray-700 mb-1">
               Filtrar por estación
             </label>
             <select
               id="employee-position-filter"
               value={positionFilter}
               onChange={(e) => setPositionFilter(e.target.value)}
-              className="w-full px-4 py-2 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm"
+              className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
             >
               <option value="">Todas las posiciones</option>
               {positions.map((position) => (
@@ -188,14 +188,14 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
 
           {/* Role Filter */}
           <div>
-            <label htmlFor="employee-role-filter" className="block text-sm font-medium text-gray-300 mb-1">
+            <label htmlFor="employee-role-filter" className="block text-sm font-medium text-gray-700 mb-1">
               Filtrar por rol
             </label>
             <select
               id="employee-role-filter"
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="w-full px-4 py-2 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm"
+              className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
             >
               <option value="">Todos los roles</option>
               <option value={Role.ADMIN}>Administrador</option>
@@ -212,7 +212,7 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
                   setPositionFilter('');
                   setRoleFilter('');
                 }}
-                className="w-full px-4 py-2 text-sm font-medium text-gray-300 bg-slate-800/50 border border-purple-500/30 rounded-lg hover:bg-slate-700/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all duration-200"
+                className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm"
               >
                 Limpiar filtros
               </button>
@@ -223,7 +223,7 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
         {/* Filter Status */}
         {(positionFilter || roleFilter) && (
           <div className="mt-3 flex items-center justify-between">
-            <span className="text-sm text-gray-400">
+            <span className="text-sm text-gray-600">
               Mostrando {filteredEmployees.length} de {employees.length} empleados
               {positionFilter && ` • Estación: ${getPositionName(positionFilter)}`}
               {roleFilter && ` • Rol: ${getRoleLabel(roleFilter as Role)}`}
@@ -234,13 +234,13 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
       
       <div className="px-6 py-4">
         {error && (
-          <div className="rounded-md bg-red-500/10 border border-red-500/30 p-4 mb-4">
+          <div className="rounded-md bg-red-50 border border-red-200 p-4 mb-4">
             <div className="flex">
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-400">
+                <h3 className="text-sm font-medium text-red-800">
                   Error
                 </h3>
-                <div className="mt-2 text-sm text-red-300">
+                <div className="mt-2 text-sm text-red-700">
                   {error}
                 </div>
               </div>
@@ -249,34 +249,34 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
         )}
 
         {filteredEmployees.length === 0 ? (
-          <div className="text-center py-8 text-gray-400">
+          <div className="text-center py-8 text-gray-600">
             {(positionFilter || roleFilter) ? 'No hay empleados que coincidan con los filtros aplicados' : 'No hay empleados registrados'}
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-white/20">
-              <thead className="bg-white/5">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     Empleado
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     Correo
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     Rol
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     Estación
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     Acciones
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-transparent divide-y divide-white/20">
+              <tbody className="bg-white divide-y divide-gray-200">
                 {filteredEmployees.map((employee) => (
-                  <tr key={employee.id} className="hover:bg-white/5 transition-colors duration-200">
+                  <tr key={employee.id} className="hover:bg-gray-50 transition-colors duration-200">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="h-8 w-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/25">
@@ -285,13 +285,13 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
                           </span>
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-white">
+                          <div className="text-sm font-medium text-gray-800">
                             {employee.name}
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                       {employee.email}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -299,14 +299,14 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
                         {getRoleLabel(employee.role)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                       {getPositionNames(employee.positionIds)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                       <div className="flex space-x-2">
                         <button
                           onClick={() => handleEditEmployee(employee)}
-                          className="inline-flex items-center px-3 py-1 border border-purple-500/30 text-xs font-medium rounded-md text-purple-400 bg-purple-500/10 hover:bg-purple-500/20 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all duration-200"
+                          className="inline-flex items-center px-3 py-1 border border-purple-500 text-xs font-medium rounded-md text-purple-700 bg-purple-50 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200"
                         >
                           <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -315,10 +315,10 @@ export default function EmployeeList({ token, onEmployeeDeleted }: EmployeeListP
                         </button>
                         <button
                           onClick={() => handleDeleteEmployee(employee.id)}
-                          className="inline-flex items-center px-3 py-1 border border-red-500/30 text-xs font-medium rounded-md text-red-400 bg-red-500/10 hover:bg-red-500/20 focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all duration-200"
+                          className="inline-flex items-center px-3 py-1 border border-red-500 text-xs font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200"
                         >
                           <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
                           Eliminar
                         </button>
