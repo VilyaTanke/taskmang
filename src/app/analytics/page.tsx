@@ -51,22 +51,79 @@ export default function AnalyticsPage() {
           })
         ]);
 
-        if (tasksRes.ok && positionsRes.ok && usersRes.ok) {
-          const [tasksData, positions, usersData] = await Promise.all([
-            tasksRes.json(),
-            positionsRes.json(),
-            usersRes.json()
-          ]);
-          setData({ 
-            tasks: tasksData.tasks, 
-            positions: tasksData.positions, 
-            users: usersData.users 
-          });
+        // Cargar datos de manera individual para manejar errores parciales
+        let tasksData = null;
+        let positionsData = null;
+        let usersData = null;
+        let hasErrors = false;
+        const errorMessages = [];
+
+        // Cargar tareas
+        if (tasksRes.ok) {
+          try {
+            tasksData = await tasksRes.json();
+            if (!tasksData.tasks || !tasksData.positions) {
+              errorMessages.push('Estructura de datos de tareas inválida');
+              hasErrors = true;
+            }
+                     } catch {
+             errorMessages.push('Error al procesar datos de tareas');
+             hasErrors = true;
+           }
         } else {
           const errorText = await tasksRes.text();
-          console.error('API Error:', errorText);
-          setError('Error al cargar los datos: ' + errorText);
+          console.error('Error en API tasks:', tasksRes.status, errorText);
+          errorMessages.push(`Error al cargar tareas: ${tasksRes.status}`);
+          hasErrors = true;
         }
+
+                 // Cargar posiciones desde cards (fallback)
+         if (positionsRes.ok) {
+           try {
+             positionsData = await positionsRes.json();
+           } catch {
+             console.error('Error al procesar posiciones');
+           }
+         }
+
+        // Cargar usuarios
+        if (usersRes.ok) {
+          try {
+            usersData = await usersRes.json();
+            if (!usersData.users) {
+              errorMessages.push('Estructura de datos de usuarios inválida');
+              hasErrors = true;
+            }
+                     } catch {
+             errorMessages.push('Error al procesar datos de usuarios');
+             hasErrors = true;
+           }
+        } else {
+          const errorText = await usersRes.text();
+          console.error('Error en API users:', usersRes.status, errorText);
+          errorMessages.push(`Error al cargar usuarios: ${usersRes.status}`);
+          hasErrors = true;
+        }
+
+        // Establecer datos disponibles
+        setData({
+          tasks: tasksData?.tasks || [],
+          positions: tasksData?.positions || positionsData?.positions || [],
+          users: usersData?.users || []
+        });
+
+        // Mostrar errores si los hay
+        if (hasErrors) {
+          setError('Errores detectados: ' + errorMessages.join(', '));
+        } else {
+          setError(''); // Limpiar errores previos
+        }
+
+        console.log('Datos cargados:', {
+          tasks: tasksData?.tasks?.length || 0,
+          positions: (tasksData?.positions || positionsData?.positions)?.length || 0,
+          users: usersData?.users?.length || 0
+        });
       } catch (error) {
         console.error('Fetch error:', error);
         setError('Error de conexión: ' + (error instanceof Error ? error.message : 'Unknown error'));
@@ -146,12 +203,31 @@ export default function AnalyticsPage() {
 
   // Estadísticas por empleado
   const employeeStats = useMemo(() => {
-    const employees = data.users.filter(emp => {
-      if (isAdmin || isSupervisor) return true;
-      return emp.positionIds?.some(posId => userPositions.some(p => p.id === posId));
-    });
+    // Si no hay usuarios cargados, mostrar estadísticas limitadas
+    if (data.users.length === 0) {
+      return [];
+    }
 
-    return employees.map(emp => {
+    // Para empleados, mostrar compañeros de la misma estación asignada
+    let employeesToShow = data.users;
+    
+    if (!isAdmin && !isSupervisor) {
+      // Filtrar empleados que comparten al menos una estación con el usuario actual
+      employeesToShow = data.users.filter(emp => {
+        // Incluir al usuario actual
+        if (emp.id === user?.id) return true;
+        
+        // Incluir compañeros que comparten estaciones asignadas
+        const userPositionIds = user?.positionIds || [];
+        const empPositionIds = emp.positionIds || [];
+        
+        return userPositionIds.some(userPosId => 
+          empPositionIds.includes(userPosId)
+        );
+      });
+    }
+
+    return employeesToShow.map(emp => {
       const employeeTasks = filteredTasks.filter(t => t.completedById === emp.id);
       const completed = employeeTasks.filter(t => t.status === TaskStatus.COMPLETED).length;
       
@@ -168,7 +244,7 @@ export default function AnalyticsPage() {
       };
     }).filter(emp => emp.completed > 0)
     .sort((a, b) => b.completed - a.completed);
-  }, [filteredTasks, data.users, data.positions, userPositions, isAdmin, isSupervisor]);
+  }, [filteredTasks, data.users, data.positions, isAdmin, isSupervisor, user?.id, user?.positionIds]);
 
   if (isLoading) {
     return (
@@ -289,35 +365,53 @@ export default function AnalyticsPage() {
         {/* Tabla 2: Tareas Completadas por Empleado */}
         <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
           <h3 className="text-lg font-semibold text-white mb-6">Tareas Completadas por Empleado</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead>
-                <tr className="border-b border-white/20">
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-300">Empleado</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-300">Estaciones</th>
-                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">Tareas Completadas</th>
-                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">Total Asignadas</th>
-                </tr>
-              </thead>
-              <tbody>
-                {employeeStats.map((emp, index) => (
-                  <tr key={emp.name} className="border-b border-white/10">
-                    <td className="py-3 px-4">
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
-                          <span className="text-white text-sm font-medium">{index + 1}</span>
-                        </div>
-                        <span className="text-white font-medium">{emp.name}</span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 text-gray-300">{emp.positions}</td>
-                    <td className="py-3 px-4 text-center text-green-400 font-semibold">{emp.completed}</td>
-                    <td className="py-3 px-4 text-center text-white">{emp.total}</td>
+          
+          {data.users.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-6">
+                <svg className="w-12 h-12 text-yellow-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                <h4 className="text-lg font-medium text-yellow-400 mb-2">Estadísticas de Empleados No Disponibles</h4>
+                <p className="text-gray-300">
+                  {isAdmin || isSupervisor 
+                    ? 'No se pudieron cargar los datos de usuarios. Verifique los permisos de la API.'
+                    : 'Como empleado, solo puede ver estadísticas de su estación asignada.'
+                  }
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead>
+                  <tr className="border-b border-white/20">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-300">Empleado</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-300">Estaciones</th>
+                    <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">Tareas Completadas</th>
+                    <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">Total Asignadas</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {employeeStats.map((emp, index) => (
+                    <tr key={emp.name} className="border-b border-white/10">
+                      <td className="py-3 px-4">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+                            <span className="text-white text-sm font-medium">{index + 1}</span>
+                          </div>
+                          <span className="text-white font-medium">{emp.name}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-gray-300">{emp.positions}</td>
+                      <td className="py-3 px-4 text-center text-green-400 font-semibold">{emp.completed}</td>
+                      <td className="py-3 px-4 text-center text-white">{emp.total}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

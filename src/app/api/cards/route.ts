@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ensureDatabaseInitialized } from '@/lib/init'
 import { getAuthUser, isSupervisor } from '@/lib/auth'
-import { createOrUpdateCardRecord, getCardRecordsByFilters, getAllUsers, getAllPositions } from '@/lib/database'
+import { createOrUpdateCardRecord, getCardRecordsByFilters, getAllPositions } from '@/lib/database'
 
 export async function GET(request: NextRequest) {
   await ensureDatabaseInitialized()

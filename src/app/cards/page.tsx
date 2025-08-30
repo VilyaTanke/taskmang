@@ -10,7 +10,7 @@ interface CardRecord {
   id: string;
   userId: string;
   positionId: string;
-  cardType: 'MOEVE_GOW_BANKINTER' | 'MOEVE_PRO' | 'MOEVE_GOW';
+  cardType: 'MOEVE_GOW_BANKINTER' | 'MASTERCARD_MOEVE_GOW_BANKINTER' | 'MOEVE_PRO' | 'MOEVE_GOW';
   count: number;
   createdAt: string;
   updatedAt: string;
@@ -35,7 +35,7 @@ export default function CardsPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
-  const [cardType, setCardType] = useState<'MOEVE_GOW_BANKINTER' | 'MOEVE_PRO' | 'MOEVE_GOW'>('MOEVE_GOW_BANKINTER');
+  const [cardType, setCardType] = useState<'MOEVE_GOW_BANKINTER' | 'MASTERCARD_MOEVE_GOW_BANKINTER' | 'MOEVE_PRO' | 'MOEVE_GOW'>('MOEVE_GOW_BANKINTER');
   const [count, setCount] = useState(1);
 
   const isAdmin = user?.role === 'ADMIN';
@@ -50,7 +50,7 @@ export default function CardsPage() {
         return;
       }
 
-      const [cardRecordsRes, tasksRes, usersRes] = await Promise.all([
+             const [cardRecordsRes, , usersRes] = await Promise.all([
         fetch('/api/cards', {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -68,22 +68,69 @@ export default function CardsPage() {
         })
       ]);
 
-      if (cardRecordsRes.ok && tasksRes.ok && usersRes.ok) {
-        const [cardData, tasksData, usersData] = await Promise.all([
-          cardRecordsRes.json(),
-          tasksRes.json(),
-          usersRes.json()
-        ]);
-        setData({ 
-          cardRecords: cardData.records, 
-          positions: cardData.positions, 
-          users: usersData.users 
-        });
+      // Procesar respuestas individualmente para manejar errores parciales
+      let cardData = null;
+      let usersData = null;
+      let hasErrors = false;
+      const errorMessages = [];
+
+      // Procesar datos de tarjetas
+      if (cardRecordsRes.ok) {
+        try {
+          cardData = await cardRecordsRes.json();
+          if (!cardData.records || !cardData.positions) {
+            errorMessages.push('Estructura de datos de tarjetas inválida');
+            hasErrors = true;
+          }
+        } catch {
+          errorMessages.push('Error al procesar datos de tarjetas');
+          hasErrors = true;
+        }
       } else {
         const errorText = await cardRecordsRes.text();
-        console.error('API Error:', errorText);
-        setError('Error al cargar los datos: ' + errorText);
+        console.error('Error en API cards:', cardRecordsRes.status, errorText);
+        errorMessages.push(`Error al cargar tarjetas: ${cardRecordsRes.status}`);
+        hasErrors = true;
       }
+
+      // Procesar datos de usuarios
+      if (usersRes.ok) {
+        try {
+          usersData = await usersRes.json();
+          if (!usersData.users) {
+            errorMessages.push('Estructura de datos de usuarios inválida');
+            hasErrors = true;
+          }
+        } catch {
+          errorMessages.push('Error al procesar datos de usuarios');
+          hasErrors = true;
+        }
+      } else {
+        const errorText = await usersRes.text();
+        console.error('Error en API users:', usersRes.status, errorText);
+        errorMessages.push(`Error al cargar usuarios: ${usersRes.status}`);
+        hasErrors = true;
+      }
+
+      // Establecer datos disponibles
+      setData({ 
+        cardRecords: cardData?.records || [], 
+        positions: cardData?.positions || [], 
+        users: usersData?.users || [] 
+      });
+
+      // Mostrar errores si los hay
+      if (hasErrors) {
+        setError('Errores detectados: ' + errorMessages.join(', '));
+      } else {
+        setError(''); // Limpiar errores previos
+      }
+
+      console.log('Datos cargados:', {
+        cardRecords: cardData?.records?.length || 0,
+        positions: cardData?.positions?.length || 0,
+        users: usersData?.users?.length || 0
+      });
     } catch (error) {
       console.error('Fetch error:', error);
       setError('Error de conexión: ' + (error instanceof Error ? error.message : 'Unknown error'));
@@ -132,6 +179,7 @@ export default function CardsPage() {
         stats.total += record.count;
         switch (record.cardType) {
           case 'MOEVE_GOW_BANKINTER':
+          case 'MASTERCARD_MOEVE_GOW_BANKINTER':
             stats.moeveGowBankinter += record.count;
             break;
           case 'MOEVE_PRO':
@@ -166,6 +214,7 @@ export default function CardsPage() {
         stats.total += record.count;
         switch (record.cardType) {
           case 'MOEVE_GOW_BANKINTER':
+          case 'MASTERCARD_MOEVE_GOW_BANKINTER':
             stats.moeveGowBankinter += record.count;
             break;
           case 'MOEVE_PRO':
@@ -225,18 +274,7 @@ export default function CardsPage() {
     }
   };
 
-  const getCardTypeLabel = (type: string) => {
-    switch (type) {
-      case 'MOEVE_GOW_BANKINTER':
-        return 'Moeve GOW Bankinter';
-      case 'MOEVE_PRO':
-        return 'MOEVE Pro';
-      case 'MOEVE_GOW':
-        return 'MOEVE GOW';
-      default:
-        return type;
-    }
-  };
+
 
   if (isLoading) {
     return (
@@ -489,10 +527,11 @@ export default function CardsPage() {
                 </label>
                 <select
                   value={cardType}
-                  onChange={(e) => setCardType(e.target.value as any)}
+                  onChange={(e) => setCardType(e.target.value as "MOEVE_GOW_BANKINTER" | "MASTERCARD_MOEVE_GOW_BANKINTER" | "MOEVE_PRO" | "MOEVE_GOW")}
                   className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
                 >
                   <option value="MOEVE_GOW_BANKINTER">Moeve GOW Bankinter</option>
+                  <option value="MASTERCARD_MOEVE_GOW_BANKINTER">Mastercard Moeve GOW Bankinter</option>
                   <option value="MOEVE_PRO">MOEVE Pro</option>
                   <option value="MOEVE_GOW">MOEVE GOW</option>
                 </select>

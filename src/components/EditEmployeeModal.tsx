@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { User, Position, Role } from '@/types';
 
 interface EditEmployeeModalProps {
@@ -49,7 +49,7 @@ export default function EditEmployeeModal({ employee, positions, onClose, onEmpl
     setIsLoading(true);
 
     try {
-      const updateData: any = {
+      const updateData: Record<string, unknown> = {
         name: formData.name,
         email: formData.email,
         role: formData.role,

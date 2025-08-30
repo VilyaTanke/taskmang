@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { debugDatabase, getAllUsers, getAllPositions, getTasksByFilters, getCardRecordsByFilters } from '@/lib/database';
 import { initializeDatabase } from '@/lib/database';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     await initializeDatabase();
     

@@ -57,9 +57,11 @@ export default function EmailTestModal({ onClose }: EmailTestModalProps) {
       console.log('Resultado exitoso:', result);
       setResult(`✅ Correo enviado exitosamente!\nStatus: ${result.status}\nText: ${result.text}`);
       
-    } catch (error: any) {
+         } catch (error: unknown) {
       console.error('Error en prueba:', error);
-      setResult(`❌ Error al enviar correo:\n${error.text || error.message || 'Error desconocido'}`);
+      const errorText = error && typeof error === 'object' && 'text' in error && typeof error.text === 'string' ? error.text : '';
+      const errorMessage = error && typeof error === 'object' && 'message' in error && typeof error.message === 'string' ? error.message : '';
+      setResult(`❌ Error al enviar correo:\n${errorText || errorMessage || 'Error desconocido'}`);
     } finally {
       setIsLoading(false);
     }

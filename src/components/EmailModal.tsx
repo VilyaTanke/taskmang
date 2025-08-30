@@ -96,15 +96,15 @@ Saludos cordiales.`
       } else {
         throw new Error(`Error al enviar el correo. Status: ${result.status}`);
       }
-    } catch (error: any) {
+         } catch (error: unknown) {
       console.error('Error detallado al enviar email:', error);
       
       // Mostrar mensaje de error más específico
       let errorMessage = 'Error al enviar el correo. Por favor, intente nuevamente.';
       
-      if (error.text) {
+      if (error && typeof error === 'object' && 'text' in error && typeof error.text === 'string') {
         errorMessage = `Error: ${error.text}`;
-      } else if (error.message) {
+      } else if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
         errorMessage = `Error: ${error.message}`;
       }
       

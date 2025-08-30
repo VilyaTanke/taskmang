@@ -3,8 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Task, Position, User, TaskStatus } from '@/types';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+
 import DashboardHeader from '@/components/DashboardHeader';
 import TaskCard from '@/components/TaskCard';
 import TaskFilters from '@/components/TaskFilters';
@@ -43,7 +42,7 @@ export default function DashboardPage() {
     shift: '',
     positionId: ''
   });
-  const [pendingTaskFilters, setPendingTaskFilters] = useState({
+  const [pendingTaskFilters] = useState({
     day: '',
     shift: ''
   });

@@ -25,19 +25,27 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Only admins can view all users
-    if (user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Forbidden - Admin access required' },
-        { status: 403 }
-      );
-    }
-
     const allUsers = await getAllUsers();
     const positions = await getAllPositions();
     
+         // Para empleados, filtrar solo compañeros de la misma estación
+     let usersToReturn = allUsers;
+     if (user.role === 'EMPLOYEE') {
+       const userPositionIds = user.positionIds || [];
+       usersToReturn = allUsers.filter(emp => {
+         // Incluir al usuario actual
+         if (emp.id === user.userId) return true;
+         
+         // Incluir compañeros que comparten estaciones asignadas
+         const empPositionIds = emp.positionIds || [];
+         return userPositionIds.some(userPosId => 
+           empPositionIds.includes(userPosId)
+         );
+       });
+     }
+    
     return NextResponse.json({
-      users: allUsers,
+      users: usersToReturn,
       positions
     });
   } catch (error) {
