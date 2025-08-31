@@ -263,6 +263,22 @@ export default function DashboardPage() {
   // Memoize handlers to prevent unnecessary re-renders
   const handleTaskUpdate = useCallback(async (taskId: string, updates: Partial<Task>) => {
     try {
+      // Si se está marcando como completada, calcular si fue completada fuera de fecha
+      if (updates.status === TaskStatus.COMPLETED) {
+        const task = data.tasks.find(t => t.id === taskId);
+        if (task) {
+          const taskDueDate = new Date(task.dueDate);
+          const now = new Date();
+          
+          // Set task due date to end of day (23:59:59)
+          const endOfDueDay = new Date(taskDueDate);
+          endOfDueDay.setHours(23, 59, 59, 999);
+          
+          const completedLate = now > endOfDueDay;
+          updates.completedLate = completedLate;
+        }
+      }
+
       const response = await fetch(`/api/tasks/${taskId}`, {
         method: 'PATCH',
         headers: {
@@ -278,7 +294,7 @@ export default function DashboardPage() {
     } catch (error) {
       console.error('Error updating task:', error);
     }
-  }, [token, fetchTasks]);
+  }, [token, fetchTasks, data.tasks]);
 
   const handleTaskDuplicate = useCallback(async (taskId: string, newDueDate: Date) => {
     try {
@@ -306,12 +322,25 @@ export default function DashboardPage() {
     window.location.reload();
   }, []);
 
-     const handleEmployeeDeleted = useCallback(() => {
-     // Refresh the page to update employee list
-     window.location.reload();
-   }, []);
+       const handleEmployeeDeleted = useCallback(() => {
+    // Refresh the page to update employee list
+    window.location.reload();
+  }, []);
 
-   const clearFilters = useCallback(() => {
+  // Helper function to determine if user can complete a task
+  const canUserCompleteTask = useCallback((task: Task) => {
+    // Admins and supervisors can complete any task
+    if (isAdmin || isSupervisor) return true;
+    
+    // Employees can only complete tasks from their assigned positions
+    if (user?.role === Role.EMPLOYEE && user.positionIds) {
+      return user.positionIds.includes(task.positionId);
+    }
+    
+    return false;
+  }, [isAdmin, isSupervisor, user?.role, user?.positionIds]);
+
+    const clearFilters = useCallback(() => {
      setFilters({
        status: '',
        shift: '',
@@ -639,6 +668,8 @@ export default function DashboardPage() {
                         onUpdate={handleTaskUpdate}
                         onDuplicate={handleTaskDuplicate}
                         isAdmin={isAdmin}
+                        isSupervisor={isSupervisor}
+                        canCompleteTask={canUserCompleteTask(task)}
                       />
                     ))
                   )}
@@ -679,6 +710,8 @@ export default function DashboardPage() {
                         onUpdate={handleTaskUpdate}
                         onDuplicate={handleTaskDuplicate}
                         isAdmin={isAdmin}
+                        isSupervisor={isSupervisor}
+                        canCompleteTask={canUserCompleteTask(task)}
                       />
                     ))
                   )}
@@ -719,6 +752,8 @@ export default function DashboardPage() {
                         onUpdate={handleTaskUpdate}
                         onDuplicate={handleTaskDuplicate}
                         isAdmin={isAdmin}
+                        isSupervisor={isSupervisor}
+                        canCompleteTask={canUserCompleteTask(task)}
                       />
                     ))
                   )}

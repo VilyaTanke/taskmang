@@ -26,8 +26,7 @@ const EmployeeList = memo(function EmployeeList({ token, onEmployeeDeleted }: Em
   const [editingEmployee, setEditingEmployee] = useState<User | null>(null);
   const [positionFilter, setPositionFilter] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
-  const [showPasswords, setShowPasswords] = useState(false);
-  const [userPasswords, setUserPasswords] = useState<Record<string, string>>({});
+
 
   const fetchEmployees = useCallback(async () => {
     setIsLoading(true);
@@ -104,39 +103,7 @@ const EmployeeList = memo(function EmployeeList({ token, onEmployeeDeleted }: Em
     setEditingEmployee(null);
   };
 
-  const fetchUserPasswords = useCallback(async () => {
-    if (!token) return;
-    
-    try {
-      const response = await fetch('/api/users/passwords', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
 
-      if (response.ok) {
-        const data = await response.json();
-        setUserPasswords(data.passwords || {});
-      }
-    } catch (error) {
-      console.error('Error fetching passwords:', error);
-    }
-  }, [token]);
-
-  const togglePasswordVisibility = useCallback(() => {
-    if (!showPasswords) {
-      fetchUserPasswords();
-    }
-    setShowPasswords(!showPasswords);
-  }, [showPasswords, fetchUserPasswords]);
-
-  const generateTemporaryPassword = useCallback((userId: string) => {
-    const tempPassword = `temp_${Math.random().toString(36).substr(2, 8)}`;
-    setUserPasswords(prev => ({
-      ...prev,
-      [userId]: tempPassword
-    }));
-  }, []);
 
   const handleDeleteEmployee = useCallback(async (employeeId: string) => {
     if (!confirm('¿Está seguro de que desea eliminar este empleado?')) {
@@ -222,80 +189,11 @@ const EmployeeList = memo(function EmployeeList({ token, onEmployeeDeleted }: Em
               Limpiar filtros
             </button>
           )}
-          <button
-            onClick={async () => {
-              try {
-                const response = await fetch('/api/users/update-passwords', {
-                  method: 'POST',
-                  headers: {
-                    'Authorization': `Bearer ${token}`
-                  }
-                });
-                
-                if (response.ok) {
-                  const data = await response.json();
-                  alert(`Contraseñas actualizadas: ${data.updatedCount} usuarios`);
-                  if (showPasswords) {
-                    fetchUserPasswords();
-                  }
-                }
-              } catch (error) {
-                console.error('Error updating passwords:', error);
-                alert('Error al actualizar contraseñas');
-              }
-            }}
-            className="px-3 py-2 text-sm font-medium rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200 flex items-center space-x-2"
-            title="Actualizar contraseñas existentes"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            <span>Actualizar Contraseñas</span>
-          </button>
-          <button
-            onClick={togglePasswordVisibility}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 flex items-center space-x-2 ${
-              showPasswords
-                ? 'bg-red-600 hover:bg-red-700 text-white'
-                : 'bg-green-600 hover:bg-green-700 text-white'
-            }`}
-          >
-            {showPasswords ? (
-              <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
-                </svg>
-                <span>Ocultar Contraseñas</span>
-              </>
-            ) : (
-              <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                <span>Mostrar Contraseñas</span>
-              </>
-            )}
-          </button>
+          
         </div>
       </div>
 
-      {/* Security Warning */}
-      {showPasswords && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-          <div className="flex items-center">
-            <svg className="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-            <div>
-              <h4 className="text-sm font-medium text-yellow-800">Advertencia de Seguridad</h4>
-              <p className="text-sm text-yellow-700 mt-1">
-                Las contraseñas están visibles. Mantenga esta información segura y no la comparta.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+      
 
       {/* Filters */}
       <div className="bg-white/50 border border-blue-200 rounded-lg p-4 mb-6">
@@ -357,11 +255,7 @@ const EmployeeList = memo(function EmployeeList({ token, onEmployeeDeleted }: Em
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Estaciones
                 </th>
-                {showPasswords && (
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                    Contraseña
-                  </th>
-                )}
+                
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Acciones
                 </th>
@@ -395,36 +289,7 @@ const EmployeeList = memo(function EmployeeList({ token, onEmployeeDeleted }: Em
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                     {getPositionNames(employee.positionIds)}
                   </td>
-                  {showPasswords && (
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      <div className="flex items-center space-x-2">
-                                                 <span className="font-mono bg-gray-100 px-2 py-1 rounded text-xs">
-                           {userPasswords[employee.id] || '••••••••'}
-                         </span>
-                         <span className="text-xs text-gray-500">
-                           (texto plano)
-                         </span>
-                                                 <button
-                           onClick={() => navigator.clipboard.writeText(userPasswords[employee.id] || '')}
-                           className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
-                           title="Copiar contraseña"
-                         >
-                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                           </svg>
-                         </button>
-                         <button
-                           onClick={() => generateTemporaryPassword(employee.id)}
-                           className="text-green-600 hover:text-green-800 transition-colors duration-200"
-                           title="Generar contraseña temporal"
-                         >
-                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                           </svg>
-                         </button>
-                      </div>
-                    </td>
-                  )}
+                  
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                     <div className="flex space-x-2">
                       <button

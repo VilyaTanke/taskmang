@@ -10,6 +10,8 @@ interface TaskCardProps {
   onUpdate: (taskId: string, updates: Partial<Task>) => void;
   onDuplicate: (taskId: string, newDueDate: Date) => void;
   isAdmin: boolean;
+  isSupervisor?: boolean;
+  canCompleteTask?: boolean;
 }
 
 const TaskCard = memo(function TaskCard({ 
@@ -18,7 +20,9 @@ const TaskCard = memo(function TaskCard({
   users, 
   onUpdate, 
   onDuplicate, 
-  isAdmin 
+  isAdmin,
+  isSupervisor = false,
+  canCompleteTask = false
 }: TaskCardProps) {
   
   // Memoize expensive calculations
@@ -125,7 +129,7 @@ const TaskCard = memo(function TaskCard({
         <div className="task-card-title-section">
           <h4 className="task-card-title">{task.title}</h4>
           <div className="task-card-badges">
-            <span className={`task-card-status ${statusColor}`}>
+            <span className={`task-card-badge ${statusColor}`}>
               {displayStatus}
             </span>
             <span className={`task-card-shift ${getShiftColor(task.shift)}`}>
@@ -134,7 +138,7 @@ const TaskCard = memo(function TaskCard({
           </div>
         </div>
         
-        {isAdmin && (
+        {(isAdmin || isSupervisor || canCompleteTask) && (
           <div className="task-card-actions">
             <button
               onClick={() => handleStatusChange(TaskStatus.COMPLETED)}
@@ -148,22 +152,36 @@ const TaskCard = memo(function TaskCard({
               Completar
             </button>
             
-            <button
-              onClick={handleDuplicate}
-              className="task-card-button task-card-button-secondary"
-              title="Duplicar tarea"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
-              Duplicar
-            </button>
+            {isAdmin && (
+              <button
+                onClick={handleDuplicate}
+                className="task-card-button task-card-button-secondary"
+                title="Duplicar tarea"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Duplicar
+              </button>
+            )}
           </div>
         )}
       </div>
 
       <div className="task-card-content">
         <p className="task-card-description">{task.description}</p>
+        
+        {/* Alerta de tarea completada fuera de fecha */}
+        {task.status === TaskStatus.COMPLETED && task.completedLate && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <span className="text-red-700 font-medium">Tarea realizada fuera de fecha de asignación</span>
+            </div>
+          </div>
+        )}
         
         <div className="task-card-details">
           <div className="task-card-detail">

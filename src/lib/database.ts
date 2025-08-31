@@ -32,7 +32,6 @@ export async function initializeDatabase() {
         name TEXT NOT NULL,
         email TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
-        plainPassword TEXT,
         role TEXT NOT NULL
       )
     `);
@@ -123,8 +122,8 @@ export async function initializeDatabase() {
       const bcrypt = require('bcryptjs');
       const hashedPassword = await bcrypt.hash('admin123', 10);
       await dbRun(
-        'INSERT INTO users (id, name, email, password, plainPassword, role) VALUES (?, ?, ?, ?, ?, ?)',
-        ['admin-1', 'Administrador', 'admin@taskmang.com', hashedPassword, 'admin123', Role.ADMIN]
+        'INSERT INTO users (id, name, email, password, role) VALUES (?, ?, ?, ?, ?)',
+        ['admin-1', 'Administrador', 'admin@taskmang.com', hashedPassword, Role.ADMIN]
       );
       // Add admin to position
       await dbRun('INSERT INTO user_positions (userId, positionId) VALUES (?, ?)', ['admin-1', 'pos-4']);
@@ -213,15 +212,7 @@ async function runMigrations() {
       console.log('Successfully added completedLate column to tasks table');
     }
 
-    // Check if users table has the plainPassword column
-    const usersTableInfo = await dbAll("PRAGMA table_info(users)");
-    const hasPlainPassword = usersTableInfo.some(col => col.name === 'plainPassword');
-    
-    if (!hasPlainPassword) {
-      console.log('Adding plainPassword column to users table...');
-      await dbRun('ALTER TABLE users ADD COLUMN plainPassword TEXT');
-      console.log('Successfully added plainPassword column to users table');
-    }
+
     
     console.log('Database migrations completed');
   } catch (error) {
@@ -238,10 +229,10 @@ export async function createUser(user: Omit<User, 'id'>): Promise<User> {
   await dbRun('BEGIN TRANSACTION');
   
   try {
-    // Insert user with both hashed and plain password
+    // Insert user with hashed password
     await dbRun(
-      'INSERT INTO users (id, name, email, password, plainPassword, role) VALUES (?, ?, ?, ?, ?, ?)',
-      [id, user.name, user.email, user.password, (user as any).plainPassword || user.password, user.role]
+      'INSERT INTO users (id, name, email, password, role) VALUES (?, ?, ?, ?, ?)',
+      [id, user.name, user.email, user.password, user.role]
     );
     
     // Insert user-position relationships
@@ -327,12 +318,6 @@ export async function updateUser(id: string, updates: Partial<User>): Promise<Om
       const hashedPassword = await bcrypt.hash(updates.password, 10);
       updateFields.push('password = ?');
       params.push(hashedPassword);
-      
-      // Also update plainPassword if it's a string (not hashed)
-      if (typeof updates.password === 'string' && !updates.password.startsWith('$2a$')) {
-        updateFields.push('plainPassword = ?');
-        params.push(updates.password);
-      }
     }
 
     // Update user fields if any
@@ -411,68 +396,7 @@ export async function getAllUsers(): Promise<Omit<User, 'password'>[]> {
   }));
 }
 
-// Function to update existing user passwords with plain text versions
-export async function updateUserPasswords(): Promise<{ updatedCount: number }> {
-  try {
-    const users = await dbAll('SELECT id, email FROM users WHERE plainPassword IS NULL OR plainPassword = ""');
-    let updatedCount = 0;
 
-    for (const user of users) {
-      // Set default plain passwords for existing users
-      let plainPassword = 'admin123';
-      
-      // If it's a test user, use a more descriptive password
-      if (user.id === 'user-1') plainPassword = 'juan123';
-      if (user.id === 'user-2') plainPassword = 'maria123';
-      if (user.id === 'user-3') plainPassword = 'carlos123';
-      
-      // Check if it's the admin user
-      if (user.email === 'admin@taskmang.com') plainPassword = 'admin123';
-      
-      await dbRun('UPDATE users SET plainPassword = ? WHERE id = ?', [plainPassword, user.id]);
-      updatedCount++;
-    }
-
-    return { updatedCount };
-  } catch (error) {
-    console.error('Error updating user passwords:', error);
-    throw error;
-  }
-}
-
-// Function to get all users with passwords (admin only)
-export async function getAllUsersWithPasswords(): Promise<Array<User & { password: string; plainPassword?: string }>> {
-  const users = await dbAll(`
-    SELECT u.id, u.name, u.email, u.role, u.password, u.plainPassword, GROUP_CONCAT(up.positionId) as positionIds
-    FROM users u
-    LEFT JOIN user_positions up ON u.id = up.userId
-    GROUP BY u.id
-  `);
-  
-  return users.map(user => {
-    // Determine the appropriate plain password
-    let plainPassword = user.plainPassword;
-    
-    if (!plainPassword || plainPassword === '') {
-      // Set default passwords based on user ID or email
-      if (user.id === 'user-1') plainPassword = 'juan123';
-      else if (user.id === 'user-2') plainPassword = 'maria123';
-      else if (user.id === 'user-3') plainPassword = 'carlos123';
-      else if (user.email === 'admin@taskmang.com') plainPassword = 'admin123';
-      else plainPassword = 'admin123';
-    }
-    
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      password: user.password,
-      plainPassword: plainPassword,
-      positionIds: user.positionIds ? user.positionIds.split(',') : []
-    };
-  });
-}
 
 // Position operations
 export async function getAllPositions(): Promise<Position[]> {
@@ -758,8 +682,8 @@ export async function insertTestData() {
       const existingUser = await dbGet('SELECT * FROM users WHERE email = ?', [user.email]);
       if (!existingUser) {
         await dbRun(
-          'INSERT INTO users (id, name, email, password, plainPassword, role) VALUES (?, ?, ?, ?, ?, ?)',
-          [user.id, user.name, user.email, user.password, user.password, user.role]
+          'INSERT INTO users (id, name, email, password, role) VALUES (?, ?, ?, ?, ?)',
+          [user.id, user.name, user.email, user.password, user.role]
         );
         
         // Insert user positions
