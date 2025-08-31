@@ -263,16 +263,16 @@ export default function DashboardPage() {
         {/* Key Metrics Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Tareas Pendientes Card */}
-          <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg">
-            <div className="flex items-center justify-between">
+          <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg place-content-center">
+            <div className="flex place-items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700">Tareas Pendientes</p>
-                <p className="text-2xl font-bold text-gray-800">{pendingTasks.length}</p>
-                <p className="text-sm text-yellow-600 flex items-center mt-1">
+                <p className="text-sm font-medium text-gray-700"></p>
+                <p className="text-center text-3xl font-bold text-gray-800">{pendingTasks.length}</p>
+                <p className="text-lg text-yellow-600 flex items-center mt-1">
                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  Requieren atención
+                  Tareas Pendientes
                 </p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center shadow-lg shadow-yellow-500/25">
@@ -284,16 +284,16 @@ export default function DashboardPage() {
           </div>
 
           {/* Tareas Completadas Card */}
-          <div className="bg-white/90 backdrop-blur-sm border border-green-200 rounded-xl p-6 shadow-lg">
+          <div className="bg-white/90 backdrop-blur-sm border border-green-200 rounded-xl p-6 shadow-lg place-content-center">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700">Tareas Completadas</p>
-                <p className="text-2xl font-bold text-gray-800">{completedTasks.length}</p>
-                <p className="text-sm text-green-600 flex items-center mt-1">
+                <p className="text-sm font-medium text-gray-700"></p>
+                <p className="text-center text-3xl font-bold text-gray-800">{completedTasks.length}</p>
+                <p className="text-md text-green-600 flex items-center mt-1">
                   <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
                   </svg>
-                  Finalizadas
+                  Tareas Completadas
                 </p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-lg shadow-green-500/25">
@@ -305,16 +305,16 @@ export default function DashboardPage() {
           </div>
 
           {/* Tareas Vencidas Card */}
-          <div className="bg-white/90 backdrop-blur-sm border border-red-200 rounded-xl p-6 shadow-lg">
+          <div className="bg-white/90 backdrop-blur-sm border border-red-200 rounded-xl p-6 shadow-lg place-content-center">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700">Tareas Vencidas</p>
-                <p className="text-2xl font-bold text-gray-800">{overdueTasks.length}</p>
-                <p className="text-sm text-red-600 flex items-center mt-1">
+                <p className="text-sm font-medium text-gray-700"></p>
+                <p className="text-center text-3xl font-bold text-gray-800">{overdueTasks.length}</p>
+                <p className="text-lg text-red-600 flex items-center mt-1">
                   <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M12 13a1 1 0 100 2h5a1 1 0 001-1V9a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586l-4.293-4.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z" clipRule="evenodd" />
                   </svg>
-                  Urgentes
+                  Tareas Vencidas
                 </p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg flex items-center justify-center shadow-lg shadow-red-500/25">
@@ -326,16 +326,16 @@ export default function DashboardPage() {
           </div>
 
           {/* Total Tareas Card */}
-          <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg">
+          <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg place-content-center">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700">Total Tareas</p>
-                <p className="text-2xl font-bold text-gray-800">{filteredTasks.length}</p>
-                <p className="text-sm text-blue-600 flex items-center mt-1">
-                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <p className="text-sm font-medium text-gray-700"></p>
+                <p className="text-center text-3xl font-bold text-gray-800">{filteredTasks.length}</p>
+                <p className="text-lg text-blue-600 flex items-center mt-1">
+                  <svg className="w-6 h-6 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
                   </svg>
-                  En sistema
+                  Total Tareas
                 </p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/25">
