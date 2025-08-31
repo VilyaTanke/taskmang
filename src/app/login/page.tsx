@@ -130,8 +130,8 @@ export default function LoginPage() {
                     disabled={isLoading}
                     className="relative w-full group"
                   >
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-200"></div>
-                    <div className="relative flex items-center justify-center w-full px-6 py-3 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105 disabled:scale-100 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-200"></div>
+                    <div className="relative flex items-center justify-center w-full px-6 py-3 bg-gradient-to-r from-blue-500 via-blue-700 to-blue-400 text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105 disabled:scale-100 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg">
                       {isLoading ? (
                         <>
                           <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">

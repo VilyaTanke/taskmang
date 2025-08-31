@@ -50,7 +50,7 @@ export default function CardsPage() {
         return;
       }
 
-             const [cardRecordsRes, , usersRes] = await Promise.all([
+      const [cardRecordsRes, , usersRes] = await Promise.all([
         fetch('/api/cards', {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -113,10 +113,10 @@ export default function CardsPage() {
       }
 
       // Establecer datos disponibles
-      setData({ 
-        cardRecords: cardData?.records || [], 
-        positions: cardData?.positions || [], 
-        users: usersData?.users || [] 
+      setData({
+        cardRecords: cardData?.records || [],
+        positions: cardData?.positions || [],
+        users: usersData?.users || []
       });
 
       // Mostrar errores si los hay
@@ -148,7 +148,7 @@ export default function CardsPage() {
     if (isAdmin || isSupervisor) {
       return data.positions;
     }
-    return data.positions.filter(position => 
+    return data.positions.filter(position =>
       user?.positionIds?.includes(position.id)
     );
   }, [data.positions, isAdmin, isSupervisor, user?.positionIds]);
@@ -158,7 +158,7 @@ export default function CardsPage() {
     if (isAdmin || isSupervisor) {
       return data.users;
     }
-    return data.users.filter(emp => 
+    return data.users.filter(emp =>
       emp.positionIds?.some(posId => userPositions.some(p => p.id === posId))
     );
   }, [data.users, userPositions, isAdmin, isSupervisor]);
@@ -167,7 +167,7 @@ export default function CardsPage() {
   const positionStats = useMemo(() => {
     return userPositions.map(position => {
       const positionRecords = data.cardRecords.filter(record => record.positionId === position.id);
-      
+
       const stats: CardStats = {
         total: 0,
         moeveGowBankinter: 0,
@@ -202,7 +202,7 @@ export default function CardsPage() {
   const employeeStats = useMemo(() => {
     return userUsers.map(emp => {
       const employeeRecords = data.cardRecords.filter(record => record.userId === emp.id);
-      
+
       const stats: CardStats = {
         total: 0,
         moeveGowBankinter: 0,
@@ -227,7 +227,7 @@ export default function CardsPage() {
       });
 
       // Obtener las posiciones del empleado
-      const employeePositions = data.positions.filter(pos => 
+      const employeePositions = data.positions.filter(pos =>
         emp.positionIds?.includes(pos.id)
       );
 
@@ -237,7 +237,7 @@ export default function CardsPage() {
         ...stats
       };
     }).filter(emp => emp.total > 0)
-    .sort((a, b) => b.total - a.total);
+      .sort((a, b) => b.total - a.total);
   }, [data.cardRecords, userUsers, data.positions]);
 
   const handleAddCards = async () => {
@@ -287,7 +287,7 @@ export default function CardsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 via-blue-200 to-blue-700 ">
       <DashboardHeader user={user} />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -329,21 +329,7 @@ export default function CardsPage() {
 
         {/* Sumatoria de Tarjetas */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-700">Total Tarjetas</p>
-                <p className="text-2xl font-bold text-gray-800">
-                  {positionStats.reduce((sum, pos) => sum + pos.total, 0)}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/25">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                </svg>
-              </div>
-            </div>
-          </div>
+
 
           <div className="bg-white/90 backdrop-blur-sm border border-green-200 rounded-xl p-6 shadow-lg">
             <div className="flex items-center justify-between">
@@ -374,7 +360,7 @@ export default function CardsPage() {
                 {/*<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>*/}
-                <img src="/Mpro.png" alt="Mpro"/>
+                <img src="/Mpro.png" alt="Mpro" />
               </div>
             </div>
           </div>
@@ -391,7 +377,23 @@ export default function CardsPage() {
                 {/*<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>*/}
-                <img src="/GOW.png" alt="GOW"/>
+                <img src="/GOW.png" alt="GOW" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-700">Total Tarjetas</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {positionStats.reduce((sum, pos) => sum + pos.total, 0)}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/25">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
               </div>
             </div>
           </div>
