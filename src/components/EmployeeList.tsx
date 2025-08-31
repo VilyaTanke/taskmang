@@ -27,6 +27,7 @@ const EmployeeList = memo(function EmployeeList({ token, onEmployeeDeleted }: Em
   const [positionFilter, setPositionFilter] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
 
+
   const fetchEmployees = useCallback(async () => {
     setIsLoading(true);
     setError('');
@@ -101,6 +102,8 @@ const EmployeeList = memo(function EmployeeList({ token, onEmployeeDeleted }: Em
     fetchEmployees();
     setEditingEmployee(null);
   };
+
+
 
   const handleDeleteEmployee = useCallback(async (employeeId: string) => {
     if (!confirm('¿Está seguro de que desea eliminar este empleado?')) {
@@ -186,8 +189,11 @@ const EmployeeList = memo(function EmployeeList({ token, onEmployeeDeleted }: Em
               Limpiar filtros
             </button>
           )}
+          
         </div>
       </div>
+
+      
 
       {/* Filters */}
       <div className="bg-white/50 border border-blue-200 rounded-lg p-4 mb-6">
@@ -249,6 +255,7 @@ const EmployeeList = memo(function EmployeeList({ token, onEmployeeDeleted }: Em
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Estaciones
                 </th>
+                
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Acciones
                 </th>
@@ -282,6 +289,7 @@ const EmployeeList = memo(function EmployeeList({ token, onEmployeeDeleted }: Em
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                     {getPositionNames(employee.positionIds)}
                   </td>
+                  
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                     <div className="flex space-x-2">
                       <button

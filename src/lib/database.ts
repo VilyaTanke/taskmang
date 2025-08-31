@@ -211,6 +211,8 @@ async function runMigrations() {
       await dbRun('ALTER TABLE tasks ADD COLUMN completedLate INTEGER DEFAULT 0');
       console.log('Successfully added completedLate column to tasks table');
     }
+
+
     
     console.log('Database migrations completed');
   } catch (error) {
@@ -227,7 +229,7 @@ export async function createUser(user: Omit<User, 'id'>): Promise<User> {
   await dbRun('BEGIN TRANSACTION');
   
   try {
-    // Insert user
+    // Insert user with hashed password
     await dbRun(
       'INSERT INTO users (id, name, email, password, role) VALUES (?, ?, ?, ?, ?)',
       [id, user.name, user.email, user.password, user.role]
@@ -264,8 +266,8 @@ export async function getUserByEmail(email: string): Promise<User | null> {
   } as User;
 }
 
-export async function getUserById(id: string): Promise<User | null> {
-  const user = await dbGet('SELECT * FROM users WHERE id = ?', [id]);
+export async function getUserById(id: string): Promise<Omit<User, 'password'> | null> {
+  const user = await dbGet('SELECT id, name, email, role FROM users WHERE id = ?', [id]);
   if (!user) return null;
   
   // Get user positions
@@ -273,12 +275,15 @@ export async function getUserById(id: string): Promise<User | null> {
   const positionIds = positions.map(p => p.positionId);
   
   return {
-    ...user,
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
     positionIds
-  } as User;
+  };
 }
 
-export async function updateUser(id: string, updates: Partial<User>): Promise<User | null> {
+export async function updateUser(id: string, updates: Partial<User>): Promise<Omit<User, 'password'> | null> {
   console.log('Updating user:', { id, updates });
   const user = await getUserById(id);
   if (!user) return null;
@@ -356,9 +361,9 @@ export async function deleteUser(id: string): Promise<boolean> {
   }
 }
 
-export async function getUsersByPosition(positionId: string): Promise<User[]> {
+export async function getUsersByPosition(positionId: string): Promise<Omit<User, 'password'>[]> {
   const users = await dbAll(`
-    SELECT u.*, GROUP_CONCAT(up.positionId) as positionIds
+    SELECT u.id, u.name, u.email, u.role, GROUP_CONCAT(up.positionId) as positionIds
     FROM users u
     JOIN user_positions up ON u.id = up.userId
     WHERE up.positionId = ?
@@ -366,24 +371,32 @@ export async function getUsersByPosition(positionId: string): Promise<User[]> {
   `, [positionId]);
   
   return users.map(user => ({
-    ...user,
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
     positionIds: user.positionIds ? user.positionIds.split(',') : []
   }));
 }
 
-export async function getAllUsers(): Promise<User[]> {
+export async function getAllUsers(): Promise<Omit<User, 'password'>[]> {
   const users = await dbAll(`
-    SELECT u.*, GROUP_CONCAT(up.positionId) as positionIds
+    SELECT u.id, u.name, u.email, u.role, GROUP_CONCAT(up.positionId) as positionIds
     FROM users u
     LEFT JOIN user_positions up ON u.id = up.userId
     GROUP BY u.id
   `);
   
   return users.map(user => ({
-    ...user,
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
     positionIds: user.positionIds ? user.positionIds.split(',') : []
   }));
 }
+
+
 
 // Position operations
 export async function getAllPositions(): Promise<Position[]> {

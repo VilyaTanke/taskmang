@@ -80,8 +80,7 @@ export interface TaskFilters {
   positionId: string;
   status: string;
   shift: string;
-  startDate?: Date;
-  endDate?: Date;
+  date?: string;
 }
 
 export interface CreateUserData {

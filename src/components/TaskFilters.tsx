@@ -23,15 +23,16 @@ const TaskFilters = memo(function TaskFilters({ filters, onFiltersChange, positi
     onFiltersChange({
       status: '',
       shift: '',
-      positionId: ''
+      positionId: '',
+      date: ''
     });
   }, [onFiltersChange]);
 
-  const hasActiveFilters = filters.status || filters.shift || filters.positionId;
+  const hasActiveFilters = filters.status || filters.shift || filters.positionId || filters.date;
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      {/*<div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-800">Filtros</h3>
         {hasActiveFilters && (
           <button
@@ -41,9 +42,9 @@ const TaskFilters = memo(function TaskFilters({ filters, onFiltersChange, positi
             Limpiar Filtros
           </button>
         )}
-      </div>
+      </div>*/}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Status Filter */}
         <div>
           <label htmlFor="status-filter" className="block text-sm font-medium text-gray-700 mb-2">
@@ -53,7 +54,7 @@ const TaskFilters = memo(function TaskFilters({ filters, onFiltersChange, positi
             id="status-filter"
             value={filters.status}
             onChange={(e) => handleFilterChange('status', e.target.value)}
-            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+            className="w-full px-3 py-2 bg-white border border-blue-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 shadow-sm transition-all duration-200 hover:border-blue-300 hover:shadow-md"
           >
             <option value="">Todos los estados</option>
             <option value={TaskStatus.PENDING}>Pendiente</option>
@@ -71,7 +72,7 @@ const TaskFilters = memo(function TaskFilters({ filters, onFiltersChange, positi
             id="shift-filter"
             value={filters.shift}
             onChange={(e) => handleFilterChange('shift', e.target.value)}
-            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+            className="w-full px-3 py-2 bg-white border border-blue-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 shadow-sm transition-all duration-200 hover:border-blue-300 hover:shadow-md"
           >
             <option value="">Todos los turnos</option>
             <option value={Shift.MORNING}>Mañana</option>
@@ -89,7 +90,7 @@ const TaskFilters = memo(function TaskFilters({ filters, onFiltersChange, positi
             id="position-filter"
             value={filters.positionId}
             onChange={(e) => handleFilterChange('positionId', e.target.value)}
-            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+            className="w-full px-3 py-2 bg-white border border-blue-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 shadow-sm transition-all duration-200 hover:border-blue-300 hover:shadow-md"
           >
             <option value="">Todas las estaciones</option>
             {positions.map((position) => (
@@ -98,6 +99,20 @@ const TaskFilters = memo(function TaskFilters({ filters, onFiltersChange, positi
               </option>
             ))}
           </select>
+        </div>
+
+        {/* Date Filter */}
+        <div>
+          <label htmlFor="date-filter" className="block text-sm font-medium text-gray-700 mb-2">
+            Fecha
+          </label>
+          <input
+            type="date"
+            id="date-filter"
+            value={filters.date || ''}
+            onChange={(e) => handleFilterChange('date', e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-blue-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 shadow-sm transition-all duration-200 hover:border-blue-300 hover:shadow-md"
+          />
         </div>
       </div>
     </div>

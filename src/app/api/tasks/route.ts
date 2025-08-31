@@ -38,8 +38,7 @@ export async function GET(request: NextRequest) {
     const positionId = searchParams.get('positionId');
     const status = searchParams.get('status') as TaskStatus | 'OVERDUE';
     const shift = searchParams.get('shift') as Shift;
-    const startDate = searchParams.get('startDate');
-    const endDate = searchParams.get('endDate');
+    const date = searchParams.get('date');
 
     const filters: Record<string, unknown> = {};
     
@@ -62,27 +61,36 @@ export async function GET(request: NextRequest) {
         result = result.filter(task => task.positionId === positionId);
       }
       
-      if (status) {
-        if (status === 'OVERDUE') {
-          const now = new Date();
-          result = result.filter(task => 
-            task.status === TaskStatus.PENDING && new Date(task.dueDate) < now
-          );
-        } else {
-          result = result.filter(task => task.status === status);
-        }
-      }
+             if (status) {
+         if (status === 'OVERDUE') {
+           // A task is overdue only after 23:59 of the due date
+           result = result.filter(task => {
+             if (task.status !== TaskStatus.PENDING) return false;
+             
+             const taskDueDate = new Date(task.dueDate);
+             const now = new Date();
+             
+             // Set task due date to end of day (23:59:59)
+             const endOfDueDay = new Date(taskDueDate);
+             endOfDueDay.setHours(23, 59, 59, 999);
+             
+             return now > endOfDueDay;
+           });
+         } else {
+           result = result.filter(task => task.status === status);
+         }
+       }
       
       if (shift) {
         result = result.filter(task => task.shift === shift);
       }
       
-      if (startDate) {
-        result = result.filter(task => new Date(task.dueDate) >= new Date(startDate));
-      }
-      
-      if (endDate) {
-        result = result.filter(task => new Date(task.dueDate) <= new Date(endDate));
+      if (date) {
+        const selectedDate = new Date(date);
+        result = result.filter(task => {
+          const taskDate = new Date(task.dueDate);
+          return taskDate.toDateString() === selectedDate.toDateString();
+        });
       }
       
       // Get positions and users for the response
@@ -101,18 +109,34 @@ export async function GET(request: NextRequest) {
       if (positionId) filters.positionId = positionId;
       if (status && status !== 'OVERDUE') filters.status = status;
       if (shift) filters.shift = shift;
-      if (startDate) filters.startDate = new Date(startDate);
-      if (endDate) filters.endDate = new Date(endDate);
 
       let tasks = await getTasksByFilters(filters);
       
-      // Apply overdue filter if status is OVERDUE
-      if (status === 'OVERDUE') {
-        const now = new Date();
-        tasks = tasks.filter(task => 
-          task.status === TaskStatus.PENDING && new Date(task.dueDate) < now
-        );
+      // Apply date filter if provided
+      if (date) {
+        const selectedDate = new Date(date);
+        tasks = tasks.filter(task => {
+          const taskDate = new Date(task.dueDate);
+          return taskDate.toDateString() === selectedDate.toDateString();
+        });
       }
+      
+             // Apply overdue filter if status is OVERDUE
+       if (status === 'OVERDUE') {
+         // A task is overdue only after 23:59 of the due date
+         tasks = tasks.filter(task => {
+           if (task.status !== TaskStatus.PENDING) return false;
+           
+           const taskDueDate = new Date(task.dueDate);
+           const now = new Date();
+           
+           // Set task due date to end of day (23:59:59)
+           const endOfDueDay = new Date(taskDueDate);
+           endOfDueDay.setHours(23, 59, 59, 999);
+           
+           return now > endOfDueDay;
+         });
+       }
       
       // Get positions and users for the response
       const positions = await getAllPositions();
