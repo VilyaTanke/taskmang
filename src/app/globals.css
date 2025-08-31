@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+/*HEAD*/
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -279,7 +279,8 @@
   50% {
     transform: translateY(-5px);
   }
-=======
+}
+
 @import "tailwindcss";
 @import "../styles/app.css";
 @import "../styles/dashboard.css";
@@ -367,6 +368,5 @@ html {
 ::-moz-selection {
   background: rgba(59, 130, 246, 0.3);
   color: white;
->>>>>>> 3884c9c (probando resolución de conflictos de emrge)
 }
 
