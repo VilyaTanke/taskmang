@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import emailjs from '@emailjs/browser';
 import { EMAILJS_CONFIG } from '@/lib/emailjs-config';
 
@@ -8,7 +8,7 @@ interface EmailTestModalProps {
   onClose: () => void;
 }
 
-export default function EmailTestModal({ onClose }: EmailTestModalProps) {
+const EmailTestModal = memo(function EmailTestModal({ onClose }: EmailTestModalProps) {
   const [testData, setTestData] = useState({
     from_name: 'Test User',
     from_email: 'test@example.com',
@@ -169,4 +169,6 @@ export default function EmailTestModal({ onClose }: EmailTestModalProps) {
       </div>
     </div>
   );
-}
+});
+
+export default EmailTestModal;

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Task, Position, User, TaskStatus } from '@/types';
+import { useClock } from '@/hooks/useClock';
 
 import DashboardHeader from '@/components/DashboardHeader';
 import TaskCard from '@/components/TaskCard';
@@ -12,6 +13,7 @@ import CreateEmployeeModal from '@/components/CreateEmployeeModal';
 import EditEmployeeModal from '@/components/EditEmployeeModal';
 import CashChangeModal from '@/components/CashChangeModal';
 import EmailTestModal from '@/components/EmailTestModal';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 import EmployeeList from '@/components/EmployeeList';
 
@@ -27,6 +29,7 @@ interface DashboardData {
 
 export default function DashboardPage() {
   const { user, token, isAdmin, isSupervisor } = useAuth();
+  const { formattedTime } = useClock();
   const [data, setData] = useState<DashboardData>({ tasks: [], positions: [], users: [] });
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,7 +50,16 @@ export default function DashboardPage() {
     day: '',
     shift: ''
   });
-  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Memoize modal state setters to prevent unnecessary re-renders
+  const modalSetters = useMemo(() => ({
+    setShowCreateModal,
+    setShowCreateEmployeeModal,
+    setShowCashChangeModal,
+    setShowEmailTestModal,
+    setShowEditEmployeeModal,
+    setShowExportModal
+  }), []);
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -96,83 +108,12 @@ export default function DashboardPage() {
     setFilteredTasks(filtered);
   }, [data.tasks, filters.status, filters.shift, filters.positionId]);
 
-  useEffect(() => {
-    if (token) {
-      fetchTasks();
-    }
-  }, [token, fetchTasks]);
-
-  useEffect(() => {
-    filterTasks();
-  }, [data.tasks, filters, filterTasks]);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const handleTaskUpdate = async (taskId: string, updates: Partial<Task>) => {
-    try {
-      const response = await fetch(`/api/tasks/${taskId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(updates)
-      });
-
-      if (response.ok) {
-        fetchTasks(); // Refresh tasks
-      }
-    } catch (error) {
-      console.error('Error updating task:', error);
-    }
-  };
-
-  const handleTaskDuplicate = async (taskId: string, newDueDate: Date) => {
-    try {
-      const response = await fetch(`/api/tasks/${taskId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ newDueDate: newDueDate.toISOString() })
-      });
-
-      if (response.ok) {
-        fetchTasks(); // Refresh tasks
-      }
-    } catch (error) {
-      console.error('Error duplicating task:', error);
-    }
-  };
-
-
-
-  const handleEmployeeUpdated = () => {
-    setSelectedEmployee(null);
-    setShowEditEmployeeModal(false);
-    // Refresh the page to update employee list
-    window.location.reload();
-  };
-
-  const handleEmployeeDeleted = () => {
-    // Refresh the page to update employee list
-    window.location.reload();
-  };
-
-  const getTasksByStatus = (status: TaskStatus) => {
+  // Memoize expensive calculations
+  const getTasksByStatus = useCallback((status: TaskStatus) => {
     return filteredTasks.filter(task => task.status === status);
-  };
+  }, [filteredTasks]);
 
-
-
-  const getFilteredPendingTasks = () => {
+  const getFilteredPendingTasks = useCallback(() => {
     let filtered = getTasksByStatus(TaskStatus.PENDING);
 
     // Filter by day
@@ -190,18 +131,89 @@ export default function DashboardPage() {
     }
 
     return filtered;
-  };
+  }, [getTasksByStatus, pendingTaskFilters.day, pendingTaskFilters.shift]);
 
-  const pendingTasks = getFilteredPendingTasks();
-  const completedTasks = getTasksByStatus(TaskStatus.COMPLETED);
-  const overdueTasks = pendingTasks.filter(task => new Date(task.dueDate) < new Date());
+  // Memoize task counts
+  const taskCounts = useMemo(() => {
+    const pendingTasks = getFilteredPendingTasks();
+    const completedTasks = getTasksByStatus(TaskStatus.COMPLETED);
+    const overdueTasks = pendingTasks.filter(task => new Date(task.dueDate) < new Date());
+    
+    return {
+      pending: pendingTasks,
+      completed: completedTasks,
+      overdue: overdueTasks,
+      total: filteredTasks
+    };
+  }, [getFilteredPendingTasks, getTasksByStatus, filteredTasks]);
+
+  const pendingTasks = taskCounts.pending;
+  const completedTasks = taskCounts.completed;
+  const overdueTasks = taskCounts.overdue;
+
+  // Memoize handlers to prevent unnecessary re-renders
+  const handleTaskUpdate = useCallback(async (taskId: string, updates: Partial<Task>) => {
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(updates)
+      });
+
+      if (response.ok) {
+        fetchTasks(); // Refresh tasks
+      }
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
+  }, [token, fetchTasks]);
+
+  const handleTaskDuplicate = useCallback(async (taskId: string, newDueDate: Date) => {
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ newDueDate: newDueDate.toISOString() })
+      });
+
+      if (response.ok) {
+        fetchTasks(); // Refresh tasks
+      }
+    } catch (error) {
+      console.error('Error duplicating task:', error);
+    }
+  }, [token, fetchTasks]);
+
+  const handleEmployeeUpdated = useCallback(() => {
+    setSelectedEmployee(null);
+    setShowEditEmployeeModal(false);
+    // Refresh the page to update employee list
+    window.location.reload();
+  }, []);
+
+  const handleEmployeeDeleted = useCallback(() => {
+    // Refresh the page to update employee list
+    window.location.reload();
+  }, []);
+
+  useEffect(() => {
+    if (token) {
+      fetchTasks();
+    }
+  }, [token, fetchTasks]);
+
+  useEffect(() => {
+    filterTasks();
+  }, [data.tasks, filters, filterTasks]);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 shadow-lg shadow-blue-500/25"></div>
-      </div>
-    );
+    return <LoadingSpinner size="xl" />;
   }
 
   return (
@@ -213,20 +225,10 @@ export default function DashboardPage() {
         <div className="flex justify-center mb-6">
           <div className="bg-white shadow-lg rounded-lg p-4 text-center border border-blue-200">
             <div className="text-3xl font-mono font-bold text-gray-800">
-              {currentTime.toLocaleTimeString('es-ES', {
-                hour12: false,
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-              })}
+              {formattedTime.time}
             </div>
             <div className="text-sm text-gray-600 mt-1">
-              {currentTime.toLocaleDateString('es-ES', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              })}
+              {formattedTime.date}
             </div>
           </div>
         </div>
@@ -346,7 +348,7 @@ export default function DashboardPage() {
             {isAdmin && (
               <>
                 <button
-                  onClick={() => setShowCreateModal(true)}
+                  onClick={() => modalSetters.setShowCreateModal(true)}
                   className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-medium rounded-lg shadow-lg shadow-indigo-500/25 transition-all duration-200"
                 >
                   <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -356,17 +358,17 @@ export default function DashboardPage() {
                 </button>
 
                 <button
-                  onClick={() => setShowCreateEmployeeModal(true)}
+                  onClick={() => modalSetters.setShowCreateEmployeeModal(true)}
                   className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium rounded-lg shadow-lg shadow-green-500/25 transition-all duration-200"
                 >
                   <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                   </svg>
-                                    <span className="text-sm">Crear Empleado</span>
+                  <span className="text-sm">Crear Empleado</span>
                 </button>
 
                 <button
-                  onClick={() => setShowExportModal(true)}
+                  onClick={() => modalSetters.setShowExportModal(true)}
                   className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white font-medium rounded-lg shadow-lg shadow-purple-500/25 transition-all duration-200"
                 >
                   <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -381,7 +383,7 @@ export default function DashboardPage() {
             {(isAdmin || isSupervisor) && (
               <>
                 <button
-                  onClick={() => setShowCashChangeModal(true)}
+                  onClick={() => modalSetters.setShowCashChangeModal(true)}
                   className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-medium rounded-lg shadow-lg shadow-orange-500/25 transition-all duration-200"
                 >
                   <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -529,8 +531,6 @@ export default function DashboardPage() {
           token={token}
         />
       )}
-
-
 
       {/* Edit Employee Modal */}
       {showEditEmployeeModal && selectedEmployee && token && (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Position, Shift } from '@/types';
 
 interface CreateTaskModalProps {
@@ -10,7 +10,7 @@ interface CreateTaskModalProps {
   token: string | null;
 }
 
-export default function CreateTaskModal({ positions, onClose, onTaskCreated, token }: CreateTaskModalProps) {
+const CreateTaskModal = memo(function CreateTaskModal({ positions, onClose, onTaskCreated, token }: CreateTaskModalProps) {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -190,4 +190,6 @@ export default function CreateTaskModal({ positions, onClose, onTaskCreated, tok
       </div>
     </div>
   );
-}
+});
+
+export default CreateTaskModal;

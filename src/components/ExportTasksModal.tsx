@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Position, TaskStatus, Shift } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -10,7 +10,7 @@ interface ExportTasksModalProps {
   positions: Position[];
 }
 
-export default function ExportTasksModal({ isOpen, onClose, positions }: ExportTasksModalProps) {
+const ExportTasksModal = memo(function ExportTasksModal({ isOpen, onClose, positions }: ExportTasksModalProps) {
   const { token } = useAuth();
   const [isExporting, setIsExporting] = useState(false);
   const [filters, setFilters] = useState({
@@ -198,4 +198,6 @@ export default function ExportTasksModal({ isOpen, onClose, positions }: ExportT
       </div>
     </div>
   );
-}
+});
+
+export default ExportTasksModal;

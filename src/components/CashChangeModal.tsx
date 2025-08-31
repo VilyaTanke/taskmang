@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { memo, useState, useRef } from 'react';
 import EmailModal from './EmailModal';
 
 interface CashChangeModalProps {
@@ -13,7 +13,7 @@ interface Denomination {
   type: 'coin' | 'bill';
 }
 
-export default function CashChangeModal({ onClose }: CashChangeModalProps) {
+const CashChangeModal = memo(function CashChangeModal({ onClose }: CashChangeModalProps) {
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const [showEmailModal, setShowEmailModal] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
@@ -288,4 +288,6 @@ ${printRef.current.innerText}
       )}
     </div>
   );
-}
+});
+
+export default CashChangeModal;

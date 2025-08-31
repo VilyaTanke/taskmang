@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Position, Role } from '@/types';
 
 interface CreateEmployeeModalProps {
@@ -10,7 +10,7 @@ interface CreateEmployeeModalProps {
   token: string | null;
 }
 
-export default function CreateEmployeeModal({ positions, onClose, onEmployeeCreated, token }: CreateEmployeeModalProps) {
+const CreateEmployeeModal = memo(function CreateEmployeeModal({ positions, onClose, onEmployeeCreated, token }: CreateEmployeeModalProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -263,4 +263,6 @@ export default function CreateEmployeeModal({ positions, onClose, onEmployeeCrea
       </div>
     </div>
   );
-}
+});
+
+export default CreateEmployeeModal;

@@ -1,17 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { User, Position, Role } from '@/types';
 
 interface EditEmployeeModalProps {
   employee: User;
   positions: Position[];
   onClose: () => void;
-  onEmployeeUpdated: (employee: User) => void;
+  onEmployeeUpdated: () => void;
   token: string | null;
 }
 
-export default function EditEmployeeModal({ employee, positions, onClose, onEmployeeUpdated, token }: EditEmployeeModalProps) {
+const EditEmployeeModal = memo(function EditEmployeeModal({ employee, positions, onClose, onEmployeeUpdated, token }: EditEmployeeModalProps) {
   const [formData, setFormData] = useState({
     name: employee.name,
     email: employee.email,
@@ -72,7 +72,7 @@ export default function EditEmployeeModal({ employee, positions, onClose, onEmpl
 
       if (response.ok) {
         const updatedEmployee = await response.json();
-        onEmployeeUpdated(updatedEmployee);
+        onEmployeeUpdated();
         onClose();
       } else {
         const errorData = await response.json();
@@ -261,4 +261,6 @@ export default function EditEmployeeModal({ employee, positions, onClose, onEmpl
       </div>
     </div>
   );
-}
+});
+
+export default EditEmployeeModal;
