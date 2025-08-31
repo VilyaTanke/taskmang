@@ -77,9 +77,9 @@ export interface UpdateTaskData {
 }
 
 export interface TaskFilters {
-  positionId?: string;
-  status?: TaskStatus;
-  shift?: Shift;
+  positionId: string;
+  status: string;
+  shift: string;
   startDate?: Date;
   endDate?: Date;
 }

@@ -2,18 +2,15 @@
 
 import { memo, useCallback } from 'react';
 import { Position, TaskStatus, Shift } from '@/types';
+import type { TaskFilters } from '@/types';
 
-interface TaskFiltersProps {
-  filters: {
-    status: string;
-    shift: string;
-    positionId: string;
-  };
-  onFiltersChange: (filters: any) => void;
+interface TaskFiltersComponentProps {
+  filters: TaskFilters;
+  onFiltersChange: (filters: TaskFilters) => void;
   positions: Position[];
 }
 
-const TaskFilters = memo(function TaskFilters({ filters, onFiltersChange, positions }: TaskFiltersProps) {
+const TaskFilters = memo(function TaskFilters({ filters, onFiltersChange, positions }: TaskFiltersComponentProps) {
   
   const handleFilterChange = useCallback((field: string, value: string) => {
     onFiltersChange({

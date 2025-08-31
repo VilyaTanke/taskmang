@@ -18,7 +18,7 @@ const RouteGuard = memo(function RouteGuard({
   requireAdmin = false, 
   requireSupervisor = false 
 }: RouteGuardProps) {
-  const { user, token, isAdmin, isSupervisor, isInitialized } = useAuth();
+  const { token, isAdmin, isSupervisor, isInitialized } = useAuth();
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
 

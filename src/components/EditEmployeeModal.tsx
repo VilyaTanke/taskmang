@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useState, useEffect } from 'react';
+import { memo, useState } from 'react';
 import { User, Position, Role } from '@/types';
 
 interface EditEmployeeModalProps {
@@ -71,7 +71,6 @@ const EditEmployeeModal = memo(function EditEmployeeModal({ employee, positions,
       });
 
       if (response.ok) {
-        const updatedEmployee = await response.json();
         onEmployeeUpdated();
         onClose();
       } else {
