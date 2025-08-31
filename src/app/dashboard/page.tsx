@@ -118,61 +118,64 @@ export default function DashboardPage() {
     return filteredTasks.filter(task => task.status === status);
   }, [filteredTasks]);
 
-  const getFilteredPendingTasks = useCallback(() => {
-    let filtered = getTasksByStatus(TaskStatus.PENDING);
+     const getFilteredPendingTasks = useCallback(() => {
+     let filtered = getTasksByStatus(TaskStatus.PENDING);
 
-    // Filter by day
-    if (pendingTaskFilters.day) {
-      const selectedDate = new Date(pendingTaskFilters.day);
-      filtered = filtered.filter(task => {
-        const taskDate = new Date(task.dueDate);
-        return taskDate.toDateString() === selectedDate.toDateString();
-      });
-    }
+     // Exclude overdue tasks from pending tasks
+     filtered = filtered.filter(task => new Date(task.dueDate) >= new Date());
 
-    // Filter by shift
-    if (pendingTaskFilters.shift) {
-      filtered = filtered.filter(task => task.shift === pendingTaskFilters.shift);
-    }
+     // Filter by day
+     if (pendingTaskFilters.day) {
+       const selectedDate = new Date(pendingTaskFilters.day);
+       filtered = filtered.filter(task => {
+         const taskDate = new Date(task.dueDate);
+         return taskDate.toDateString() === selectedDate.toDateString();
+       });
+     }
 
-    return filtered;
-  }, [getTasksByStatus, pendingTaskFilters.day, pendingTaskFilters.shift]);
+     // Filter by shift
+     if (pendingTaskFilters.shift) {
+       filtered = filtered.filter(task => task.shift === pendingTaskFilters.shift);
+     }
 
-  // Memoize task counts with status-based filtering logic
-  const taskCounts = useMemo(() => {
-    let pendingTasks = getFilteredPendingTasks();
-    let completedTasks = getTasksByStatus(TaskStatus.COMPLETED);
-    let overdueTasks = pendingTasks.filter(task => new Date(task.dueDate) < new Date());
-    
-    // Apply status-based filtering logic
-    if (filters.status) {
-      if (filters.status === 'OVERDUE') {
-        // Only show overdue tasks, hide completed and pending
-        pendingTasks = [];
-        completedTasks = [];
-        overdueTasks = filteredTasks.filter(task => 
-          task.status === TaskStatus.PENDING && new Date(task.dueDate) < new Date()
-        );
-      } else if (filters.status === TaskStatus.PENDING) {
-        // Only show pending tasks (non-overdue), hide completed and overdue
-        completedTasks = [];
-        // Filter out overdue tasks from pending tasks
-        pendingTasks = pendingTasks.filter(task => new Date(task.dueDate) >= new Date());
-        overdueTasks = [];
-      } else if (filters.status === TaskStatus.COMPLETED) {
-        // Only show completed tasks, hide pending and overdue
-        pendingTasks = [];
-        overdueTasks = [];
-      }
-    }
-    
-    return {
-      pending: pendingTasks,
-      completed: completedTasks,
-      overdue: overdueTasks,
-      total: filteredTasks
-    };
-  }, [getFilteredPendingTasks, getTasksByStatus, filteredTasks, filters.status]);
+     return filtered;
+   }, [getTasksByStatus, pendingTaskFilters.day, pendingTaskFilters.shift]);
+
+     // Memoize task counts with status-based filtering logic
+   const taskCounts = useMemo(() => {
+     let pendingTasks = getFilteredPendingTasks();
+     let completedTasks = getTasksByStatus(TaskStatus.COMPLETED);
+     let overdueTasks = filteredTasks.filter(task => 
+       task.status === TaskStatus.PENDING && new Date(task.dueDate) < new Date()
+     );
+     
+     // Apply status-based filtering logic
+     if (filters.status) {
+       if (filters.status === 'OVERDUE') {
+         // Only show overdue tasks, hide completed and pending
+         pendingTasks = [];
+         completedTasks = [];
+         overdueTasks = filteredTasks.filter(task => 
+           task.status === TaskStatus.PENDING && new Date(task.dueDate) < new Date()
+         );
+       } else if (filters.status === TaskStatus.PENDING) {
+         // Only show pending tasks (non-overdue), hide completed and overdue
+         completedTasks = [];
+         overdueTasks = [];
+       } else if (filters.status === TaskStatus.COMPLETED) {
+         // Only show completed tasks, hide pending and overdue
+         pendingTasks = [];
+         overdueTasks = [];
+       }
+     }
+     
+     return {
+       pending: pendingTasks,
+       completed: completedTasks,
+       overdue: overdueTasks,
+       total: filteredTasks
+     };
+   }, [getFilteredPendingTasks, getTasksByStatus, filteredTasks, filters.status]);
 
   const pendingTasks = taskCounts.pending;
   const completedTasks = taskCounts.completed;
@@ -260,91 +263,151 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Key Metrics Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Tareas Pendientes Card */}
-          <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg place-content-center">
-            <div className="flex place-items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-700"></p>
-                <p className="text-center text-3xl font-bold text-gray-800">{pendingTasks.length}</p>
-                <p className="text-lg text-yellow-600 flex items-center mt-1">
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Tareas Pendientes
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center shadow-lg shadow-yellow-500/25">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
+                 {/* Key Metrics Cards */}
+         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+           {/* Tareas Pendientes Card */}
+           <button
+             onClick={() => setFilters(prev => ({ ...prev, status: TaskStatus.PENDING }))}
+             className={`relative bg-white/90 backdrop-blur-sm border rounded-xl p-6 shadow-lg place-content-center transition-all duration-200 hover:scale-105 hover:shadow-xl ${
+               filters.status === TaskStatus.PENDING 
+                 ? 'border-yellow-400 ring-2 ring-yellow-300 shadow-yellow-500/50' 
+                 : 'border-blue-200 hover:border-yellow-300'
+             }`}
+           >
+             {/* Indicador de filtro activo */}
+             {filters.status === TaskStatus.PENDING && (
+               <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center shadow-lg">
+                 <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                 </svg>
+               </div>
+             )}
+             <div className="flex place-items-center justify-between">
+               <div>
+                 <p className="text-sm font-medium text-gray-700"></p>
+                 <p className="text-center text-3xl font-bold text-gray-800">{pendingTasks.length}</p>
+                 <p className="text-lg text-yellow-600 flex items-center mt-1">
+                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                   </svg>
+                   Tareas Pendientes
+                 </p>
+               </div>
+               <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center shadow-lg shadow-yellow-500/25">
+                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                 </svg>
+               </div>
+             </div>
+           </button>
 
-          {/* Tareas Completadas Card */}
-          <div className="bg-white/90 backdrop-blur-sm border border-green-200 rounded-xl p-6 shadow-lg place-content-center">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-700"></p>
-                <p className="text-center text-3xl font-bold text-gray-800">{completedTasks.length}</p>
-                <p className="text-md text-green-600 flex items-center mt-1">
-                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
-                  </svg>
-                  Tareas Completadas
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-lg shadow-green-500/25">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-            </div>
-          </div>
+                     {/* Tareas Completadas Card */}
+           <button
+             onClick={() => setFilters(prev => ({ ...prev, status: TaskStatus.COMPLETED }))}
+             className={`relative bg-white/90 backdrop-blur-sm border rounded-xl p-6 shadow-lg place-content-center transition-all duration-200 hover:scale-105 hover:shadow-xl ${
+               filters.status === TaskStatus.COMPLETED 
+                 ? 'border-green-400 ring-2 ring-green-300 shadow-green-500/50' 
+                 : 'border-green-200 hover:border-green-400'
+             }`}
+           >
+             {/* Indicador de filtro activo */}
+             {filters.status === TaskStatus.COMPLETED && (
+               <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+                 <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                 </svg>
+               </div>
+             )}
+             <div className="flex items-center justify-between">
+               <div>
+                 <p className="text-sm font-medium text-gray-700"></p>
+                 <p className="text-center text-3xl font-bold text-gray-800">{completedTasks.length}</p>
+                 <p className="text-md text-green-600 flex items-center mt-1">
+                   <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                     <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
+                   </svg>
+                   Tareas Completadas
+                 </p>
+               </div>
+               <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-lg shadow-green-500/25">
+                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                 </svg>
+               </div>
+             </div>
+           </button>
 
-          {/* Tareas Vencidas Card */}
-          <div className="bg-white/90 backdrop-blur-sm border border-red-200 rounded-xl p-6 shadow-lg place-content-center">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-700"></p>
-                <p className="text-center text-3xl font-bold text-gray-800">{overdueTasks.length}</p>
-                <p className="text-lg text-red-600 flex items-center mt-1">
-                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M12 13a1 1 0 100 2h5a1 1 0 001-1V9a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586l-4.293-4.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z" clipRule="evenodd" />
-                  </svg>
-                  Tareas Vencidas
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg flex items-center justify-center shadow-lg shadow-red-500/25">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-              </div>
-            </div>
-          </div>
+                     {/* Tareas Vencidas Card */}
+           <button
+             onClick={() => setFilters(prev => ({ ...prev, status: 'OVERDUE' }))}
+             className={`relative bg-white/90 backdrop-blur-sm border rounded-xl p-6 shadow-lg place-content-center transition-all duration-200 hover:scale-105 hover:shadow-xl ${
+               filters.status === 'OVERDUE' 
+                 ? 'border-red-400 ring-2 ring-red-300 shadow-red-500/50' 
+                 : 'border-red-200 hover:border-red-400'
+             }`}
+           >
+             {/* Indicador de filtro activo */}
+             {filters.status === 'OVERDUE' && (
+               <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-lg">
+                 <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                 </svg>
+               </div>
+             )}
+             <div className="flex items-center justify-between">
+               <div>
+                 <p className="text-sm font-medium text-gray-700"></p>
+                 <p className="text-center text-3xl font-bold text-gray-800">{overdueTasks.length}</p>
+                 <p className="text-lg text-red-600 flex items-center mt-1">
+                   <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                     <path fillRule="evenodd" d="M12 13a1 1 0 100 2h5a1 1 0 001-1V9a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586l-4.293-4.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z" clipRule="evenodd" />
+                   </svg>
+                   Tareas Vencidas
+                 </p>
+               </div>
+               <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg flex items-center justify-center shadow-lg shadow-red-500/25">
+                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                 </svg>
+               </div>
+             </div>
+           </button>
 
-          {/* Total Tareas Card */}
-          <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg place-content-center">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-700"></p>
-                <p className="text-center text-3xl font-bold text-gray-800">{filteredTasks.length}</p>
-                <p className="text-lg text-blue-600 flex items-center mt-1">
-                  <svg className="w-6 h-6 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
-                  </svg>
-                  Total Tareas
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/25">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-            </div>
-          </div>
+                     {/* Total Tareas Card */}
+           <button
+             onClick={() => setFilters(prev => ({ ...prev, status: '' }))}
+             className={`relative bg-white/90 backdrop-blur-sm border rounded-xl p-6 shadow-lg place-content-center transition-all duration-200 hover:scale-105 hover:shadow-xl ${
+               !filters.status 
+                 ? 'border-blue-400 ring-2 ring-blue-300 shadow-blue-500/50' 
+                 : 'border-blue-200 hover:border-blue-400'
+             }`}
+           >
+             {/* Indicador de filtro activo */}
+             {!filters.status && (
+               <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
+                 <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                 </svg>
+               </div>
+             )}
+             <div className="flex items-center justify-between">
+               <div>
+                 <p className="text-sm font-medium text-gray-700"></p>
+                 <p className="text-center text-3xl font-bold text-gray-800">{filteredTasks.length}</p>
+                 <p className="text-lg text-blue-600 flex items-center mt-1">
+                   <svg className="w-6 h-6 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                     <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
+                   </svg>
+                   Total Tareas
+                 </p>
+               </div>
+               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/25">
+                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                 </svg>
+               </div>
+             </div>
+           </button>
         </div>
 
         {/* Action Buttons */}
