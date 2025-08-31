@@ -371,6 +371,16 @@
   border: 1px solid rgba(234, 179, 8, 0.3);
 }
 
+.task-cards-section-title-overdue {
+  color: #dc2626;
+}
+
+.task-cards-section-count-overdue {
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
 /* Scrollbar Styling */
 .task-cards-scroll::-webkit-scrollbar {
   width: 6px;

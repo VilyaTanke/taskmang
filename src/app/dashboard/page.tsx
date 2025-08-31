@@ -64,7 +64,7 @@ export default function DashboardPage() {
   const fetchTasks = useCallback(async () => {
     try {
       const queryParams = new URLSearchParams();
-      if (filters.status && filters.status !== 'OVERDUE') queryParams.append('status', filters.status);
+      if (filters.status) queryParams.append('status', filters.status);
       if (filters.shift) queryParams.append('shift', filters.shift);
       if (filters.positionId) queryParams.append('positionId', filters.positionId);
 
@@ -88,19 +88,24 @@ export default function DashboardPage() {
   const filterTasks = useCallback(() => {
     let filtered = data.tasks;
 
+    // Filter by status
     if (filters.status) {
       if (filters.status === 'OVERDUE') {
         const now = new Date();
-        filtered = filtered.filter(task => task.status === TaskStatus.PENDING && new Date(task.dueDate) < now);
+        filtered = filtered.filter(task => 
+          task.status === TaskStatus.PENDING && new Date(task.dueDate) < now
+        );
       } else {
         filtered = filtered.filter(task => task.status === filters.status);
       }
     }
 
+    // Filter by shift
     if (filters.shift) {
       filtered = filtered.filter(task => task.shift === filters.shift);
     }
 
+    // Filter by position
     if (filters.positionId) {
       filtered = filtered.filter(task => task.positionId === filters.positionId);
     }
@@ -133,11 +138,33 @@ export default function DashboardPage() {
     return filtered;
   }, [getTasksByStatus, pendingTaskFilters.day, pendingTaskFilters.shift]);
 
-  // Memoize task counts
+  // Memoize task counts with status-based filtering logic
   const taskCounts = useMemo(() => {
-    const pendingTasks = getFilteredPendingTasks();
-    const completedTasks = getTasksByStatus(TaskStatus.COMPLETED);
-    const overdueTasks = pendingTasks.filter(task => new Date(task.dueDate) < new Date());
+    let pendingTasks = getFilteredPendingTasks();
+    let completedTasks = getTasksByStatus(TaskStatus.COMPLETED);
+    let overdueTasks = pendingTasks.filter(task => new Date(task.dueDate) < new Date());
+    
+    // Apply status-based filtering logic
+    if (filters.status) {
+      if (filters.status === 'OVERDUE') {
+        // Only show overdue tasks, hide completed and pending
+        pendingTasks = [];
+        completedTasks = [];
+        overdueTasks = filteredTasks.filter(task => 
+          task.status === TaskStatus.PENDING && new Date(task.dueDate) < new Date()
+        );
+      } else if (filters.status === TaskStatus.PENDING) {
+        // Only show pending tasks (non-overdue), hide completed and overdue
+        completedTasks = [];
+        // Filter out overdue tasks from pending tasks
+        pendingTasks = pendingTasks.filter(task => new Date(task.dueDate) >= new Date());
+        overdueTasks = [];
+      } else if (filters.status === TaskStatus.COMPLETED) {
+        // Only show completed tasks, hide pending and overdue
+        pendingTasks = [];
+        overdueTasks = [];
+      }
+    }
     
     return {
       pending: pendingTasks,
@@ -145,7 +172,7 @@ export default function DashboardPage() {
       overdue: overdueTasks,
       total: filteredTasks
     };
-  }, [getFilteredPendingTasks, getTasksByStatus, filteredTasks]);
+  }, [getFilteredPendingTasks, getTasksByStatus, filteredTasks, filters.status]);
 
   const pendingTasks = taskCounts.pending;
   const completedTasks = taskCounts.completed;
@@ -352,7 +379,7 @@ export default function DashboardPage() {
                   className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-medium rounded-lg shadow-lg shadow-indigo-500/25 transition-all duration-200"
                 >
                   <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
                   <span className="text-sm">Crear Tarea</span>
                 </button>
@@ -362,7 +389,7 @@ export default function DashboardPage() {
                   className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium rounded-lg shadow-lg shadow-green-500/25 transition-all duration-200"
                 >
                   <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                   </svg>
                   <span className="text-sm">Crear Empleado</span>
                 </button>
@@ -372,7 +399,7 @@ export default function DashboardPage() {
                   className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white font-medium rounded-lg shadow-lg shadow-purple-500/25 transition-all duration-200"
                 >
                   <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   <span className="text-sm">Exportar Excel</span>
                 </button>
@@ -387,7 +414,7 @@ export default function DashboardPage() {
                   className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-medium rounded-lg shadow-lg shadow-orange-500/25 transition-all duration-200"
                 >
                   <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                   </svg>
                   <span className="text-sm">Cambio</span>
                 </button>
@@ -411,81 +438,125 @@ export default function DashboardPage() {
           <h3 className="text-xl font-semibold text-gray-800 mb-6 text-center">Organización de Tareas</h3>
 
           <div className="task-cards-container">
-            {/* Tareas Completadas */}
-            <div className="task-cards-section">
-              <div className="task-cards-section-header">
-                <h4 className="task-cards-section-title task-cards-section-title-completed">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  Tareas Completadas
-                </h4>
-                <span className="task-cards-section-count task-cards-section-count-completed">
-                  {completedTasks.length}
-                </span>
-              </div>
-
-              <div className="task-cards-scroll">
-                {completedTasks.length === 0 ? (
-                  <div className="task-cards-empty">
-                    <svg className="task-cards-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            {/* Tareas Completadas - Solo mostrar si hay tareas o si no hay filtro de estado */}
+            {(completedTasks.length > 0 || !filters.status) && (
+              <div className="task-cards-section">
+                <div className="task-cards-section-header">
+                  <h4 className="task-cards-section-title task-cards-section-title-completed">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                     </svg>
-                    <p className="task-cards-empty-text">No hay tareas completadas</p>
-                  </div>
-                ) : (
-                  completedTasks.map(task => (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      positions={data.positions}
-                      users={data.users}
-                      onUpdate={handleTaskUpdate}
-                      onDuplicate={handleTaskDuplicate}
-                      isAdmin={isAdmin}
-                    />
-                  ))
-                )}
-              </div>
-            </div>
+                    Tareas Completadas
+                  </h4>
+                  <span className="task-cards-section-count task-cards-section-count-completed">
+                    {completedTasks.length}
+                  </span>
+                </div>
 
-            {/* Tareas Pendientes */}
-            <div className="task-cards-section">
-              <div className="task-cards-section-header">
-                <h4 className="task-cards-section-title task-cards-section-title-pending">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Tareas Pendientes
-                </h4>
-                <span className="task-cards-section-count task-cards-section-count-pending">
-                  {pendingTasks.length}
-                </span>
+                <div className="task-cards-scroll">
+                  {completedTasks.length === 0 ? (
+                    <div className="task-cards-empty">
+                      <svg className="task-cards-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="task-cards-empty-text">No hay tareas completadas</p>
+                    </div>
+                  ) : (
+                    completedTasks.map(task => (
+                      <TaskCard
+                        key={task.id}
+                        task={task}
+                        positions={data.positions}
+                        users={data.users}
+                        onUpdate={handleTaskUpdate}
+                        onDuplicate={handleTaskDuplicate}
+                        isAdmin={isAdmin}
+                      />
+                    ))
+                  )}
+                </div>
               </div>
+            )}
 
-              <div className="task-cards-scroll">
-                {pendingTasks.length === 0 ? (
-                  <div className="task-cards-empty">
-                    <svg className="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            {/* Tareas Pendientes - Solo mostrar si hay tareas o si no hay filtro de estado */}
+            {(pendingTasks.length > 0 || !filters.status) && (
+              <div className="task-cards-section">
+                <div className="task-cards-section-header">
+                  <h4 className="task-cards-section-title task-cards-section-title-pending">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <p className="task-cards-empty-text">No hay tareas pendientes</p>
-                  </div>
-                ) : (
-                  pendingTasks.map(task => (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      positions={data.positions}
-                      users={data.users}
-                      onUpdate={handleTaskUpdate}
-                      onDuplicate={handleTaskDuplicate}
-                      isAdmin={isAdmin}
-                    />
-                  ))
-                )}
+                    Tareas Pendientes
+                  </h4>
+                  <span className="task-cards-section-count task-cards-section-count-pending">
+                    {pendingTasks.length}
+                  </span>
+                </div>
+
+                <div className="task-cards-scroll">
+                  {pendingTasks.length === 0 ? (
+                    <div className="task-cards-empty">
+                      <svg className="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                      <p className="task-cards-empty-text">No hay tareas pendientes</p>
+                    </div>
+                  ) : (
+                    pendingTasks.map(task => (
+                      <TaskCard
+                        key={task.id}
+                        task={task}
+                        positions={data.positions}
+                        users={data.users}
+                        onUpdate={handleTaskUpdate}
+                        onDuplicate={handleTaskDuplicate}
+                        isAdmin={isAdmin}
+                      />
+                    ))
+                  )}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Tareas Vencidas - Solo mostrar si hay tareas o si no hay filtro de estado */}
+            {(overdueTasks.length > 0 || !filters.status) && (
+              <div className="task-cards-section">
+                <div className="task-cards-section-header">
+                  <h4 className="task-cards-section-title task-cards-section-title-overdue">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                    Tareas Vencidas
+                  </h4>
+                  <span className="task-cards-section-count task-cards-section-count-overdue">
+                    {overdueTasks.length}
+                  </span>
+                </div>
+
+                <div className="task-cards-scroll">
+                  {overdueTasks.length === 0 ? (
+                    <div className="task-cards-empty">
+                      <svg className="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
+                      <p className="task-cards-empty-text">No hay tareas vencidas</p>
+                    </div>
+                  ) : (
+                    overdueTasks.map(task => (
+                      <TaskCard
+                        key={task.id}
+                        task={task}
+                        positions={data.positions}
+                        users={data.users}
+                        onUpdate={handleTaskUpdate}
+                        onDuplicate={handleTaskDuplicate}
+                        isAdmin={isAdmin}
+                      />
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

@@ -103,6 +103,13 @@ const TaskCard = memo(function TaskCard({
     return getStatusColor(task.status);
   }, [isOverdue, task.status, getStatusColor]);
 
+  // Performance monitoring - DESHABILITADO TEMPORALMENTE
+  // usePerformanceMonitor({ 
+  //   componentName: 'TaskCard', 
+  //   logToConsole: process.env.NODE_ENV === 'development',
+  //   threshold: 8 // TaskCard debe renderizarse en menos de 8ms
+  // });
+
   return (
     <div className="task-card">
       <div className="task-card-header">

@@ -99,12 +99,20 @@ export async function GET(request: NextRequest) {
     } else {
       // Admin and supervisor can see all tasks and filter as needed
       if (positionId) filters.positionId = positionId;
-      if (status) filters.status = status;
+      if (status && status !== 'OVERDUE') filters.status = status;
       if (shift) filters.shift = shift;
       if (startDate) filters.startDate = new Date(startDate);
       if (endDate) filters.endDate = new Date(endDate);
 
-      const tasks = await getTasksByFilters(filters);
+      let tasks = await getTasksByFilters(filters);
+      
+      // Apply overdue filter if status is OVERDUE
+      if (status === 'OVERDUE') {
+        const now = new Date();
+        tasks = tasks.filter(task => 
+          task.status === TaskStatus.PENDING && new Date(task.dueDate) < now
+        );
+      }
       
       // Get positions and users for the response
       const positions = await getAllPositions();

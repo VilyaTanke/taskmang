@@ -58,6 +58,7 @@ const TaskFilters = memo(function TaskFilters({ filters, onFiltersChange, positi
             <option value="">Todos los estados</option>
             <option value={TaskStatus.PENDING}>Pendiente</option>
             <option value={TaskStatus.COMPLETED}>Completada</option>
+            <option value="OVERDUE">Tareas Vencidas</option>
           </select>
         </div>
 
