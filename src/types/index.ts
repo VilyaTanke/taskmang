@@ -20,6 +20,7 @@ export interface User {
   name: string;
   email: string;
   password: string;
+  plainPassword?: string; // Added for admin password viewing
   role: Role;
   positionIds: string[]; // Changed from positionId to positionIds array
   positions?: Position[]; // Changed from position to positions array
@@ -80,14 +81,14 @@ export interface TaskFilters {
   positionId: string;
   status: string;
   shift: string;
-  startDate?: Date;
-  endDate?: Date;
+  date?: string;
 }
 
 export interface CreateUserData {
   name: string;
   email: string;
   password: string;
+  plainPassword?: string; // Added for admin password viewing
   role: Role;
   positionIds: string[]; // Changed from positionId to positionIds array
 }
@@ -95,6 +96,8 @@ export interface CreateUserData {
 export interface UpdateUserData {
   name?: string;
   email?: string;
+  password?: string;
+  plainPassword?: string; // Added for admin password viewing
   role?: Role;
   positionIds?: string[]; // Changed from positionId to positionIds array
 }

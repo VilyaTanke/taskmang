@@ -23,15 +23,16 @@ const TaskFilters = memo(function TaskFilters({ filters, onFiltersChange, positi
     onFiltersChange({
       status: '',
       shift: '',
-      positionId: ''
+      positionId: '',
+      date: ''
     });
   }, [onFiltersChange]);
 
-  const hasActiveFilters = filters.status || filters.shift || filters.positionId;
+  const hasActiveFilters = filters.status || filters.shift || filters.positionId || filters.date;
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      {/*<div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-800">Filtros</h3>
         {hasActiveFilters && (
           <button
@@ -41,9 +42,9 @@ const TaskFilters = memo(function TaskFilters({ filters, onFiltersChange, positi
             Limpiar Filtros
           </button>
         )}
-      </div>
+      </div>*/}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Status Filter */}
         <div>
           <label htmlFor="status-filter" className="block text-sm font-medium text-gray-700 mb-2">
@@ -98,6 +99,20 @@ const TaskFilters = memo(function TaskFilters({ filters, onFiltersChange, positi
               </option>
             ))}
           </select>
+        </div>
+
+        {/* Date Filter */}
+        <div>
+          <label htmlFor="date-filter" className="block text-sm font-medium text-gray-700 mb-2">
+            Fecha
+          </label>
+          <input
+            type="date"
+            id="date-filter"
+            value={filters.date || ''}
+            onChange={(e) => handleFilterChange('date', e.target.value)}
+            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+          />
         </div>
       </div>
     </div>

@@ -91,7 +91,16 @@ const TaskCard = memo(function TaskCard({
   }, [task.id, onDuplicate]);
 
   const isOverdue = useMemo(() => {
-    return task.status === TaskStatus.PENDING && new Date(task.dueDate) < new Date();
+    if (task.status !== TaskStatus.PENDING) return false;
+    
+    const taskDueDate = new Date(task.dueDate);
+    const now = new Date();
+    
+    // Set task due date to end of day (23:59:59)
+    const endOfDueDay = new Date(taskDueDate);
+    endOfDueDay.setHours(23, 59, 59, 999);
+    
+    return now > endOfDueDay;
   }, [task.status, task.dueDate]);
 
   const displayStatus = useMemo(() => {
