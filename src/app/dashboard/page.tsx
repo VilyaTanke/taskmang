@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Task, Position, User, TaskStatus } from '@/types';
+import { useClock } from '@/hooks/useClock';
 
 import DashboardHeader from '@/components/DashboardHeader';
 import TaskCard from '@/components/TaskCard';
@@ -12,6 +13,7 @@ import CreateEmployeeModal from '@/components/CreateEmployeeModal';
 import EditEmployeeModal from '@/components/EditEmployeeModal';
 import CashChangeModal from '@/components/CashChangeModal';
 import EmailTestModal from '@/components/EmailTestModal';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 import EmployeeList from '@/components/EmployeeList';
 
@@ -26,7 +28,8 @@ interface DashboardData {
 }
 
 export default function DashboardPage() {
-  const { user, token, isAdmin } = useAuth();
+  const { user, token, isAdmin, isSupervisor } = useAuth();
+  const { formattedTime } = useClock();
   const [data, setData] = useState<DashboardData>({ tasks: [], positions: [], users: [] });
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,7 +50,16 @@ export default function DashboardPage() {
     day: '',
     shift: ''
   });
-  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Memoize modal state setters to prevent unnecessary re-renders
+  const modalSetters = useMemo(() => ({
+    setShowCreateModal,
+    setShowCreateEmployeeModal,
+    setShowCashChangeModal,
+    setShowEmailTestModal,
+    setShowEditEmployeeModal,
+    setShowExportModal
+  }), []);
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -96,83 +108,12 @@ export default function DashboardPage() {
     setFilteredTasks(filtered);
   }, [data.tasks, filters.status, filters.shift, filters.positionId]);
 
-  useEffect(() => {
-    if (token) {
-      fetchTasks();
-    }
-  }, [token, fetchTasks]);
-
-  useEffect(() => {
-    filterTasks();
-  }, [data.tasks, filters, filterTasks]);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const handleTaskUpdate = async (taskId: string, updates: Partial<Task>) => {
-    try {
-      const response = await fetch(`/api/tasks/${taskId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(updates)
-      });
-
-      if (response.ok) {
-        fetchTasks(); // Refresh tasks
-      }
-    } catch (error) {
-      console.error('Error updating task:', error);
-    }
-  };
-
-  const handleTaskDuplicate = async (taskId: string, newDueDate: Date) => {
-    try {
-      const response = await fetch(`/api/tasks/${taskId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ newDueDate: newDueDate.toISOString() })
-      });
-
-      if (response.ok) {
-        fetchTasks(); // Refresh tasks
-      }
-    } catch (error) {
-      console.error('Error duplicating task:', error);
-    }
-  };
-
-
-
-  const handleEmployeeUpdated = () => {
-    setSelectedEmployee(null);
-    setShowEditEmployeeModal(false);
-    // Refresh the page to update employee list
-    window.location.reload();
-  };
-
-  const handleEmployeeDeleted = () => {
-    // Refresh the page to update employee list
-    window.location.reload();
-  };
-
-  const getTasksByStatus = (status: TaskStatus) => {
+  // Memoize expensive calculations
+  const getTasksByStatus = useCallback((status: TaskStatus) => {
     return filteredTasks.filter(task => task.status === status);
-  };
+  }, [filteredTasks]);
 
-
-
-  const getFilteredPendingTasks = () => {
+  const getFilteredPendingTasks = useCallback(() => {
     let filtered = getTasksByStatus(TaskStatus.PENDING);
 
     // Filter by day
@@ -190,43 +131,104 @@ export default function DashboardPage() {
     }
 
     return filtered;
-  };
+  }, [getTasksByStatus, pendingTaskFilters.day, pendingTaskFilters.shift]);
 
-  const pendingTasks = getFilteredPendingTasks();
-  const completedTasks = getTasksByStatus(TaskStatus.COMPLETED);
-  const overdueTasks = pendingTasks.filter(task => new Date(task.dueDate) < new Date());
+  // Memoize task counts
+  const taskCounts = useMemo(() => {
+    const pendingTasks = getFilteredPendingTasks();
+    const completedTasks = getTasksByStatus(TaskStatus.COMPLETED);
+    const overdueTasks = pendingTasks.filter(task => new Date(task.dueDate) < new Date());
+    
+    return {
+      pending: pendingTasks,
+      completed: completedTasks,
+      overdue: overdueTasks,
+      total: filteredTasks
+    };
+  }, [getFilteredPendingTasks, getTasksByStatus, filteredTasks]);
+
+  const pendingTasks = taskCounts.pending;
+  const completedTasks = taskCounts.completed;
+  const overdueTasks = taskCounts.overdue;
+
+  // Memoize handlers to prevent unnecessary re-renders
+  const handleTaskUpdate = useCallback(async (taskId: string, updates: Partial<Task>) => {
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(updates)
+      });
+
+      if (response.ok) {
+        fetchTasks(); // Refresh tasks
+      }
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
+  }, [token, fetchTasks]);
+
+  const handleTaskDuplicate = useCallback(async (taskId: string, newDueDate: Date) => {
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ newDueDate: newDueDate.toISOString() })
+      });
+
+      if (response.ok) {
+        fetchTasks(); // Refresh tasks
+      }
+    } catch (error) {
+      console.error('Error duplicating task:', error);
+    }
+  }, [token, fetchTasks]);
+
+  const handleEmployeeUpdated = useCallback(() => {
+    setSelectedEmployee(null);
+    setShowEditEmployeeModal(false);
+    // Refresh the page to update employee list
+    window.location.reload();
+  }, []);
+
+  const handleEmployeeDeleted = useCallback(() => {
+    // Refresh the page to update employee list
+    window.location.reload();
+  }, []);
+
+  useEffect(() => {
+    if (token) {
+      fetchTasks();
+    }
+  }, [token, fetchTasks]);
+
+  useEffect(() => {
+    filterTasks();
+  }, [data.tasks, filters, filterTasks]);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 shadow-lg shadow-blue-500/25"></div>
-      </div>
-    );
+    return <LoadingSpinner size="xl" />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-blue-200 to-blue-700">
       <DashboardHeader user={user} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Digital Clock */}
         <div className="flex justify-center mb-6">
-          <div className="bg-white shadow rounded-lg p-4 text-center">
-            <div className="text-3xl font-mono font-bold text-gray-900">
-              {currentTime.toLocaleTimeString('es-ES', {
-                hour12: false,
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-              })}
+          <div className="bg-white shadow-lg rounded-lg p-4 text-center border border-blue-200">
+            <div className="text-3xl font-mono font-bold text-gray-800">
+              {formattedTime.time}
             </div>
             <div className="text-sm text-gray-600 mt-1">
-              {currentTime.toLocaleDateString('es-ES', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              })}
+              {formattedTime.date}
             </div>
           </div>
         </div>
@@ -234,12 +236,12 @@ export default function DashboardPage() {
         {/* Key Metrics Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Tareas Pendientes Card */}
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
+          <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-300">Tareas Pendientes</p>
-                <p className="text-2xl font-bold text-white">{pendingTasks.length}</p>
-                <p className="text-sm text-yellow-400 flex items-center mt-1">
+                <p className="text-sm font-medium text-gray-700">Tareas Pendientes</p>
+                <p className="text-2xl font-bold text-gray-800">{pendingTasks.length}</p>
+                <p className="text-sm text-yellow-600 flex items-center mt-1">
                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -255,12 +257,12 @@ export default function DashboardPage() {
           </div>
 
           {/* Tareas Completadas Card */}
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
+          <div className="bg-white/90 backdrop-blur-sm border border-green-200 rounded-xl p-6 shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-300">Tareas Completadas</p>
-                <p className="text-2xl font-bold text-white">{completedTasks.length}</p>
-                <p className="text-sm text-green-400 flex items-center mt-1">
+                <p className="text-sm font-medium text-gray-700">Tareas Completadas</p>
+                <p className="text-2xl font-bold text-gray-800">{completedTasks.length}</p>
+                <p className="text-sm text-green-600 flex items-center mt-1">
                   <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
                   </svg>
@@ -276,12 +278,12 @@ export default function DashboardPage() {
           </div>
 
           {/* Tareas Vencidas Card */}
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
+          <div className="bg-white/90 backdrop-blur-sm border border-red-200 rounded-xl p-6 shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-300">Tareas Vencidas</p>
-                <p className="text-2xl font-bold text-white">{overdueTasks.length}</p>
-                <p className="text-sm text-red-400 flex items-center mt-1">
+                <p className="text-sm font-medium text-gray-700">Tareas Vencidas</p>
+                <p className="text-2xl font-bold text-gray-800">{overdueTasks.length}</p>
+                <p className="text-sm text-red-600 flex items-center mt-1">
                   <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M12 13a1 1 0 100 2h5a1 1 0 001-1V9a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586l-4.293-4.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z" clipRule="evenodd" />
                   </svg>
@@ -297,19 +299,19 @@ export default function DashboardPage() {
           </div>
 
           {/* Total Tareas Card */}
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
+          <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-300">Total Tareas</p>
-                <p className="text-2xl font-bold text-white">{filteredTasks.length}</p>
-                <p className="text-sm text-blue-400 flex items-center mt-1">
+                <p className="text-sm font-medium text-gray-700">Total Tareas</p>
+                <p className="text-2xl font-bold text-gray-800">{filteredTasks.length}</p>
+                <p className="text-sm text-blue-600 flex items-center mt-1">
                   <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
                   </svg>
                   En sistema
                 </p>
               </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/25">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/25">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
@@ -319,7 +321,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Action Buttons */}
-        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl mb-8">
+        <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg mb-8">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {/* Navegación */}
             <Link
@@ -346,7 +348,7 @@ export default function DashboardPage() {
             {isAdmin && (
               <>
                 <button
-                  onClick={() => setShowCreateModal(true)}
+                  onClick={() => modalSetters.setShowCreateModal(true)}
                   className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-medium rounded-lg shadow-lg shadow-indigo-500/25 transition-all duration-200"
                 >
                   <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -356,7 +358,7 @@ export default function DashboardPage() {
                 </button>
 
                 <button
-                  onClick={() => setShowCreateEmployeeModal(true)}
+                  onClick={() => modalSetters.setShowCreateEmployeeModal(true)}
                   className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium rounded-lg shadow-lg shadow-green-500/25 transition-all duration-200"
                 >
                   <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -366,17 +368,7 @@ export default function DashboardPage() {
                 </button>
 
                 <button
-                  onClick={() => setShowCashChangeModal(true)}
-                  className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-medium rounded-lg shadow-lg shadow-orange-500/25 transition-all duration-200"
-                >
-                  <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                  </svg>
-                  <span className="text-sm">Cambio</span>
-                </button>
-
-                <button
-                  onClick={() => setShowExportModal(true)}
+                  onClick={() => modalSetters.setShowExportModal(true)}
                   className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white font-medium rounded-lg shadow-lg shadow-purple-500/25 transition-all duration-200"
                 >
                   <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -384,23 +376,28 @@ export default function DashboardPage() {
                   </svg>
                   <span className="text-sm">Exportar Excel</span>
                 </button>
+              </>
+            )}
 
-                {/*<button
-                  onClick={() => setShowEmailTestModal(true)}
-                  className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white font-medium rounded-lg shadow-lg shadow-cyan-500/25 transition-all duration-200"
+            {/* Acciones de Administrador y Supervisor */}
+            {(isAdmin || isSupervisor) && (
+              <>
+                <button
+                  onClick={() => modalSetters.setShowCashChangeModal(true)}
+                  className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-medium rounded-lg shadow-lg shadow-orange-500/25 transition-all duration-200"
                 >
                   <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                   </svg>
-                  <span className="text-sm">Probar Email</span>
-                </button>*/}
+                  <span className="text-sm">Cambio</span>
+                </button>
               </>
             )}
           </div>
         </div>
 
         {/* Task Filters */}
-        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl mb-8">
+        <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg mb-8">
           {/*<h3 className="text-lg font-semibold text-white mb-4">Filtros</h3>*/}
           <TaskFilters
             filters={filters}
@@ -411,7 +408,7 @@ export default function DashboardPage() {
 
         {/* Task Organization Center */}
         <div className="task-cards-section mb-8">
-          <h3 className="text-xl font-semibold text-white mb-6 text-center">Organización de Tareas</h3>
+          <h3 className="text-xl font-semibold text-gray-800 mb-6 text-center">Organización de Tareas</h3>
 
           <div className="task-cards-container">
             {/* Tareas Completadas */}
@@ -494,7 +491,7 @@ export default function DashboardPage() {
 
         {/* Employee Management Section - Only for Admins */}
         {isAdmin && (
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl shadow-xl">
+          <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl shadow-lg">
             <EmployeeList
               token={token}
               onEmployeeDeleted={handleEmployeeDeleted}
@@ -534,8 +531,6 @@ export default function DashboardPage() {
           token={token}
         />
       )}
-
-
 
       {/* Edit Employee Modal */}
       {showEditEmployeeModal && selectedEmployee && token && (

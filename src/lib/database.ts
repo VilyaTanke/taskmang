@@ -135,9 +135,6 @@ export async function initializeDatabase() {
     // Insert test data
     await insertTestData();
 
-    // Debug database state
-    await debugDatabase();
-
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Error initializing database:', error);
@@ -282,6 +279,7 @@ export async function getUserById(id: string): Promise<User | null> {
 }
 
 export async function updateUser(id: string, updates: Partial<User>): Promise<User | null> {
+  console.log('Updating user:', { id, updates });
   const user = await getUserById(id);
   if (!user) return null;
 
@@ -306,6 +304,15 @@ export async function updateUser(id: string, updates: Partial<User>): Promise<Us
     if (updates.role !== undefined) {
       updateFields.push('role = ?');
       params.push(updates.role);
+    }
+
+    // Handle password update if provided
+    if (updates.password !== undefined) {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const bcrypt = require('bcryptjs');
+      const hashedPassword = await bcrypt.hash(updates.password, 10);
+      updateFields.push('password = ?');
+      params.push(hashedPassword);
     }
 
     // Update user fields if any
@@ -780,36 +787,7 @@ export async function insertTestData() {
   }
 }
 
-// Debug function to check database state
-export async function debugDatabase() {
-  try {
-    console.log('=== DATABASE DEBUG INFO ===');
-    
-    // Check positions
-    const positions = await dbAll('SELECT * FROM positions');
-    console.log('Positions:', positions.length, positions);
-    
-    // Check users
-    const users = await dbAll('SELECT * FROM users');
-    console.log('Users:', users.length, users);
-    
-    // Check user_positions
-    const userPositions = await dbAll('SELECT * FROM user_positions');
-    console.log('User Positions:', userPositions.length, userPositions);
-    
-    // Check tasks
-    const tasks = await dbAll('SELECT * FROM tasks');
-    console.log('Tasks:', tasks.length, tasks);
-    
-    // Check card_records
-    const cardRecords = await dbAll('SELECT * FROM card_records');
-    console.log('Card Records:', cardRecords.length, cardRecords);
-    
-    console.log('=== END DATABASE DEBUG INFO ===');
-  } catch (error) {
-    console.error('Error debugging database:', error);
-  }
-}
+
 
 // Close database connection
 export function closeDatabase() {

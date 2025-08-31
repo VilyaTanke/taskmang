@@ -278,66 +278,66 @@ export default function CardsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-white flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 shadow-lg shadow-blue-500/25"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-blue-200 to-blue-700 ">
       <DashboardHeader user={user} />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
-                         <div>
-               <h1 className="text-3xl font-bold text-white">Gestión de Tarjetas</h1>
-               <p className="text-gray-300 mt-2">Sistema de tarjetas Moeve GOW Bankinter, MOEVE Pro y MOEVE GOW</p>
-             </div>
-             <div className="flex items-center space-x-3">
-               <Link
-                 href="/dashboard"
-                 className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-medium rounded-lg shadow-lg transition-all duration-200"
-               >
-                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                 </svg>
-                 Volver
-               </Link>
-               {(isAdmin || isSupervisor) && (
-                 <button
-                   onClick={() => setShowAddModal(true)}
-                   className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200"
-                 >
-                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                   </svg>
-                   Agregar Tarjetas
-                 </button>
-               )}
-             </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">Gestión de Tarjetas</h1>
+              <p className="text-gray-600 mt-2">Sistema de tarjetas Moeve GOW Bankinter, MOEVE Pro y MOEVE GOW</p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg transition-all duration-200"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Volver
+              </Link>
+              {(isAdmin || isSupervisor) && (
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Agregar Tarjetas
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
         {error && (
-          <div className="mb-6 bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-            <p className="text-red-400">{error}</p>
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-red-700">{error}</p>
           </div>
         )}
 
         {/* Sumatoria de Tarjetas */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
+          <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-300">Total Tarjetas</p>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-sm font-medium text-gray-700">Total Tarjetas</p>
+                <p className="text-2xl font-bold text-gray-800">
                   {positionStats.reduce((sum, pos) => sum + pos.total, 0)}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/25">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/25">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
@@ -345,77 +345,80 @@ export default function CardsPage() {
             </div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
+          <div className="bg-white/90 backdrop-blur-sm border border-green-200 rounded-xl p-6 shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-300">Moeve GOW Bankinter</p>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-sm font-medium text-gray-700">Moeve GOW Bankinter</p>
+                <p className="text-2xl font-bold text-gray-800">
                   {positionStats.reduce((sum, pos) => sum + pos.moeveGowBankinter, 0)}
                 </p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-lg shadow-green-500/25">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {/*<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                </svg>
+                </svg>*/}
+                <img src="/BKCARD.png" alt="BKCARD" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
+          <div className="bg-white/90 backdrop-blur-sm border border-yellow-200 rounded-xl p-6 shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-300">MOEVE Pro</p>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-sm font-medium text-gray-700">MOEVE Pro</p>
+                <p className="text-2xl font-bold text-gray-800">
                   {positionStats.reduce((sum, pos) => sum + pos.moevePro, 0)}
                 </p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center shadow-lg shadow-yellow-500/25">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {/*<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                </svg>
+                </svg>*/}
+                <img src="/Mpro.png" alt="Mpro"/>
               </div>
             </div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
+          <div className="bg-white/90 backdrop-blur-sm border border-purple-200 rounded-xl p-6 shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-300">MOEVE GOW</p>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-sm font-medium text-gray-700">MOEVE GOW</p>
+                <p className="text-2xl font-bold text-gray-800">
                   {positionStats.reduce((sum, pos) => sum + pos.moeveGow, 0)}
                 </p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/25">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {/*<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                </svg>
+                </svg>*/}
+                <img src="/GOW.png" alt="GOW"/>
               </div>
             </div>
           </div>
         </div>
 
         {/* Estadísticas por Estación */}
-        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl mb-8">
-          <h3 className="text-lg font-semibold text-white mb-6">Estadísticas por Estación</h3>
+        <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg mb-8">
+          <h3 className="text-lg font-semibold text-gray-800 mb-6">Estadísticas por Estación</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full">
               <thead>
-                <tr className="border-b border-white/20">
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-300">Estación</th>
-                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">Total</th>
-                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">Moeve GOW Bankinter</th>
-                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">MOEVE Pro</th>
-                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">MOEVE GOW</th>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Estación</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-700">Total</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-700">Moeve GOW Bankinter</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-700">MOEVE Pro</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-700">MOEVE GOW</th>
                 </tr>
               </thead>
               <tbody>
                 {positionStats.map((pos) => (
-                  <tr key={pos.position} className="border-b border-white/10">
-                    <td className="py-3 px-4 text-white font-medium">{pos.position}</td>
-                    <td className="py-3 px-4 text-center text-white font-semibold">{pos.total}</td>
-                    <td className="py-3 px-4 text-center text-green-400">{pos.moeveGowBankinter}</td>
-                    <td className="py-3 px-4 text-center text-yellow-400">{pos.moevePro}</td>
-                    <td className="py-3 px-4 text-center text-purple-400">{pos.moeveGow}</td>
+                  <tr key={pos.position} className="border-b border-gray-100">
+                    <td className="py-3 px-4 text-gray-800 font-medium">{pos.position}</td>
+                    <td className="py-3 px-4 text-center text-gray-800 font-semibold">{pos.total}</td>
+                    <td className="py-3 px-4 text-center text-green-600">{pos.moeveGowBankinter}</td>
+                    <td className="py-3 px-4 text-center text-yellow-600">{pos.moevePro}</td>
+                    <td className="py-3 px-4 text-center text-purple-600">{pos.moeveGow}</td>
                   </tr>
                 ))}
               </tbody>
@@ -424,36 +427,36 @@ export default function CardsPage() {
         </div>
 
         {/* Estadísticas por Empleado */}
-        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 shadow-xl">
-          <h3 className="text-lg font-semibold text-white mb-6">Tarjetas por Empleado</h3>
+        <div className="bg-white/90 backdrop-blur-sm border border-blue-200 rounded-xl p-6 shadow-lg">
+          <h3 className="text-lg font-semibold text-gray-800 mb-6">Tarjetas por Empleado</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full">
               <thead>
-                <tr className="border-b border-white/20">
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-300">Empleado</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-300">Estaciones</th>
-                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">Total</th>
-                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">Moeve GOW Bankinter</th>
-                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">MOEVE Pro</th>
-                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-300">MOEVE GOW</th>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Empleado</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">Estaciones</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-700">Total</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-700">Moeve GOW Bankinter</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-700">MOEVE Pro</th>
+                  <th className="text-center py-3 px-4 text-sm font-medium text-gray-700">MOEVE GOW</th>
                 </tr>
               </thead>
               <tbody>
                 {employeeStats.map((emp, index) => (
-                  <tr key={emp.name} className="border-b border-white/10">
+                  <tr key={emp.name} className="border-b border-gray-100">
                     <td className="py-3 px-4">
                       <div className="flex items-center">
-                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mr-3">
                           <span className="text-white text-sm font-medium">{index + 1}</span>
                         </div>
-                        <span className="text-white font-medium">{emp.name}</span>
+                        <span className="text-gray-800 font-medium">{emp.name}</span>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-gray-300">{emp.positions}</td>
-                    <td className="py-3 px-4 text-center text-white font-semibold">{emp.total}</td>
-                    <td className="py-3 px-4 text-center text-green-400">{emp.moeveGowBankinter}</td>
-                    <td className="py-3 px-4 text-center text-yellow-400">{emp.moevePro}</td>
-                    <td className="py-3 px-4 text-center text-purple-400">{emp.moeveGow}</td>
+                    <td className="py-3 px-4 text-gray-700">{emp.positions}</td>
+                    <td className="py-3 px-4 text-center text-gray-800 font-semibold">{emp.total}</td>
+                    <td className="py-3 px-4 text-center text-green-600">{emp.moeveGowBankinter}</td>
+                    <td className="py-3 px-4 text-center text-yellow-600">{emp.moevePro}</td>
+                    <td className="py-3 px-4 text-center text-purple-600">{emp.moeveGow}</td>
                   </tr>
                 ))}
               </tbody>
@@ -465,12 +468,12 @@ export default function CardsPage() {
       {/* Modal para Agregar Tarjetas */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-6 border border-white/20 w-96 shadow-2xl rounded-xl bg-slate-900/95 backdrop-blur-sm">
+          <div className="relative top-20 mx-auto p-6 border border-blue-200 w-96 shadow-2xl rounded-xl bg-white/95 backdrop-blur-sm">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-white">Agregar Tarjetas</h3>
+              <h3 className="text-lg font-medium text-gray-800">Agregar Tarjetas</h3>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="text-gray-400 hover:text-gray-300 transition-colors duration-200"
+                className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -480,7 +483,7 @@ export default function CardsPage() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Empleado
                 </label>
                 <select
@@ -489,7 +492,7 @@ export default function CardsPage() {
                     const user = userUsers.find(u => u.id === e.target.value);
                     setSelectedUser(user || null);
                   }}
-                  className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200"
                 >
                   <option value="">Seleccionar empleado</option>
                   {userUsers.map(user => (
@@ -501,7 +504,7 @@ export default function CardsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Estación
                 </label>
                 <select
@@ -510,7 +513,7 @@ export default function CardsPage() {
                     const position = userPositions.find(p => p.id === e.target.value);
                     setSelectedPosition(position || null);
                   }}
-                  className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200"
                 >
                   <option value="">Seleccionar estación</option>
                   {userPositions.map(position => (
@@ -522,13 +525,13 @@ export default function CardsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Tipo de Tarjeta
                 </label>
                 <select
                   value={cardType}
                   onChange={(e) => setCardType(e.target.value as "MOEVE_GOW_BANKINTER" | "MASTERCARD_MOEVE_GOW_BANKINTER" | "MOEVE_PRO" | "MOEVE_GOW")}
-                  className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200"
                 >
                   <option value="MOEVE_GOW_BANKINTER">Moeve GOW Bankinter</option>
                   <option value="MASTERCARD_MOEVE_GOW_BANKINTER">Mastercard Moeve GOW Bankinter</option>
@@ -538,7 +541,7 @@ export default function CardsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Cantidad
                 </label>
                 <input
@@ -546,7 +549,7 @@ export default function CardsPage() {
                   min="1"
                   value={count}
                   onChange={(e) => setCount(parseInt(e.target.value) || 1)}
-                  className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200"
                 />
               </div>
 
@@ -554,14 +557,14 @@ export default function CardsPage() {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 border border-gray-600 rounded-md text-sm font-medium text-gray-300 bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all duration-200"
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handleAddCards}
                   disabled={!selectedUser || !selectedPosition}
-                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 transition-all duration-200"
+                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 transition-all duration-200"
                 >
                   Agregar Tarjetas
                 </button>

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { debugDatabase, getAllUsers, getAllPositions, getTasksByFilters, getCardRecordsByFilters } from '@/lib/database';
+import { getAllUsers, getAllPositions, getTasksByFilters, getCardRecordsByFilters } from '@/lib/database';
 import { initializeDatabase } from '@/lib/database';
 
 export async function GET() {
@@ -11,9 +11,6 @@ export async function GET() {
     const positions = await getAllPositions();
     const tasks = await getTasksByFilters({});
     const cardRecords = await getCardRecordsByFilters({});
-    
-    // Debug database
-    await debugDatabase();
     
     return NextResponse.json({
       success: true,

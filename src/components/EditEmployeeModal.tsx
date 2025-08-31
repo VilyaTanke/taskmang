@@ -1,17 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { User, Position, Role } from '@/types';
 
 interface EditEmployeeModalProps {
   employee: User;
   positions: Position[];
   onClose: () => void;
-  onEmployeeUpdated: (employee: User) => void;
+  onEmployeeUpdated: () => void;
   token: string | null;
 }
 
-export default function EditEmployeeModal({ employee, positions, onClose, onEmployeeUpdated, token }: EditEmployeeModalProps) {
+const EditEmployeeModal = memo(function EditEmployeeModal({ employee, positions, onClose, onEmployeeUpdated, token }: EditEmployeeModalProps) {
   const [formData, setFormData] = useState({
     name: employee.name,
     email: employee.email,
@@ -71,8 +71,7 @@ export default function EditEmployeeModal({ employee, positions, onClose, onEmpl
       });
 
       if (response.ok) {
-        const updatedEmployee = await response.json();
-        onEmployeeUpdated(updatedEmployee);
+        onEmployeeUpdated();
         onClose();
       } else {
         const errorData = await response.json();
@@ -96,12 +95,12 @@ export default function EditEmployeeModal({ employee, positions, onClose, onEmpl
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center animate-in fade-in duration-300">
-      <div className="relative mx-auto p-6 border border-white/20 w-96 shadow-2xl rounded-xl bg-slate-900/95 backdrop-blur-sm animate-in zoom-in-95 duration-300" style={{ minHeight: 'fit-content', maxHeight: '90vh', overflowY: 'auto' }}>
+      <div className="relative mx-auto p-6 border border-blue-200 w-96 shadow-2xl rounded-xl bg-white/95 backdrop-blur-sm animate-in zoom-in-95 duration-300" style={{ minHeight: 'fit-content', maxHeight: '90vh', overflowY: 'auto' }}>
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-medium text-white">Editar Empleado</h3>
+          <h3 className="text-lg font-medium text-gray-800">Editar Empleado</h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-300 transition-colors duration-200"
+            className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -110,12 +109,12 @@ export default function EditEmployeeModal({ employee, positions, onClose, onEmpl
         </div>
         
         {error && (
-          <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
             <div className="flex items-center">
-              <svg className="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              <svg className="w-5 h-5 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
-              <span className="text-red-400 text-sm">{error}</span>
+              <span className="text-red-700 text-sm">{error}</span>
             </div>
           </div>
         )}
@@ -123,7 +122,7 @@ export default function EditEmployeeModal({ employee, positions, onClose, onEmpl
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Nombre */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Nombre
             </label>
             <input
@@ -131,13 +130,13 @@ export default function EditEmployeeModal({ employee, positions, onClose, onEmpl
               value={formData.name}
               onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
               required
-              className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200"
             />
           </div>
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Correo Electrónico
             </label>
             <input
@@ -145,19 +144,19 @@ export default function EditEmployeeModal({ employee, positions, onClose, onEmpl
               value={formData.email}
               onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
               required
-              className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200"
             />
           </div>
 
           {/* Rol */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Rol
             </label>
             <select
               value={formData.role}
               onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value as Role }))}
-              className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200"
             >
               <option value={Role.ADMIN}>Administrador</option>
               <option value={Role.SUPERVISOR}>Supervisor</option>
@@ -167,19 +166,19 @@ export default function EditEmployeeModal({ employee, positions, onClose, onEmpl
 
           {/* Posiciones */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Estaciones Asignadas
             </label>
-            <div className="space-y-2 max-h-32 overflow-y-auto border border-purple-500/30 rounded-lg p-3 bg-slate-800/30">
+            <div className="space-y-2 max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50">
               {positions.map((position) => (
-                <label key={position.id} className="flex items-center cursor-pointer hover:bg-slate-700/30 p-1 rounded transition-colors duration-200">
+                <label key={position.id} className="flex items-center cursor-pointer hover:bg-gray-100 p-1 rounded transition-colors duration-200">
                   <input
                     type="checkbox"
                     checked={formData.positionIds.includes(position.id)}
                     onChange={() => handlePositionChange(position.id)}
-                    className="mr-3 text-purple-600 bg-slate-800/50 border-purple-500/30 rounded focus:ring-purple-500/50 focus:ring-2 focus:ring-offset-0"
+                    className="mr-3 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2 focus:ring-offset-0"
                   />
-                  <span className="text-sm text-gray-300">{position.name}</span>
+                  <span className="text-sm text-gray-700">{position.name}</span>
                 </label>
               ))}
             </div>
@@ -190,7 +189,7 @@ export default function EditEmployeeModal({ employee, positions, onClose, onEmpl
             <button
               type="button"
               onClick={() => setShowPasswordFields(!showPasswordFields)}
-              className="flex items-center text-sm text-purple-400 hover:text-purple-300 transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-purple-500/10 border border-purple-500/20 hover:border-purple-500/40"
+              className="flex items-center text-sm text-blue-600 hover:text-blue-500 transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-blue-50 border border-blue-200 hover:border-blue-300"
             >
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -203,27 +202,27 @@ export default function EditEmployeeModal({ employee, positions, onClose, onEmpl
           {showPasswordFields && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Nueva Contraseña
                 </label>
                 <input
                   type="password"
                   value={formData.password}
                   onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                  className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200"
                   placeholder="Mínimo 6 caracteres"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Confirmar Nueva Contraseña
                 </label>
                 <input
                   type="password"
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                  className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200"
                   placeholder="Repite la contraseña"
                 />
               </div>
@@ -235,7 +234,7 @@ export default function EditEmployeeModal({ employee, positions, onClose, onEmpl
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-600 rounded-md text-sm font-medium text-gray-300 bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all duration-200"
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
             >
               Cancelar
             </button>
@@ -261,4 +260,6 @@ export default function EditEmployeeModal({ employee, positions, onClose, onEmpl
       </div>
     </div>
   );
-}
+});
+
+export default EditEmployeeModal;

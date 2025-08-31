@@ -34,122 +34,133 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="page-center topGround bgli">
-      <div className="max-w-md w-full space-y-8 tittleForm" style={{borderRadius: '2.5rem', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', justifyContent: 'center' }}>
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Ivanje-Gestión
-          </h2>
-          <p className="card-subtitle mt-2 flex items-center justify-center">Sistema de Gestión de Tareas</p>
-          <div className="card" style={{ background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(10px)', borderRadius: '0.75rem' }}>
-            <div className="card-body" style={{ background: 'rgba(27, 42, 78, 0.95)', backdropFilter: 'blur(10px)', borderRadius: '0.75rem' }}>
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center" style={{ width: '3rem', height: '3rem', borderRadius: '0.5rem', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', justifyContent: 'center' }}>
-                  <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div className="min-h-screen bg-gradient-to-br from-blue-300 via-blue-10 to-white flex items-center justify-center p-4 bgli">
+      {/* Login Container - Diseño moderno con fondos claros */}
+      <div className="w-full max-w-md mx-auto">
+        {/* Card principal con efectos visuales */}
+        <div className="relative">
+          {/* Efecto de brillo de fondo */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 rounded-2xl blur opacity-30 animate-pulse"></div>
+          
+          {/* Card principal */}
+          <div className="relative bg-white/90 backdrop-blur-xl rounded-2xl border border-white/50 shadow-2xl">
+            <div className="p-8">
+              {/* Header con efectos */}
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full mb-4 shadow-lg">
+                  <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                 </div>
+                <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                  Ivanje-Gestión
+                </h1>
+                <p className="text-gray-600 text-sm font-medium">
+                  Sistema de Gestión de Tareas
+                </p>
               </div>
 
-              <form className="space-y-6" onSubmit={handleSubmit}>
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+              {/* Login Form */}
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Email Field */}
+                <div className="space-y-2">
+                  <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
                     Correo electrónico
                   </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                      </svg>
-                    </div>
+                  <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-lg blur opacity-20 group-hover:opacity-40 transition duration-200"></div>
                     <input
                       id="email"
-                      name="email"
                       type="email"
-                      autoComplete="email"
-                      required
-                      className="w-full pl-10 pr-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                      placeholder="Correo electrónico"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      className="relative w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm"
+                      placeholder="Ingresa tu correo electrónico"
+                      required
                     />
                   </div>
                 </div>
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+
+                {/* Password Field */}
+                <div className="space-y-2">
+                  <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
                     Contraseña
                   </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                    </div>
+                  <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-lg blur opacity-20 group-hover:opacity-40 transition duration-200"></div>
                     <input
                       id="password"
-                      name="password"
                       type={showPassword ? 'text' : 'password'}
-                      autoComplete="current-password"
-                      required
-                      className="w-full pl-10 pr-12 py-3 bg-slate-800/50 border border-purple-500/30 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                      placeholder="Contraseña"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      className="relative w-full px-4 py-3 pr-12 bg-white border border-gray-200 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 shadow-sm"
+                      placeholder="Ingresa tu contraseña"
+                      required
                     />
                     <button
                       type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
                       onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                     >
                       {showPassword ? (
-                        <EyeSlashIcon className="h-5 w-5 text-gray-400" />
+                        <EyeSlashIcon className="h-5 w-5" />
                       ) : (
-                        <EyeIcon className="h-5 w-5 text-gray-400" />
+                        <EyeIcon className="h-5 w-5" />
                       )}
                     </button>
                   </div>
                 </div>
 
+                {/* Error Message */}
                 {error && (
-                  <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                     <div className="flex items-center">
-                      <svg className="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                       </svg>
-                      <span className="text-red-400 text-sm">{error}</span>
+                      <p className="text-red-700 text-sm font-medium">{error}</p>
                     </div>
                   </div>
                 )}
 
-                <div>
+                {/* Login Button */}
+                <div className="pt-4">
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white font-medium rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                    className="relative w-full group"
                   >
-                    {isLoading ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Iniciando sesión...
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                        </svg>
-                        Iniciar Sesión
-                      </>
-                    )}
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-200"></div>
+                    <div className="relative flex items-center justify-center w-full px-6 py-3 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105 disabled:scale-100 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg">
+                      {isLoading ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Iniciando sesión...
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                          </svg>
+                          Iniciar Sesión
+                        </>
+                      )}
+                    </div>
                   </button>
                 </div>
 
-                <div className="text-center mt-4">
-                  <p className="text-xs text-gray-400">
-                    Credenciales de prueba: admin@taskmang.com / admin123
+                {/* Demo Credentials */}
+                <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                  <p className="text-xs text-blue-700 text-center mb-2 font-medium">
+                    Credenciales de prueba:
                   </p>
+                  <div className="text-center space-y-1">
+                    <p className="text-xs text-gray-700 font-mono bg-white px-2 py-1 rounded border">admin@taskmang.com</p>
+                    <p className="text-xs text-gray-700 font-mono bg-white px-2 py-1 rounded border">admin123</p>
+                  </div>
                 </div>
               </form>
             </div>

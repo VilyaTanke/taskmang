@@ -32,6 +32,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
+
+
     const { searchParams } = new URL(request.url);
     const positionId = searchParams.get('positionId');
     const status = searchParams.get('status') as TaskStatus | 'OVERDUE';
@@ -41,9 +43,9 @@ export async function GET(request: NextRequest) {
 
     const filters: Record<string, unknown> = {};
     
-    // If not admin, filter by user's positions
-    if (user.role !== 'ADMIN') {
-      // For non-admin users, only show tasks from their assigned positions
+    // If not admin or supervisor, filter by user's positions
+    if (user.role !== 'ADMIN' && user.role !== 'SUPERVISOR') {
+      // For regular employees, only show tasks from their assigned positions
       // We'll need to get all tasks and filter them by the user's positions
       const allTasks = await getTasksByFilters({});
       const userPositionIds = user.positionIds || [];
@@ -95,7 +97,7 @@ export async function GET(request: NextRequest) {
         users
       });
     } else {
-      // Admin can see all tasks and filter as needed
+      // Admin and supervisor can see all tasks and filter as needed
       if (positionId) filters.positionId = positionId;
       if (status) filters.status = status;
       if (shift) filters.shift = shift;
@@ -108,6 +110,8 @@ export async function GET(request: NextRequest) {
       const positions = await getAllPositions();
       const users = await Promise.all(positions.map(p => getUsersByPosition(p.id))).then(users => users.flat());
 
+
+      
       return NextResponse.json({
         tasks,
         positions,

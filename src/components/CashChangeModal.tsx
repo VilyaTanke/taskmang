@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { memo, useState, useRef } from 'react';
 import EmailModal from './EmailModal';
 
 interface CashChangeModalProps {
@@ -13,7 +13,7 @@ interface Denomination {
   type: 'coin' | 'bill';
 }
 
-export default function CashChangeModal({ onClose }: CashChangeModalProps) {
+const CashChangeModal = memo(function CashChangeModal({ onClose }: CashChangeModalProps) {
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const [showEmailModal, setShowEmailModal] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
@@ -108,14 +108,14 @@ ${printRef.current.innerText}
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center animate-in fade-in duration-300">
-      <div className="relative mx-auto p-6 border border-white/20 w-11/12 max-w-4xl shadow-2xl rounded-xl bg-slate-900/95 backdrop-blur-sm animate-in zoom-in-95 duration-300" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
+      <div className="relative mx-auto p-6 border border-blue-200 w-11/12 max-w-4xl shadow-2xl rounded-xl bg-white/95 backdrop-blur-sm animate-in zoom-in-95 duration-300" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
         
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-medium text-white"></h3>
+          <h3 className="text-xl font-medium text-gray-800">Solicitud de Cambio de Efectivo</h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-300 transition-colors duration-200"
+            className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -124,7 +124,7 @@ ${printRef.current.innerText}
         </div>
 
         {/* Print Content */}
-        <div ref={printRef} className="bg-white text-black p-6 rounded-lg mb-6">
+        <div ref={printRef} className="bg-white text-black p-6 rounded-lg mb-6 border border-gray-200">
           <div className="header">
             <h1 className="text-2xl font-bold mb-2">Hoja de Solicitud de Cambio de Efectivo</h1>
             <p className="text-gray-600">Fecha: {new Date().toLocaleDateString('es-ES')}</p>
@@ -183,16 +183,16 @@ ${printRef.current.innerText}
         <div className="space-y-6">
           {/* Coins Section */}
           <div>
-            <h4 className="text-lg font-medium text-white mb-4 flex items-center">
-              <svg className="w-5 h-5 mr-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <h4 className="text-lg font-medium text-gray-800 mb-4 flex items-center">
+              <svg className="w-5 h-5 mr-2 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
               </svg>
               Monedas
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {coins.map((coin) => (
-                <div key={coin.value} className="bg-slate-800/50 border border-purple-500/30 rounded-lg p-4">
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                <div key={coin.value} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     {coin.label}
                   </label>
                   <input
@@ -200,10 +200,10 @@ ${printRef.current.innerText}
                     min="0"
                     value={quantities[coin.value] || ''}
                     onChange={(e) => handleQuantityChange(coin.value, e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-700/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent"
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
                     placeholder="0"
                   />
-                  <div className="mt-2 text-sm text-purple-400">
+                  <div className="mt-2 text-sm text-blue-600">
                     Total: {calculateTotal(coin)} €
                   </div>
                 </div>
@@ -213,16 +213,16 @@ ${printRef.current.innerText}
 
           {/* Bills Section */}
           <div>
-            <h4 className="text-lg font-medium text-white mb-4 flex items-center">
-              <svg className="w-5 h-5 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <h4 className="text-lg font-medium text-gray-800 mb-4 flex items-center">
+              <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
               Billetes
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {bills.map((bill) => (
-                <div key={bill.value} className="bg-slate-800/50 border border-purple-500/30 rounded-lg p-4">
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                <div key={bill.value} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     {bill.label}
                   </label>
                   <input
@@ -230,10 +230,10 @@ ${printRef.current.innerText}
                     min="0"
                     value={quantities[bill.value] || ''}
                     onChange={(e) => handleQuantityChange(bill.value, e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-700/50 border border-purple-500/30 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent"
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
                     placeholder="0"
                   />
-                  <div className="mt-2 text-sm text-purple-400">
+                  <div className="mt-2 text-sm text-blue-600">
                     Total: {calculateTotal(bill)} €
                   </div>
                 </div>
@@ -242,10 +242,10 @@ ${printRef.current.innerText}
           </div>
 
           {/* Grand Total */}
-          <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-500/30 rounded-lg p-6">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
             <div className="flex items-center justify-between">
-              <h4 className="text-xl font-bold text-white">Suma Total</h4>
-              <span className="text-2xl font-bold text-purple-400">{calculateGrandTotal()} €</span>
+              <h4 className="text-xl font-bold text-gray-800">Suma Total</h4>
+              <span className="text-2xl font-bold text-blue-600">{calculateGrandTotal()} €</span>
             </div>
           </div>
         </div>
@@ -254,7 +254,7 @@ ${printRef.current.innerText}
         <div className="flex justify-end space-x-3 mt-6">
           <button
             onClick={handlePrint}
-            className="flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200"
+            className="flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -272,7 +272,7 @@ ${printRef.current.innerText}
           </button>
           <button
             onClick={onClose}
-            className="px-6 py-3 border border-gray-600 rounded-lg text-sm font-medium text-gray-300 bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all duration-200"
+            className="px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-sm"
           >
             Cerrar
           </button>
@@ -288,4 +288,6 @@ ${printRef.current.innerText}
       )}
     </div>
   );
-}
+});
+
+export default CashChangeModal;

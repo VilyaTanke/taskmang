@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ensureDatabaseInitialized } from '@/lib/init';
 import { getAuthUser, isAdmin } from '@/lib/auth';
 import { updateUser, deleteUser, getUserById } from '@/lib/database';
+import { User } from '@/types';
 
-export async function PATCH(
+export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -28,16 +29,31 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await request.json();
-    const { role, positionIds } = body;
+    console.log('Update user request:', { id, body });
+    const { name, email, role, positionIds, password } = body;
 
-    if (!role || !positionIds || !Array.isArray(positionIds)) {
-      return NextResponse.json(
-        { error: 'Invalid request body' },
-        { status: 400 }
-      );
+    // Validate required fields
+          if (!name || !email || !role || !positionIds || !Array.isArray(positionIds)) {
+        return NextResponse.json(
+          { error: 'Campos requeridos faltantes: name, email, role, positionIds' },
+          { status: 400 }
+        );
+      }
+
+    const updateData: Partial<User> = {
+      name,
+      email,
+      role,
+      positionIds
+    };
+
+    // Only include password if it's provided
+    if (password) {
+      updateData.password = password;
     }
 
-    const updatedUser = await updateUser(id, { role, positionIds });
+    console.log('Update data being sent to database:', updateData);
+    const updatedUser = await updateUser(id, updateData);
     
     if (!updatedUser) {
       return NextResponse.json(
