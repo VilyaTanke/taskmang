@@ -33,18 +33,9 @@ Saludos cordiales.`
   };
 
   const handleSendEmail = async () => {
-    const { from_name, from_email, to_email, subject, message } = emailData;
+    const { to_email, subject, message } = emailData;
     
     // Validaciones
-    if (!from_name.trim()) {
-      alert('Por favor, ingrese su nombre.');
-      return;
-    }
-    
-    if (!from_email.trim()) {
-      alert('Por favor, ingrese su correo electrónico.');
-      return;
-    }
     
     if (!to_email.trim()) {
       alert('Por favor, ingrese el correo del destinatario.');
@@ -67,8 +58,6 @@ Saludos cordiales.`
         publicKey: EMAILJS_CONFIG.PUBLIC_KEY
       });
       console.log('Datos:', {
-        from_name,
-        from_email,
         to_email,
         subject,
         message: message.substring(0, 100) + '...' // Solo mostrar los primeros 100 caracteres
@@ -79,8 +68,8 @@ Saludos cordiales.`
         EMAILJS_CONFIG.SERVICE_ID,
         EMAILJS_CONFIG.TEMPLATE_ID,
         {
-          from_name: from_name,
-          from_email: from_email,
+          from_name: "Estación",
+          from_email: "SanMatiasdrive@outlook.es",
           to_email: to_email,
           subject: subject,
           message: message,
@@ -117,20 +106,7 @@ Saludos cordiales.`
     }
   };
 
-  const handleCopyLink = async () => {
-    const { from_name, from_email, to_email, subject, message } = emailData;
-    const mailtoLink = `mailto:${encodeURIComponent(to_email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`De: ${from_name} (${from_email})\n\n${message}`)}`;
-    
-    try {
-      await navigator.clipboard.writeText(mailtoLink);
-      alert('Enlace copiado al portapapeles. Péguelo en su navegador para abrir el cliente de email.');
-      setShowCopyLink(false);
-      onClose();
-    } catch (error) {
-      console.error('Error al copiar al portapapeles:', error);
-      alert('No se pudo copiar al portapapeles. Por favor, copie manualmente el enlace:\n\n' + mailtoLink);
-    }
-  };
+  
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center animate-in fade-in duration-300">
@@ -151,34 +127,6 @@ Saludos cordiales.`
 
         {/* Email Form */}
         <div className="space-y-6">
-          {/* From Name Field */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Su Nombre: *
-            </label>
-            <input
-              type="text"
-              value={emailData.from_name}
-              onChange={(e) => handleInputChange('from_name', e.target.value)}
-              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
-              placeholder="Su nombre completo"
-            />
-          </div>
-
-          {/* From Email Field */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Su Correo: *
-            </label>
-            <input
-              type="email"
-              value={emailData.from_email}
-              onChange={(e) => handleInputChange('from_email', e.target.value)}
-              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
-              placeholder="su@correo.com"
-            />
-          </div>
-
           {/* To Email Field */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -234,31 +182,7 @@ Saludos cordiales.`
             </div>
           </div>
 
-          {/* Copy Link Section */}
-          {showCopyLink && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <svg className="w-5 h-5 text-yellow-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                  </svg>
-                  <div>
-                    <p className="text-sm font-medium text-yellow-700">Cliente de email no disponible</p>
-                    <p className="text-xs text-gray-600">Copie el enlace para abrir manualmente</p>
-                  </div>
-                </div>
-                <button
-                  onClick={handleCopyLink}
-                  className="flex items-center px-3 py-2 bg-yellow-100 border border-yellow-200 rounded-lg text-sm font-medium text-yellow-700 hover:bg-yellow-200 transition-all duration-200 shadow-sm"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                  Copiar Enlace
-                </button>
-              </div>
-            </div>
-          )}
+          
         </div>
 
         {/* Action Buttons */}
