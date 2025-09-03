@@ -1,8 +1,9 @@
 'use client';
 
 import { memo, useState, useCallback } from 'react';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon, ChevronRightIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import ClosureModal from '@/components/ClosureModal';
+import { useRouter } from 'next/navigation';
 
 interface ClosureData {
   id: string;
@@ -13,10 +14,12 @@ interface ClosureData {
 }
 
 const ControlCierresPage = memo(function ControlCierresPage() {
+  const router = useRouter();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedClosure, setSelectedClosure] = useState<ClosureData | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [closures, setClosures] = useState<ClosureData[]>([]);
+  const [highlightedDay, setHighlightedDay] = useState<string | null>(null);
 
   // Navegación del calendario
   const goToPreviousMonth = useCallback(() => {
@@ -36,7 +39,14 @@ const ControlCierresPage = memo(function ControlCierresPage() {
   }, []);
 
   const goToToday = useCallback(() => {
-    setCurrentDate(new Date());
+    const today = new Date();
+    setCurrentDate(today);
+    setHighlightedDay(today.toISOString().split('T')[0]);
+    
+    // Remover el resaltado después de 3 segundos
+    setTimeout(() => {
+      setHighlightedDay(null);
+    }, 3000);
   }, []);
 
   // Obtener información del mes actual
@@ -125,7 +135,16 @@ const ControlCierresPage = memo(function ControlCierresPage() {
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <h1 className="text-2xl font-bold text-gray-900">Control de Cierres</h1>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                <ArrowLeftIcon className="w-4 h-4" />
+                <span>Volver</span>
+              </button>
+              <h1 className="text-2xl font-bold text-gray-900">Control de Cierres</h1>
+            </div>
             <div className="flex items-center space-x-4">
               <button
                 onClick={goToToday}
@@ -185,6 +204,8 @@ const ControlCierresPage = memo(function ControlCierresPage() {
                 key={index}
                 className={`min-h-[120px] border-r border-b border-gray-200 p-2 ${
                   !day.isCurrentMonth ? 'bg-gray-50' : 'bg-white'
+                } ${
+                  highlightedDay === day.date ? 'ring-2 ring-blue-500 ring-inset bg-blue-50' : ''
                 }`}
               >
                 <div className="text-right mb-2">
