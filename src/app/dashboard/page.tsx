@@ -598,6 +598,17 @@ export default function DashboardPage() {
                 </button>
               </>
             )}
+
+            {/* Control de Cierres - Accesible para todos */}
+            <Link
+              href="/control-cierres"
+              className="flex flex-col items-center justify-center px-4 py-3 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-medium rounded-lg shadow-lg shadow-red-500/25 transition-all duration-200"
+            >
+              <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-sm">Control de Cierres</span>
+            </Link>
           </div>
         </div>
 
