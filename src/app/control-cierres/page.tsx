@@ -66,7 +66,13 @@ const ControlCierresPage = memo(function ControlCierresPage() {
   const goToToday = useCallback(() => {
     const today = new Date();
     setCurrentDate(today);
-    setHighlightedDay(today.toISOString().split('T')[0]);
+    
+    // Generar fecha local en formato YYYY-MM-DD (mismo formato que generateCalendarDays)
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const localDateString = `${year}-${month}-${day}`;
+    setHighlightedDay(localDateString);
     
     // Remover el resaltado después de 3 segundos
     setTimeout(() => {
@@ -101,8 +107,14 @@ const ControlCierresPage = memo(function ControlCierresPage() {
         const isCurrentMonth = date.getMonth() === currentDate.getMonth();
         const isToday = date.toDateString() === new Date().toDateString();
         
+        // Generar fecha local en formato YYYY-MM-DD
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const localDateString = `${year}-${month}-${day}`;
+        
         days.push({
-          date: date.toISOString().split('T')[0],
+          date: localDateString,
           day: date.getDate(),
           isCurrentMonth,
           isToday
