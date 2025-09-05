@@ -75,7 +75,7 @@ const ClosureModal = memo(function ClosureModal({ closureData, onSave, onClose }
     const totalRecaudaciones = Number(excelData.movimiento77 || 0) + Number(excelData.efectivoSobres || 0) + Number(excelData.creditoLocal || 0) + 
                               Number(excelData.bacaladeras || 0) + Number(excelData.datafonos || 0) + Number(excelData.descuentos || 0) + 
                               Number(excelData.otrosPagosTarjeta || 0) + Number(excelData.otrosMovimientos || 0) + Number(excelData.ventasOPTs || 0);
-    const resultado = totalVentas - totalRecaudaciones;
+    const resultado = totalRecaudaciones - totalVentas;
 
     setExcelData(prev => ({
       ...prev,
@@ -124,7 +124,7 @@ const ClosureModal = memo(function ClosureModal({ closureData, onSave, onClose }
         const totalRecaudaciones = Number(updated.movimiento77 || 0) + Number(updated.efectivoSobres || 0) + Number(updated.creditoLocal || 0) + 
                                   Number(updated.bacaladeras || 0) + Number(updated.datafonos || 0) + Number(updated.descuentos || 0) + 
                                   Number(updated.otrosPagosTarjeta || 0) + Number(updated.otrosMovimientos || 0) + Number(updated.ventasOPTs || 0);
-        const resultado = totalVentas - totalRecaudaciones;
+        const resultado = totalRecaudaciones - totalVentas;
         
         return {
           ...updated,
@@ -312,7 +312,7 @@ const ClosureModal = memo(function ClosureModal({ closureData, onSave, onClose }
                   />
                 </div>
                 <div className="bg-green-100 border border-green-300 rounded-lg p-3">
-                  <label className="block text-sm font-bold text-green-800 mb-1">Total Ventas (A)</label>
+                  <label className="block text-sm font-bold text-green-800 mb-1">Total Ventas</label>
                   <div className="flex items-center space-x-2">
                     <input
                       type="number"
@@ -442,7 +442,7 @@ const ClosureModal = memo(function ClosureModal({ closureData, onSave, onClose }
                   />
                 </div>
                 <div className="bg-gray-100 border border-gray-300 rounded-lg p-3">
-                  <label className="block text-sm font-bold text-gray-800 mb-1">Total Recaudaciones/Gastos (B)</label>
+                  <label className="block text-sm font-bold text-gray-800 mb-1">Total Recaudaciones/Gastos</label>
                   <div className="flex items-center space-x-2">
                     <input
                       type="number"
@@ -475,7 +475,7 @@ const ClosureModal = memo(function ClosureModal({ closureData, onSave, onClose }
             <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
               <h5 className="text-md font-medium text-purple-800 mb-3">Resultado del Turno</h5>
               <div className="bg-purple-100 border border-purple-300 rounded-lg p-3">
-                <label className="block text-sm font-bold text-purple-800 mb-1">Resultado (A - B)</label>
+                <label className="block text-sm font-bold text-purple-800 mb-1">Resultado (Recaudaciones - Ventas)</label>
                 <div className="flex items-center space-x-2">
                   <input
                     type="number"
@@ -491,7 +491,7 @@ const ClosureModal = memo(function ClosureModal({ closureData, onSave, onClose }
                   <button
                     type="button"
                     onClick={() => {
-                      const resultado = Number(excelData.totalVentas || 0) - Number(excelData.totalRecaudaciones || 0);
+                      const resultado = Number(excelData.totalRecaudaciones || 0) - Number(excelData.totalVentas || 0);
                       setExcelData(prev => ({ ...prev, resultadoTurno: Math.round(resultado * 100) / 100 }));
                     }}
                     className="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-xs"
@@ -500,7 +500,7 @@ const ClosureModal = memo(function ClosureModal({ closureData, onSave, onClose }
                   </button>
                 </div>
                 <p className="text-xs text-purple-600 mt-1">
-                  Resta: {formatNumber(excelData.totalVentas || 0)} - {formatNumber(excelData.totalRecaudaciones || 0)} = {formatNumber(excelData.resultadoTurno)}
+                  Resta: {formatNumber(excelData.totalRecaudaciones || 0)} - {formatNumber(excelData.totalVentas || 0)} = {formatNumber(excelData.resultadoTurno)}
                 </p>
               </div>
             </div>
