@@ -4,20 +4,6 @@ import { memo, useState, useRef, useCallback, useEffect } from 'react';
 import { XMarkIcon, PhotoIcon, DocumentArrowUpIcon } from '@heroicons/react/24/outline';
 import ClockPicker from './ClockPicker';
 
-interface ClosureData {
-  id: string;
-  date: string;
-  shift: 'morning' | 'afternoon';
-  result: number;
-  hasImage: boolean;
-}
-
-interface ClosureModalProps {
-  closureData: ClosureData;
-  onSave: (data: ClosureData) => void;
-  onClose: () => void;
-}
-
 interface ExcelData {
   turno: string;
   apertura: string; // Formato de hora HH:MM
@@ -42,8 +28,24 @@ interface ExcelData {
   resultadoTurno: number; // Calculado: A - B
 }
 
+interface ClosureData {
+  id: string;
+  date: string;
+  shift: 'morning' | 'afternoon';
+  result: number;
+  hasImage: boolean;
+  excelData?: ExcelData; // Datos detallados del formulario
+}
+
+interface ClosureModalProps {
+  closureData: ClosureData;
+  onSave: (data: ClosureData) => void;
+  onClose: () => void;
+}
+
 const ClosureModal = memo(function ClosureModal({ closureData, onSave, onClose }: ClosureModalProps) {
-  const [excelData, setExcelData] = useState<ExcelData>({
+  // Inicializar con datos existentes si están disponibles
+  const initialExcelData: ExcelData = closureData.excelData || {
     turno: '',
     apertura: '',
     cierre: '',
@@ -62,12 +64,21 @@ const ClosureModal = memo(function ClosureModal({ closureData, onSave, onClose }
     ventasOPTs: 0,
     totalRecaudaciones: 0,
     resultadoTurno: 0
-  });
+  };
+
+  const [excelData, setExcelData] = useState<ExcelData>(initialExcelData);
 
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Actualizar datos cuando cambie el closureData (al abrir un cierre existente)
+  useEffect(() => {
+    if (closureData.excelData) {
+      setExcelData(closureData.excelData);
+    }
+  }, [closureData.excelData]);
 
   // Calcular totales automáticamente
   useEffect(() => {
@@ -185,7 +196,8 @@ const ClosureModal = memo(function ClosureModal({ closureData, onSave, onClose }
       const updatedClosure: ClosureData = {
         ...closureData,
         result: excelData.resultadoTurno,
-        hasImage: !!selectedImage
+        hasImage: !!selectedImage,
+        excelData: excelData // Guardar todos los datos del formulario
       };
 
       onSave(updatedClosure);
@@ -195,7 +207,7 @@ const ClosureModal = memo(function ClosureModal({ closureData, onSave, onClose }
     } finally {
       setIsLoading(false);
     }
-  }, [closureData, excelData.resultadoTurno, selectedImage, onSave]);
+  }, [closureData, excelData, selectedImage, onSave]);
 
   // Formatear fecha
   const formatDate = useCallback((dateString: string) => {

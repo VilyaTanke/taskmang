@@ -5,12 +5,37 @@ import { ChevronLeftIcon, ChevronRightIcon, ArrowLeftIcon } from '@heroicons/rea
 import ClosureModal from '@/components/ClosureModal';
 import { useRouter } from 'next/navigation';
 
+interface ExcelData {
+  turno: string;
+  apertura: string; // Formato de hora HH:MM
+  cierre: string; // Formato de hora HH:MM
+  // Movimiento 44 - Ventas
+  movimiento44: number;
+  ventasCarburante: number;
+  ventasTienda: number;
+  totalVentas: number; // Calculado
+  // Movimiento 77 - Recaudaciones/Gastos
+  movimiento77: number;
+  efectivoSobres: number;
+  creditoLocal: number;
+  bacaladeras: number;
+  datafonos: number;
+  descuentos: number;
+  otrosPagosTarjeta: number;
+  otrosMovimientos: number;
+  ventasOPTs: number;
+  totalRecaudaciones: number; // Calculado
+  // Resultado
+  resultadoTurno: number; // Calculado
+}
+
 interface ClosureData {
   id: string;
   date: string;
   shift: 'morning' | 'afternoon';
   result: number;
   hasImage: boolean;
+  excelData?: ExcelData; // Datos detallados del formulario
 }
 
 const ControlCierresPage = memo(function ControlCierresPage() {
