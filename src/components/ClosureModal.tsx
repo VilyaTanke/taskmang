@@ -46,7 +46,7 @@ interface ClosureModalProps {
 const ClosureModal = memo(function ClosureModal({ closureData, onSave, onClose }: ClosureModalProps) {
   // Inicializar con datos existentes si están disponibles
   const initialExcelData: ExcelData = closureData.excelData || {
-    turno: '',
+    turno: closureData.shift === 'morning' ? 'T1' : 'T2', // Auto-seleccionar según el turno
     apertura: '',
     cierre: '',
     movimiento44: 0,
@@ -77,8 +77,14 @@ const ClosureModal = memo(function ClosureModal({ closureData, onSave, onClose }
   useEffect(() => {
     if (closureData.excelData) {
       setExcelData(closureData.excelData);
+    } else {
+      // Si no hay datos existentes, auto-seleccionar el turno según el shift
+      setExcelData(prev => ({
+        ...prev,
+        turno: closureData.shift === 'morning' ? 'T1' : 'T2'
+      }));
     }
-  }, [closureData.excelData]);
+  }, [closureData.excelData, closureData.shift]);
 
   // Calcular totales automáticamente
   useEffect(() => {
@@ -258,13 +264,15 @@ const ClosureModal = memo(function ClosureModal({ closureData, onSave, onClose }
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Turno</label>
-                <input
-                  type="text"
+                <select
                   value={excelData.turno}
                   onChange={(e) => handleInputChange('turno', e.target.value)}
                   className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
-                  placeholder="Ej: T1"
-                />
+                >
+                  <option value="">Seleccionar turno</option>
+                  <option value="T1">T1</option>
+                  <option value="T2">T2</option>
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Apertura</label>
